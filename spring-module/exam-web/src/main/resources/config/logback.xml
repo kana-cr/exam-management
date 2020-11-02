@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration scan="true" scanPeriod="60 seconds" debug="false">
+    <!-- 定义日志文件 输入位置 -->
+    <property name="log_dir" value="${user.dir}/logs/kana-log"/>
+    <!-- 日志最大的历史 120天 -->
+    <property name="maxHistory" value="120"/>
+    <!-- 彩色日志 -->
+    <!-- 彩色日志依赖的渲染类 -->
+    <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
+    <conversionRule conversionWord="wex"
+                    converterClass="org.springframework.boot.logging.logback.WhitespaceThrowableProxyConverter"/>
+    <conversionRule conversionWord="wEx"
+                    converterClass="org.springframework.boot.logging.logback.ExtendedWhitespaceThrowableProxyConverter"/>
+    <!-- 彩色日志格式 -->
+    <property name="CONSOLE_LOG_PATTERN"
+              value="${CONSOLE_LOG_PATTERN:-%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr(${LOG_LEVEL_PATTERN:-%5p}) %clr(${PID:- }){magenta} %clr(---){faint} %clr([%15.15t]){faint} %clr(%-40.40logger{39}){cyan} %clr(:){faint} %m%n${LOG_EXCEPTION_CONVERSION_WORD:-%wEx}}"/>
+
+
+    <!-- ConsoleAppender 控制台输出日志 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <!-- 对日志进行格式化 -->
+        <encoder>
+            <charset>utf-8</charset>
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+        </encoder>
+    </appender>
+
+
+    <!-- 系统日志 -->
+    <appender name="SYS-INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log_dir}/sys/sys-info.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/sys/sys-info.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- ERROR 日志 -->
+    <appender name="COMMON-ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <File>${log_dir}/sys/common-error.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/sys/common-error.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- common-dal 日志 -->
+    <appender name="COMMON-DAL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log_dir}/dao/common-dal.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/dao/common-dal.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--======================================模块日志======================================-->
+    <!-- core-us.sep.user 日志 -->
+    <appender name="CORE-USER" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log_dir}/sys/core-user.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/sys/core-user.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- core- 日志 -->
+
+    <!-- biz-service-impl 日志 -->
+    <appender name="BIZ-SERVICE-IMPL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log_dir}/sys/core-service.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/sys/core-service.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- biz-service-impl 日志 -->
+    <appender name="WEB" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log_dir}/sys/web.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/sys/web.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--======================================接口摘要======================================-->
+    <!-- 接口摘要 日志 -->
+    <appender name="WEB-DIGEST" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <File>${log_dir}/digest/web-digest.log</File>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${log_dir}/digest/web-digest.log.%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>${maxHistory}</maxHistory>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!--======================================日志配置======================================-->
+    <!--数据库日志-->
+    <logger name="org.hibernate.SQL" additivity="false">
+        <level value="DEBUG"/>
+        <appender-ref ref="COMMON-DAL"/>
+    </logger>
+
+    <logger name="org.hibernate.type.descriptor.sql.BasicBinder" additivity="false" level="TRACE">
+        <level value="TRACE"/>
+        <appender-ref ref="COMMON-DAL"/>
+    </logger>
+
+    <!-- root级别   INFO -->
+    <root level="INFO">
+        <!-- 控制台输出 -->
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="COMMON-ERROR"/>
+        <appender-ref ref="SYS-INFO"/>
+    </root>
+
+    <!--=======模块日志=======-->
+    <!--用户模块-->
+    <logger name="us.sep.security" level="INFO">
+        <appender-ref ref="COMMON-ERROR"/>
+        <appender-ref ref="CORE-USER"/>
+    </logger>
+
+    <!--业务实现模块-->
+    <logger name="us.sep.biz" level="INFO">
+        <appender-ref ref="COMMON-ERROR"/>
+        <appender-ref ref="BIZ-SERVICE-IMPL"/>
+    </logger>
+
+    <!--业务实现模块-->
+    <logger name="us.sep.user.controller" level="INFO">
+        <appender-ref ref="COMMON-ERROR"/>
+        <appender-ref ref="WEB"/>
+    </logger>
+
+    <!--=======摘要日志=======-->
+    <!--用户摘要-->
+    <logger name="WEB_DIGEST" level="INFO">
+        <appender-ref ref="COMMON-ERROR"/>
+        <appender-ref ref="WEB-DIGEST"/>
+    </logger>
+</configuration>
