@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-carousel :interval="4000" type="card" height="400px">
+    <el-carousel :interval="4000" type="card" height="420px">
       <el-carousel-item
         v-for="(item, index) in imgList"
         :key="index"
@@ -9,7 +9,6 @@
         <img :src="item.src" style="height: 100%; width: 100%" />
       </el-carousel-item>
     </el-carousel>
-    <router-link to="/test">to test elementui page</router-link><br />
   </div>
 </template>
 
@@ -31,7 +30,6 @@ export default {
 <style>
 .el-carousel__item h3 {
   color: #475669;
-  font-size: 14px;
   opacity: 0.75;
   line-height: 200px;
   margin: 0;

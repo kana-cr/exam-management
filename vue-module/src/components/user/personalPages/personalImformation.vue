@@ -153,7 +153,7 @@ export default {
       ifUpdate: true,
 
       //获得专业列表
-      majorList: {},
+      majorList: [],
       //获得班级列表
       classList: [],
       chooseMajor: false,
@@ -247,14 +247,28 @@ export default {
         method: "get",
         url: "http://kana.chat:70/major/all?pageNum&pageSize",
       }).then(function (reponse) {
-        console.log(reponse.data.data);
-        that.majorList = reponse.data.data;
+        for (var i = 0; i < reponse.data.data.length; i++) {
+          that.majorList[i] = {
+            major: reponse.data.data[i].major,
+            discipline: reponse.data.data[i].discipline,
+          };
+        }
+        that.majorList = that.unique(that.majorList);
+        //that.majorList = reponse.data.data;
+        console.log(that.majorList);
       });
+    },
+
+    //去掉相同项
+    unique(arr) {
+      const res = new Map();
+      return arr.filter((arr) => !res.has(arr.discipline) && res.set(arr.discipline, 1));
     },
 
     getClassList: function (major) {
       if (major != "") {
-        (this.classList = []), (this.chooseMajor = true);
+        this.classList = [];
+        this.chooseMajor = true;
         let value = "";
         this.majorList.forEach((item) => {
           if (item.discipline == major) {

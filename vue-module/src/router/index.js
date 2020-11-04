@@ -29,18 +29,16 @@ import managerGetUserClassList from '../components/user/managerPages/managerUser
 import managerExam from '../components/user/managerPages/managerTest/managerExam'
 import registrationRelease from '../components/user/managerPages/managerTest/registrationRelease'
 import managerScore from '../components/user/managerPages/managerTest/managerScore'
-
 /* 报名子路由 */
 import getRegistration from '../components/user/managerPages/managerTest/registration/getRegistration'
 import setRegistration from '../components/user/managerPages/managerTest/registration/setRegistration'
+import fileRegistration from '../components/user/managerPages/managerTest/registration/fileRegistration'
 
 /* 主页菜单子路由 */
 import homepage from '../components/public/homepage'
 import publicGetChannel from '../components/public/publicGetChannel'
 import publicGetExam from '../components/public/publicGetExam'
 import takeinExam from '../components/public/takeinExam'
-/* 测试页面 */
-import test from '../components/test'
 
 Vue.use(Router)
 
@@ -140,6 +138,11 @@ export default new Router({
                       name: 'setRegistration',
                       component: setRegistration,
                     },
+                    {
+                      path: 'fileRegistration',
+                      name: 'fileRegistration',
+                      component: fileRegistration,
+                    },
                   ]
                 },
                 {
@@ -192,11 +195,6 @@ export default new Router({
       path: '/register',
       name: 'register',
       component: register
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: test,
     },
   ]
 })

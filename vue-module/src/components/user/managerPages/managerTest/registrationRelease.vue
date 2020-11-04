@@ -7,10 +7,10 @@
             label="考试报名发布"
             name="setRegistration"
           ></el-tab-pane>
-          <el-tab-pane
-            label="考试报名查询"
-            name="getRegistration"
-          ></el-tab-pane>
+          <el-tab-pane label="考试报名查询" name="getRegistration">
+          </el-tab-pane>
+          <el-tab-pane label="考试报名归档" name="fileRegistration">
+          </el-tab-pane>
         </el-tabs>
       </el-header>
 
@@ -37,6 +37,7 @@ export default {
     handleClick(tab) {
       //registrationRelease/setRegistration
       //registrationRelease/getRegistration
+      //registrationRelease/fileRegistration
       console.log(tab.name);
       this.$router.push({
         name: tab.name,

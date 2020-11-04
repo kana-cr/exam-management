@@ -149,6 +149,8 @@ export default {
   },
   mounted() {
     this.getLog();
+    var that = this;
+    setTimeout(function () {}, 300);
   },
   methods: {
     getLog: function () {
@@ -173,6 +175,7 @@ export default {
       );
     },
 
+    //列表颜色
     tableRowClassName: function ({ row, rowIndex }) {
       if (row.message == "调用成功") {
         return "success-row";
@@ -180,6 +183,10 @@ export default {
         return "miss-row";
       } else if (row.message == "无权访问") {
         return "invalid-row";
+      } else if (row.message == "系统异常") {
+        return "syserror-row";
+      } else if (row.message == "参数异常") {
+        return "error-row";
       }
     },
 
@@ -230,7 +237,7 @@ export default {
 
 <style>
 .el-table .invalid-row {
-  background: rgb(226, 74, 74);
+  background: rgb(189, 155, 155);
 }
 
 .el-table .success-row {
@@ -239,5 +246,13 @@ export default {
 
 .el-table .miss-row {
   background: rgba(255, 255, 54, 0.911);
+}
+
+.el-table .syserror-row {
+  background: rgba(206, 39, 81, 0.911);
+}
+
+.el-table .error-row {
+  background: rgba(206, 39, 192, 0.911);
 }
 </style>

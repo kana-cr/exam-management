@@ -40,11 +40,10 @@
               <router-link class="dropdown-item" to="/publicGetExam"
                 >报名中心</router-link
               >
+              <div class="dropdown-divider"></div>
               <router-link class="dropdown-item" to="/publicGetTest"
                 >考试频道</router-link
               >
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
         </ul>

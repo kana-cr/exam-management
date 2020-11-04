@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div>
     <el-table
       :data="
         registrationList.slice(
@@ -11,20 +11,35 @@
       @cell-click="ifUpdateState"
       :default-sort="{ prop: 'date', order: 'descending' }"
     >
-      <el-table-column prop="contact" label="联系人"> </el-table-column>
-      <el-table-column prop="examDescription" label="考试内容">
+      <el-table-column prop="contact" label="联系人" align="center" width="100">
       </el-table-column>
-      <el-table-column prop="number" label="可报名总人数" sortable>
+      <el-table-column prop="examDescription" label="考试内容" align="center">
       </el-table-column>
-      <el-table-column prop="last" label="剩余人数" sortable> </el-table-column>
+      <el-table-column
+        prop="number"
+        label="可报名总人数"
+        sortable
+        align="center"
+        width="150"
+      >
+      </el-table-column>
+      <el-table-column
+        prop="last"
+        label="剩余人数"
+        sortable
+        align="center"
+        width="120"
+      >
+      </el-table-column>
       <el-table-column
         prop="term"
         label="学期"
         :formatter="termFormatter"
         sortable
+        align="center"
       >
       </el-table-column>
-      <el-table-column label="状态" width="150">
+      <el-table-column label="状态" width="150" align="center">
         <template slot-scope="scope">
           <template v-if="scope.row.ifUpdate">
             <el-tag :type="scope.row.type">{{ scope.row.stateUTF }}</el-tag>
@@ -56,6 +71,12 @@
             size="small"
             >删除</el-button
           >
+          <el-button
+            type="info"
+            @click="getRegistrationUserList(scope.row)"
+            size="small"
+            >报名进度</el-button
+          >
         </template>
       </el-table-column>
     </el-table>
@@ -68,6 +89,38 @@
       :total="pageTotal"
     >
     </el-pagination>
+
+    <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
+      <el-form :inline="true" class="demo-form-inline">
+        <el-form-item label="任课教师">
+          <el-input v-model="teacher" placeholder="任课教师"></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="arrangeSeat"
+            >一键添加考场位置</el-button
+          >
+        </el-form-item>
+      </el-form>
+      <el-table :data="allReg">
+        <el-table-column type="index"></el-table-column>
+        <el-table-column prop="realName" label="学生姓名"></el-table-column>
+        <el-table-column prop="major" label="学生专业"></el-table-column>
+        <el-table-column prop="className" label="学生班级"></el-table-column>
+        <el-table-column prop="stuNo" label="学生学号"></el-table-column>
+        <el-table-column prop="email" label="联系方式"></el-table-column>
+        <el-table-column prop="location" label="考场座位"></el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-button
+              icon="el-icon-delete"
+              size="mini"
+              type="danger"
+              @click="deleteUserReg(scope.row)"
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -111,6 +164,18 @@ export default {
         },
       ],
       state: "",
+
+      //全用户表
+      allUser: [],
+      //全报名表
+      allReg: [],
+      //考场表
+      locationList: [],
+      //显示用户报名表dialog
+      userListDialog: false,
+      teacher: "",
+      examDetailId: "",
+      examEntryId: "",
     };
   },
   computed: {
@@ -222,7 +287,12 @@ export default {
         if (item.state == "START" && item.last == 0) {
           this.$notify({
             title: "提示",
-            message: item.contact + "发布的" + item.term + item.examDescription + "报名人数已满",
+            message:
+              item.contact +
+              "发布的" +
+              item.term +
+              item.examDescription +
+              "报名人数已满",
             duration: 0,
           });
         }
@@ -251,7 +321,8 @@ export default {
             type: "info",
           });
         } else {
-          if (column.property == undefined) {
+          //防止点到按钮
+          if (column.fixed != "right") {
             this.$message({
               message: "确认改变报名状态",
               type: "info",
@@ -321,6 +392,154 @@ export default {
           that.$message.error("删除失败");
         }
       );
+    },
+
+    getRegistrationUserList: function (row) {
+      var that = this;
+      this.userList = [];
+      this.userListDialog = true;
+      this.examDetailId = row.examDetailId;
+      this.examEntryId = row.examEntryId;
+      axios
+        .all([
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+          }),
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "get",
+            url:
+              "http://kana.chat:70/userExamEntry?examEntryId=" +
+              row.examEntryId,
+          }),
+        ])
+        .then(
+          axios.spread(function (userResponse, userEntryReponse) {
+            that.allUser = userResponse.data.data;
+            that.allReg = userEntryReponse.data.data;
+            //显示报名人姓名
+            that.allReg.forEach((item) => {
+              for (var i = 0; i < that.allUser.length; i++) {
+                if (item.userId == that.allUser[i].userId) {
+                  that.$set(item, "email", that.allUser[i].email);
+                  var _that = that;
+                  axios({
+                    headers: { Authorization: that.print.Authorization },
+                    method: "get",
+                    url:
+                      "http://kana.chat:70/userInfo?username=" +
+                      that.allUser[i].userName,
+                  }).then(function (reponse) {
+                    _that.$set(item, "realName", reponse.data.data.realName);
+                    _that.$set(item, "major", reponse.data.data.major);
+                    _that.$set(item, "stuNo", reponse.data.data.stuNo);
+                    _that.$set(item, "className", reponse.data.data.className);
+                  });
+                  i = that.allUser.length;
+                }
+              }
+            });
+          })
+        );
+
+      console.log(this.examDetailId);
+      axios({
+        headers: { Authorization: this.print.Authorization },
+        method: "get",
+        url: "http://kana.chat:70/examLocation/examDetail",
+        params: {
+          examDetailId: this.examDetailId,
+        },
+      }).then(
+        function (reponse) {
+          console.log(reponse.data.data);
+          that.locationList = reponse.data.data;
+          that.allReg.forEach((item) => {
+            for (var i = 0; i < that.locationList.length; i++) {
+              if (item.userId == that.locationList[i].userId) {
+                that.$set(item, "location", that.locationList[i].location);
+                i = that.locationList.length;
+              }
+            }
+          });
+        },
+        function (err) {
+          that.allReg.forEach((item) => {
+            that.$set(item, "location", "未安排");
+          });
+        }
+      );
+    },
+
+    //删除报名信息记录，包含考场
+    deleteUserReg: function (row) {
+      console.log(row);
+      var that = this;
+      axios
+        .all([
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "delete",
+            url: "http://kana.chat:70/userExamEntry",
+            params: {
+              examEntryId: row.examEntryId,
+              userId: row.userId,
+            },
+          }),
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "delete",
+            url: "http://kana.chat:70/examLocation/user",
+            params: {
+              userId: row.userId,
+            },
+          }),
+        ])
+        .then(
+          axios.spread(function (delRegResponse, delLocResponse) {
+            that.$message({
+              message: "删除信息成功",
+              type: "success",
+            });
+            that.reload();
+          })
+        );
+    },
+
+    arrangeSeat: function () {
+      var that = this;
+      this.allReg.forEach(function (item, index) {
+        var _that = that;
+        setTimeout(function () {
+          axios({
+            headers: { Authorization: _that.print.Authorization },
+            method: "post",
+            url: "http://kana.chat:70/examLocation",
+            params: {
+              examDetailId: _that.examDetailId,
+              location: index + 1,
+              userId: item.userId,
+              teacher: _that.teacher,
+              userExamEntryId: item.userExamEntryId,
+            },
+          }).then(
+            function (reponse) {
+              _that.$message({
+                message: "一键安排座位成功，自动刷新后即可查看",
+                type: "success",
+              });
+              _that.reload();
+            },
+            function (err) {
+              _that.$message.error("安排考场失败");
+            }
+          );
+        }, 5000);
+      });
     },
   },
 };

@@ -34,7 +34,7 @@
                 >
                 <el-menu-item
                   index="/usercenter/personalNotice/examRegistration"
-                  >考试报名历史</el-menu-item
+                  >考试报名阅览</el-menu-item
                 >
                 <el-menu-item
                   index="/usercenter/personalNotice/examResultNotice"
