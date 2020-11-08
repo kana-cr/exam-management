@@ -7,7 +7,7 @@
       <el-steps :active="active" finish-status="success" align-center>
         <el-step title="步骤 1" description="考试须知"></el-step>
         <el-step title="步骤 2" description="确定个人信息"></el-step>
-        <el-step title="步骤 3" description="选择考场"></el-step>
+        <el-step title="步骤 3" description="准考证资料"></el-step>
       </el-steps>
       <template v-if="step == 0">
         <br />
@@ -60,7 +60,7 @@
             </p>
           </el-main>
           <el-footer style="text-align: center; font-size: 12px">
-            <el-checkbox v-model="ifReader">已阅读</el-checkbox>
+            <el-checkbox v-model="ifRead">已阅读</el-checkbox>
           </el-footer>
         </el-container>
       </template>
@@ -115,7 +115,75 @@
           </fieldset>
         </el-form>
       </template>
-      <template v-if="step == 2"> 选择考场 </template>
+      <template v-if="step == 2">
+        <el-container>
+          <table
+          
+            border="3"
+            width="95%"
+            cellspacing="0"
+            style="margin: 20px auto"
+          >
+            <tr id="juzhong" height="100">
+              <td colspan="2">
+                <h1>准考证</h1>
+              </td>
+            </tr>
+            <tr height="200">
+              <td width="841">
+                考生姓名： {{ personInfo.realName }}<br />
+                准考证号： 待确认<br />
+                学号： {{ personInfo.stuNo }}<br />
+                身份证号： {{ personInfo.identificationNumber }}<br />
+                考试科目： {{ examDescription }}<br />
+                考生学校： 杭电信工<br />
+                考试地点: 杭州电子科技大学信息工程学院<br />
+                专 业： {{ personInfo.major }}<br />
+                专业班级：{{ personInfo.className }}
+              </td>
+              <td style="border-style: none; border-wigth: 0px">
+                <img
+                  :src="imageUrl"
+                  width="170"
+                  height="200"
+                />
+              </td>
+            </tr>
+            <tr id="juzhong" height="400">
+              <td colspan="2">
+                <p>考试科目及时间</p>
+                <table border="1" width="100%" cellspacing="0">
+                  <tr id="juzhong">
+                    <td>考试科目</td>
+                    <td>考试开始时间</td>
+                    <td>考试结束时间</td>
+                    <td>考场号</td>
+                  </tr>
+                  <tr id="juzhong">
+                    <td>{{ examDescription }}</td>
+                    <td>略</td>
+                    <td>略</td>
+                    <td>等待教师选择</td>
+                  </tr>
+                </table>
+                <br />
+                <p>考生须知</p>
+                <br />
+                <div id="juzuo">
+                  1、考生应考时，上午下午均应携带黑或黑色墨水笔。严禁将书籍、笔记、移动电话、电子记事本等电子设备带至考场，一经发现，按违纪处理。<br />
+                  2、考试前30分钟进入考场，监考人员核对准考证（包括电子准考证）、身份证后，学生对号入座将身份证放在桌角上备查（不携带身份证不容许参加考试）。<br />
+                  3、考试开始后15分钟，迟到的考生不得进入考场参加考试。考生不得提前交卷。<br />
+                  4、严禁将试卷、答题卡（纸）带出考场。<br /><br />
+                  <p>提示：请考生在考试前一天熟悉考点地址和交通路线。</p>
+                </div>
+                <br />
+
+                <br />
+              </td>
+            </tr>
+          </table>
+        </el-container>
+      </template>
       <template v-if="step == 3"> 已完成所有步骤，请点击完成报名 </template>
     </el-main>
     <el-footer style="text-align: center">
@@ -156,8 +224,20 @@ export default {
       },
       active: 0,
       step: 0,
+      //获取头像
+      imageFile: {},
+      //图片地址
+      imageUrl: "",
       //阅读须知
-      ifReader: false,
+      ifRead: false,
+      //考场表单
+      locationForm: {
+        examDetailId: "",
+        location: "",
+        userId: "",
+        teacher: "",
+        userEntryId: "",
+      },
     };
   },
   computed: {
@@ -168,7 +248,8 @@ export default {
   },
   mounted: function () {
     var that = this;
-    setTimeout(function () {}, 300);
+    this.checkIfReg();
+    setTimeout(function () {}, 200);
   },
   methods: {
     prev() {
@@ -180,8 +261,43 @@ export default {
       }
     },
     next() {
-      this.active++;
+      if (this.ifRead == false) {
+        this.$message({
+          message: "请阅读考试须知",
+          type: "warning",
+        });
+      } else {
+        this.active++;
+      }
       this.checkStep(this.active);
+    },
+
+    checkIfReg: function () {
+      var that = this;
+      if (this.number > 1000) {
+        alert("人数大于1000的考试无法获得信息，且确认自己是否已经报名！");
+      }
+      axios({
+        headers: { Authorization: this.print.Authorization },
+        method: "get",
+        url:
+          "http://kana.chat:70/userExamEntry/user?userId=" + this.userId.userId,
+      }).then(
+        function (reponse) {
+          for (var i = 0; i < reponse.data.data.length; i++) {
+            if (reponse.data.data[i].examEntryId == that.examEntryId) {
+              that.$message({
+                message: "已经报名该考试，无法再次报名",
+                type: "warning",
+              });
+              that.$router.push({ name: "publicGetExam" });
+            }
+          }
+        },
+        function (err) {
+          that.$message.error("获取用户报名信息失败");
+        }
+      );
     },
 
     checkStep: function (active) {
@@ -189,6 +305,7 @@ export default {
       if (active == 0) {
         this.step = 0;
         //显示个人须知
+        //判断是否报名过
       } else if (active == 1) {
         this.step = 1;
         //显示个人信息
@@ -205,6 +322,23 @@ export default {
               message: "请核对个人信息",
               type: "info",
             });
+            var _that = that;
+            //获取考试头像
+            axios({
+              method: "get",
+              url:
+                "http://kana.chat:70/image/user?userId=" + that.userId.userId,
+            }).then(function (response) {
+              _that.imageFile = response.data.data;
+              if (_that.imageFile.length == 0) {
+                _that.imageUrl = "";
+              } else {
+                _that.imageFile.forEach((item) => {
+                  if (item.tag == "Exam") _that.imageUrl = item.url;
+                  // _that.personInfo
+                });
+              }
+            });
           },
           function (err) {
             that.$message.error("你没有信息，无法进行报名，跳转个人中心填写");
@@ -214,12 +348,13 @@ export default {
           }
         );
       } else if (active == 2) {
+        //报名
         this.takeinExam();
         this.step = 2;
-        //选择考场
       } else if (active == 3) {
-        this.step = 3;
         //打印准考证
+        //选择考场，点击下一步后调
+        this.step = 3;
       }
     },
 
@@ -297,11 +432,12 @@ export default {
     },
 
     finishRegistration: function () {
-      this.$message({
-        message: "报名成功",
-        type: "success",
+      this.$notify({
+        title: "报名成功",
+        message: "请记住考试信息，忘记可前往个人中心个人通知的考试报名中查询",
+        duration: 0,
       });
-      that.$router.push({ name: "homepage" });
+      this.$router.push({ name: "homepage" });
     },
   },
 };

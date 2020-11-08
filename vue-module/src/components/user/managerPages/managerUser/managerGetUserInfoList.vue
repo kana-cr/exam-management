@@ -54,8 +54,8 @@
       ></el-table-column>
       <el-table-column
         align="center"
-        prop="userId"
-        label="用户ID"
+        prop="email"
+        label="用户Email"
       ></el-table-column>
       <el-table-column fixed="right" label="操作" width="200">
         <template slot-scope="scope">

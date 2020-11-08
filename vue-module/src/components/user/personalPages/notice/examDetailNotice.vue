@@ -1,5 +1,5 @@
 <template>
-  <div class="container">
+  <div>
     <el-table
       :data="
         examList.slice((currentPage - 1) * pagesize, currentPage * pagesize)

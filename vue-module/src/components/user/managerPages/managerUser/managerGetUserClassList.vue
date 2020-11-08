@@ -61,6 +61,7 @@
           <el-input
             v-model="majorForm.classNumber"
             autocomplete="off"
+            @keyup.enter.native="addMajor"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -150,6 +151,7 @@ export default {
           });
           //that.reload();
           that.allMajorClass.push(that.majorForm);
+          that.pageTotal++;
           that.majorDialog = false;
         },
         function (err) {
@@ -196,6 +198,7 @@ export default {
               that.allMajorClass.splice(i, 1); //在数组的some方法中，如果return true，就会立即终止这个数组的后续循环
             }
           });
+          that.pageTotal--;
         },
         function (err) {
           that.$message.error("删除失败");

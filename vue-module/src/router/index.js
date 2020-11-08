@@ -10,13 +10,12 @@ import personalAccount from '../components/user/personalPages/personalAccount'
 import personalImformation from '../components/user/personalPages/personalImformation'
 import personalProgram from '../components/user/personalPages/personalProgram'
 import personalNotice from '../components/user/personalPages/personalNotice'
-/* 消息子路由
-  区分消息来源
-*/
+/* 消息子路由*/
 import examDetailNotice from '../components/user/personalPages/notice/examDetailNotice'
 import examRegistration from '../components/user/personalPages/notice/examRegistration'
 import examResultNotice from '../components/user/personalPages/notice/examResultNotice'
 /* 管理员 */
+import managerHomepage from '../components/user/managerPages/managerHomepage'
 import managerChangeRole from '../components/user/managerPages/managerChangeRole'
 import managerGetUserInfo from '../components/user/managerPages/managerGetUserInfo'
 import managerTestType from '../components/user/managerPages/managerTestType'
@@ -29,19 +28,24 @@ import managerGetUserClassList from '../components/user/managerPages/managerUser
 import managerExam from '../components/user/managerPages/managerTest/managerExam'
 import registrationRelease from '../components/user/managerPages/managerTest/registrationRelease'
 import managerScore from '../components/user/managerPages/managerTest/managerScore'
-
 /* 报名子路由 */
 import getRegistration from '../components/user/managerPages/managerTest/registration/getRegistration'
 import setRegistration from '../components/user/managerPages/managerTest/registration/setRegistration'
+import fileRegistration from '../components/user/managerPages/managerTest/registration/fileRegistration'
 
 /* 主页菜单子路由 */
 import homepage from '../components/public/homepage'
 import publicGetChannel from '../components/public/publicGetChannel'
 import publicGetExam from '../components/public/publicGetExam'
 import takeinExam from '../components/public/takeinExam'
-/* 测试页面 */
-import test from '../components/test'
+/* 主页消息页面 */
+import homepagemessage from '../components/public/message/homepagemessage'
 
+// 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
+const originalPush = Router.prototype.push
+Router.prototype.push = function push(location) {
+  return originalPush.call(this, location).catch(err => err)
+}
 Vue.use(Router)
 
 export default new Router({
@@ -94,6 +98,11 @@ export default new Router({
               ]
             },
             {
+              path: 'managerHomepage',
+              name: 'managerHomepage',
+              component: managerHomepage
+            },
+            {
               path: 'managerChangeRole',
               name: 'managerChangeRole',
               component: managerChangeRole
@@ -140,6 +149,11 @@ export default new Router({
                       name: 'setRegistration',
                       component: setRegistration,
                     },
+                    {
+                      path: 'fileRegistration',
+                      name: 'fileRegistration',
+                      component: fileRegistration,
+                    },
                   ]
                 },
                 {
@@ -167,6 +181,11 @@ export default new Router({
           component: homepage
         },
         {
+          path: '/homepagemessage',
+          name: 'homepagemessage',
+          component: homepagemessage
+        },
+        {
           path: '/publicGetChannel',
           name: 'publicGetChannel',
           component: publicGetChannel
@@ -192,11 +211,6 @@ export default new Router({
       path: '/register',
       name: 'register',
       component: register
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: test,
     },
   ]
 })

@@ -1,6 +1,7 @@
 <template>
   <div class="container">
     <el-table
+      v-loading="loading"
       :data="
         registrationList.slice(
           (currentPage - 1) * pagesize,
@@ -95,6 +96,7 @@ export default {
     var that = this;
     setTimeout(function () {
       that.getListToge();
+      that.loading = false;
     }, 300);
   },
   methods: {

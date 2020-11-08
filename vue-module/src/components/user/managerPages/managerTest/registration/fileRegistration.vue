@@ -1,6 +1,5 @@
 <template>
   <div>
-    <router-link to="homepage">to homepage</router-link>
     <el-table
       :data="
         fileList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
@@ -37,8 +36,11 @@
       ></el-table-column>
       <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
-          <el-button @click="getScore(scope.row)" size="small"
-            >查看成绩</el-button
+          <el-button
+            type="info"
+            @click="getRegistrationUserList(scope.row)"
+            size="small"
+            >查看报名用户</el-button
           >
         </template>
       </el-table-column>
@@ -51,7 +53,7 @@
         <el-table-column prop="major" label="学生专业"></el-table-column>
         <el-table-column prop="className" label="学生班级"></el-table-column>
         <el-table-column prop="stuNo" label="学生学号"></el-table-column>
-        <el-table-column prop="score" label="成绩"></el-table-column>
+        <el-table-column prop="email" label="联系方式"></el-table-column>
       </el-table>
     </el-dialog>
   </div>
@@ -142,82 +144,55 @@ export default {
       });
     },
 
-    getExamInformation: function () {
-      this.fileList.forEach((item) => {
-        for (var i = 0; i < this.examList.length; i++) {
-          if (item.examDetailId == this.examList[i].examDetailId) {
-            this.$set(
-              item,
-              "examDescription",
-              this.examList[i].examDescription
-            );
-            this.$set(item, "examLocation", this.examList[i].examLocation);
-            this.$set(item, "examStartTime", this.examList[i].examStartTime);
-            this.$set(item, "examEndTime", this.examList[i].examEndTime);
-          }
-        }
-      });
-    },
-
-    getScore: function (row) {
-      if (row.note == "考试报名完成") {
-        var that = this;
-        this.userList = [];
-        axios
-          .all([
-            axios({
-              headers: {
-                Authorization: this.print.Authorization,
-              },
-              method: "get",
-              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
-            }),
-            axios({
-              headers: { Authorization: this.print.Authorization },
-              method: "get",
-              url:
-                "http://kana.chat:70/userExamEntry/recordByExam?examEntryId=" +
-                row.examEntryId,
-            }),
-          ])
-          .then(
-            axios.spread(function (userResponse, userEntryReponse) {
-              that.allUser = userResponse.data.data;
-              that.allReg = userEntryReponse.data.data;
-              that.userListDialog = true;
-              //显示报名人姓名
-              that.allReg.forEach((item) => {
-                for (var i = 0; i < that.allUser.length; i++) {
-                  if (item.userId == that.allUser[i].userId) {
-                    var _that = that;
-                    axios({
-                      headers: { Authorization: that.print.Authorization },
-                      method: "get",
-                      url:
-                        "http://kana.chat:70/userInfo?username=" +
-                        that.allUser[i].userName,
-                    }).then(function (reponse) {
-                      _that.$set(item, "realName", reponse.data.data.realName);
-                      _that.$set(item, "major", reponse.data.data.major);
-                      _that.$set(item, "stuNo", reponse.data.data.stuNo);
-                      _that.$set(
-                        item,
-                        "className",
-                        reponse.data.data.className
-                      );
-                    });
-                    i = that.allUser.length;
-                  }
+    getRegistrationUserList: function (row) {
+      var that = this;
+      this.userList = [];
+      axios
+        .all([
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+          }),
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "get",
+            url:
+              "http://kana.chat:70/userExamEntry/recordByExam?examEntryId=" +
+              row.examEntryId,
+          }),
+        ])
+        .then(
+          axios.spread(function (userResponse, userEntryReponse) {
+            that.allUser = userResponse.data.data;
+            that.allReg = userEntryReponse.data.data;
+            that.userListDialog = true;
+            //显示报名人姓名
+            that.allReg.forEach((item) => {
+              for (var i = 0; i < that.allUser.length; i++) {
+                if (item.userId == that.allUser[i].userId) {
+                  that.$set(item, "email", that.allUser[i].email);
+                  var _that = that;
+                  axios({
+                    headers: { Authorization: that.print.Authorization },
+                    method: "get",
+                    url:
+                      "http://kana.chat:70/userInfo?username=" +
+                      that.allUser[i].userName,
+                  }).then(function (reponse) {
+                    _that.$set(item, "realName", reponse.data.data.realName);
+                    _that.$set(item, "major", reponse.data.data.major);
+                    _that.$set(item, "stuNo", reponse.data.data.stuNo);
+                    _that.$set(item, "className", reponse.data.data.className);
+                  });
+                  i = that.allUser.length;
                 }
-              });
-            })
-          );
-      } else {
-        this.$message({
-          message: "不是已经完成的报名，无法录入成绩",
-          type: "warning",
-        });
-      }
+              }
+            });
+          })
+        );
     },
   },
 };

@@ -40,11 +40,10 @@
               <router-link class="dropdown-item" to="/publicGetExam"
                 >报名中心</router-link
               >
+              <div class="dropdown-divider"></div>
               <router-link class="dropdown-item" to="/publicGetTest"
                 >考试频道</router-link
               >
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item" href="#">Something else here</a>
             </div>
           </li>
         </ul>
@@ -60,11 +59,11 @@
       >
         <div class="form-group">
           <el-form-item prop="username"
-            >用户名
+            >账号
             <el-input
               type="text"
               v-model="loginForm.username"
-              placeholder="请输入用户名"
+              placeholder="请输入用户名或邮箱"
           /></el-form-item>
         </div>
         <div class="form-group">
@@ -199,11 +198,13 @@ export default {
   name: "login",
   data() {
     return {
+      //登陆表单
       loginForm: {
         username: "",
         password: "",
         rememberMe: false,
       },
+      //令牌
       authorization: "",
       //找回密码dialog
       emailDialog: false,
@@ -248,6 +249,8 @@ export default {
       },
       //拼图是否正确
       puzzle: false,
+      //验证码图集， 主页图
+      imageList: [],
     };
   },
   watch: {
@@ -257,6 +260,9 @@ export default {
         this.puzzle = false;
       }
     },
+  },
+  mounted: function () {
+    this.getImages();
   },
   methods: {
     returnHistory: function () {
@@ -367,6 +373,7 @@ export default {
               message: "请记住新密码重新登陆",
               type: "success",
             });
+            that.loginForm.password = that.getPassForm.password;
           },
           function (err) {
             that.emailDialog = false;
@@ -374,6 +381,21 @@ export default {
           }
         );
       });
+    },
+
+    getImages: function () {
+      var that = this;
+      axios({
+        method: "get",
+        url: "http://kana.chat:70/image/tag?tag=Show",
+      }).then(
+        function (response) {
+          that.imageList = response.data.data;
+        },
+        function (err) {
+          that.$message.error("获取验证码图片失败");
+        }
+      );
     },
 
     //拼图验证码初始化
@@ -445,18 +467,11 @@ export default {
       blockDom.height = height;
       mainDom.height = height;
 
-      //  let imgesrcList = [{ imgUrl:require("../assets/1.jpg")},
-      //                     {imgUrl:require("../assets/3.jpg")}  ]
-
-      let imgsrc1 = require("../../assets/1.jpg");
-      let imgsrc2 = require("../../assets/2.jpg");
-      let imgsrc3 = require("../../assets/3.jpg");
-      let imgsrc4 = require("../../assets/4.jpg");
-      var Arr = [imgsrc4, imgsrc1, imgsrc2, imgsrc3];
+      var Arr = this.imageList;
       var n = Math.floor(Math.random() * Arr.length + 1) - 1;
       let img = document.createElement("img");
       img.style.objectFit = "scale-down";
-      img.src = Arr[n];
+      img.src = Arr[n].url;
       console.log(n);
       img.onload = function () {
         bg.drawImage(img, 0, 0, width, height);

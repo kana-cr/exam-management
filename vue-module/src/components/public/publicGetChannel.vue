@@ -2,8 +2,9 @@
   <div class="container">
     <el-table
       v-loading="loading"
-      :data="channelList"
-      height="800"
+      :data="
+        channelList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
+      "
       stripe
       style="width: 100%"
       @row-click="showMessage"
@@ -32,6 +33,15 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      background
+      align="center"
+      layout="total, prev, pager, next, jumper"
+      :total="pageTotal"
+    >
+    </el-pagination>
 
     <el-dialog :visible.sync="messageDialog" width="60%">
       <el-table :data="messageList" width="100%">
@@ -70,6 +80,12 @@ export default {
       messageList: [],
       //取消订阅用id
       userChannelId: [],
+      //初始页
+      currentPage: 1,
+      //每页的数据
+      pagesize: 10,
+      //数组总数
+      pageTotal: 100000,
     };
   },
   computed: {
@@ -111,6 +127,7 @@ export default {
             // 上面两个请求都完成后，才执行这个回调方法
             that.channelList = reponseAll.data.data;
             that.userChannelList = reponseUser.data.data;
+            that.pageTotal = reponseAll.data.data.length;
             console.log(that.userChannelList);
             if (that.userChannelList.length != 0) {
               for (var i = 0; i < that.channelList.length; i++) {
@@ -134,6 +151,10 @@ export default {
             that.loading = false;
           })
         );
+    },
+
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage;
     },
 
     showMessage: function (index, row) {
@@ -192,7 +213,9 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/userSub/single?userChannelId=" + this.userChannelId,
+        url:
+          "http://kana.chat:70/userSub/single?userChannelId=" +
+          this.userChannelId,
       }).then(
         function (reponse) {
           that.$message({
