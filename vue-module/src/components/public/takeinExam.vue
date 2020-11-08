@@ -118,7 +118,7 @@
       <template v-if="step == 2">
         <el-container>
           <table
-            :model="item in personInfo"
+          
             border="3"
             width="95%"
             cellspacing="0"
@@ -132,7 +132,7 @@
             <tr height="200">
               <td width="841">
                 考生姓名： {{ personInfo.realName }}<br />
-                准考证号： <br />
+                准考证号： 待确认<br />
                 学号： {{ personInfo.stuNo }}<br />
                 身份证号： {{ personInfo.identificationNumber }}<br />
                 考试科目： {{ examDescription }}<br />
@@ -142,7 +142,11 @@
                 专业班级：{{ personInfo.className }}
               </td>
               <td style="border-style: none; border-wigth: 0px">
-                <img src="1.jpg" width="170" height="200" />
+                <img
+                  :src="imageUrl"
+                  width="170"
+                  height="200"
+                />
               </td>
             </tr>
             <tr id="juzhong" height="400">
@@ -220,6 +224,10 @@ export default {
       },
       active: 0,
       step: 0,
+      //获取头像
+      imageFile: {},
+      //图片地址
+      imageUrl: "",
       //阅读须知
       ifRead: false,
       //考场表单
@@ -266,6 +274,9 @@ export default {
 
     checkIfReg: function () {
       var that = this;
+      if (this.number > 1000) {
+        alert("人数大于1000的考试无法获得信息，且确认自己是否已经报名！");
+      }
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
@@ -310,6 +321,23 @@ export default {
             that.$message({
               message: "请核对个人信息",
               type: "info",
+            });
+            var _that = that;
+            //获取考试头像
+            axios({
+              method: "get",
+              url:
+                "http://kana.chat:70/image/user?userId=" + that.userId.userId,
+            }).then(function (response) {
+              _that.imageFile = response.data.data;
+              if (_that.imageFile.length == 0) {
+                _that.imageUrl = "";
+              } else {
+                _that.imageFile.forEach((item) => {
+                  if (item.tag == "Exam") _that.imageUrl = item.url;
+                  // _that.personInfo
+                });
+              }
             });
           },
           function (err) {

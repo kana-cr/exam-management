@@ -1,50 +1,59 @@
 <template>
-  <div class="container">
+  <div>
     <router-link to="homepage">to homepage</router-link>
     <el-table
       :data="
-        registrationList.slice(
-          (currentPage - 1) * pagesize,
-          currentPage * pagesize
-        )
+        fileList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
       "
       style="width: 100%"
       :default-sort="{ prop: 'date', order: 'descending' }"
     >
-      <el-table-column prop="contact" label="联系人"> </el-table-column>
-      <el-table-column prop="examDescription" label="考试内容">
-      </el-table-column>
-      <el-table-column prop="number" label="可报名总人数" sortable>
-      </el-table-column>
       <el-table-column
-        prop="term"
-        label="学期"
-        :formatter="termFormatter"
+        prop="examDescription"
+        label="考试名称"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="examLocation"
+        label="考试地点"
+        align="center"
+      ></el-table-column>
+      <el-table-column
+        prop="examStartTime"
+        label="开始时间"
+        align="center"
         sortable
-      >
-      </el-table-column>
-      <el-table-column label="状态" width="150" prop="stateUTF">
-      </el-table-column>
+      ></el-table-column>
+      <el-table-column
+        prop="examEndTime"
+        label="结束时间"
+        align="center"
+        sortable
+      ></el-table-column>
+      <el-table-column
+        prop="note"
+        label="状态"
+        align="center"
+      ></el-table-column>
       <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
-          <el-button
-            type="danger"
-            @click="deleteRegistrationRelease(scope.row)"
-            size="small"
-            >报名</el-button
+          <el-button @click="getScore(scope.row)" size="small"
+            >查看成绩</el-button
           >
         </template>
       </el-table-column>
     </el-table>
-    <el-pagination
-      @current-change="handleCurrentChange"
-      :current-page="currentPage"
-      background
-      align="center"
-      layout="total, prev, pager, next, jumper"
-      :total="pageTotal"
-    >
-    </el-pagination>
+
+    <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
+      <el-table :data="allReg">
+        <el-table-column type="index"></el-table-column>
+        <el-table-column prop="realName" label="学生姓名"></el-table-column>
+        <el-table-column prop="major" label="学生专业"></el-table-column>
+        <el-table-column prop="className" label="学生班级"></el-table-column>
+        <el-table-column prop="stuNo" label="学生学号"></el-table-column>
+        <el-table-column prop="score" label="成绩"></el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
@@ -53,12 +62,12 @@ import axios from "axios";
 import { mapState, mapActions } from "vuex";
 export default {
   inject: ["reload"],
-  name: "getRegistration",
+  name: "fileRegistraion",
   data() {
     return {
       loading: false,
-      //报名表
-      registrationList: [],
+      //归档表
+      fileList: [],
       //考试信息表
       examList: [],
       //初始页
@@ -67,6 +76,12 @@ export default {
       pagesize: 10,
       //数组总数
       pageTotal: 100000,
+      //全用户表
+      allUser: [],
+      //全报名表
+      allReg: [],
+      //显示用户报名表dialog
+      userListDialog: false,
     };
   },
   computed: {
@@ -79,7 +94,7 @@ export default {
     this.getRegistrationList();
     var that = this;
     setTimeout(function () {
-      that.getListToge();
+      that.getExamInformation();
     }, 300);
   },
   methods: {
@@ -88,11 +103,11 @@ export default {
       this.loading = true;
       axios
         .all([
-          //报名表
+          //归档报名表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examEntry/all?pageNum&pageSize",
+            url: "http://kana.chat:70/examEntry/record?pageNum&pageSize",
           }),
           //考试信息表
           axios({
@@ -102,50 +117,107 @@ export default {
           }),
         ])
         .then(
-          axios.spread(function (regResponse, examResponse) {
-            that.registrationList = regResponse.data.data;
-            that.pageTotal = regResponse.data.data.length;
+          axios.spread(function (fileResponse, examResponse) {
+            that.fileList = fileResponse.data.data;
             that.examList = examResponse.data.data;
+            that.pageToatl = fileResponse.data.data.length;
           })
         );
     },
 
-    getListToge: function () {
-      this.registrationList.forEach((item) => {
+    getExamInformation: function () {
+      this.fileList.forEach((item) => {
         for (var i = 0; i < this.examList.length; i++) {
-          if (this.examList[i].examDetailId == item.examDetailId) {
+          if (item.examDetailId == this.examList[i].examDetailId) {
             this.$set(
               item,
               "examDescription",
               this.examList[i].examDescription
             );
-
-            if (item.state == "START") {
-              this.$set(item, "stateUTF", "可报名");
-            } else if (item.state == "FINISH") {
-              this.$set(item, "stateUTF", "报名结束");
-            } else if (item.state == "CANCEL") {
-              this.$set(item, "stateUTF", "报名取消");
-            } else if (item.state == "PREPARE") {
-              this.$set(item, "stateUTF", "准备中");
-            }
+            this.$set(item, "examLocation", this.examList[i].examLocation);
+            this.$set(item, "examStartTime", this.examList[i].examStartTime);
+            this.$set(item, "examEndTime", this.examList[i].examEndTime);
           }
         }
       });
     },
 
-    //表格数据转换
-    termFormatter(row, column) {
-      let term = row.term;
-      if (term.indexOf("SH") > 0) {
-        return term.replace("SH", "上学期");
-      } else {
-        return term.replace("FH", "下学期");
-      }
+    getExamInformation: function () {
+      this.fileList.forEach((item) => {
+        for (var i = 0; i < this.examList.length; i++) {
+          if (item.examDetailId == this.examList[i].examDetailId) {
+            this.$set(
+              item,
+              "examDescription",
+              this.examList[i].examDescription
+            );
+            this.$set(item, "examLocation", this.examList[i].examLocation);
+            this.$set(item, "examStartTime", this.examList[i].examStartTime);
+            this.$set(item, "examEndTime", this.examList[i].examEndTime);
+          }
+        }
+      });
     },
 
-    handleCurrentChange: function (currentPage) {
-      this.currentPage = currentPage;
+    getScore: function (row) {
+      if (row.note == "考试报名完成") {
+        var that = this;
+        this.userList = [];
+        axios
+          .all([
+            axios({
+              headers: {
+                Authorization: this.print.Authorization,
+              },
+              method: "get",
+              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+            }),
+            axios({
+              headers: { Authorization: this.print.Authorization },
+              method: "get",
+              url:
+                "http://kana.chat:70/userExamEntry/recordByExam?examEntryId=" +
+                row.examEntryId,
+            }),
+          ])
+          .then(
+            axios.spread(function (userResponse, userEntryReponse) {
+              that.allUser = userResponse.data.data;
+              that.allReg = userEntryReponse.data.data;
+              that.userListDialog = true;
+              //显示报名人姓名
+              that.allReg.forEach((item) => {
+                for (var i = 0; i < that.allUser.length; i++) {
+                  if (item.userId == that.allUser[i].userId) {
+                    var _that = that;
+                    axios({
+                      headers: { Authorization: that.print.Authorization },
+                      method: "get",
+                      url:
+                        "http://kana.chat:70/userInfo?username=" +
+                        that.allUser[i].userName,
+                    }).then(function (reponse) {
+                      _that.$set(item, "realName", reponse.data.data.realName);
+                      _that.$set(item, "major", reponse.data.data.major);
+                      _that.$set(item, "stuNo", reponse.data.data.stuNo);
+                      _that.$set(
+                        item,
+                        "className",
+                        reponse.data.data.className
+                      );
+                    });
+                    i = that.allUser.length;
+                  }
+                }
+              });
+            })
+          );
+      } else {
+        this.$message({
+          message: "不是已经完成的报名，无法录入成绩",
+          type: "warning",
+        });
+      }
     },
   },
 };

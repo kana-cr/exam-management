@@ -400,51 +400,109 @@ export default {
       this.userListDialog = true;
       this.examDetailId = row.examDetailId;
       this.examEntryId = row.examEntryId;
-      axios
-        .all([
-          axios({
-            headers: {
-              Authorization: this.print.Authorization,
-            },
-            method: "get",
-            url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
-          }),
-          axios({
-            headers: { Authorization: this.print.Authorization },
-            method: "get",
-            url:
-              "http://kana.chat:70/userExamEntry?examEntryId=" +
-              row.examEntryId,
-          }),
-        ])
-        .then(
-          axios.spread(function (userResponse, userEntryReponse) {
-            that.allUser = userResponse.data.data;
-            that.allReg = userEntryReponse.data.data;
-            //显示报名人姓名
-            that.allReg.forEach((item) => {
-              for (var i = 0; i < that.allUser.length; i++) {
-                if (item.userId == that.allUser[i].userId) {
-                  that.$set(item, "email", that.allUser[i].email);
-                  var _that = that;
-                  axios({
-                    headers: { Authorization: that.print.Authorization },
-                    method: "get",
-                    url:
-                      "http://kana.chat:70/userInfo?username=" +
-                      that.allUser[i].userName,
-                  }).then(function (reponse) {
-                    _that.$set(item, "realName", reponse.data.data.realName);
-                    _that.$set(item, "major", reponse.data.data.major);
-                    _that.$set(item, "stuNo", reponse.data.data.stuNo);
-                    _that.$set(item, "className", reponse.data.data.className);
-                  });
-                  i = that.allUser.length;
+      if (row.number < 1000) {
+        //mySQL获得用户信息
+        axios
+          .all([
+            axios({
+              headers: {
+                Authorization: this.print.Authorization,
+              },
+              method: "get",
+              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+            }),
+            axios({
+              headers: { Authorization: this.print.Authorization },
+              method: "get",
+              url:
+                "http://kana.chat:70/userExamEntry?examEntryId=" +
+                row.examEntryId,
+            }),
+          ])
+          .then(
+            axios.spread(function (userResponse, userEntryReponse) {
+              that.allUser = userResponse.data.data;
+              that.allReg = userEntryReponse.data.data;
+              //显示报名人姓名
+              that.allReg.forEach((item) => {
+                for (var i = 0; i < that.allUser.length; i++) {
+                  if (item.userId == that.allUser[i].userId) {
+                    that.$set(item, "email", that.allUser[i].email);
+                    var _that = that;
+                    axios({
+                      headers: { Authorization: that.print.Authorization },
+                      method: "get",
+                      url:
+                        "http://kana.chat:70/userInfo?username=" +
+                        that.allUser[i].userName,
+                    }).then(function (reponse) {
+                      _that.$set(item, "realName", reponse.data.data.realName);
+                      _that.$set(item, "major", reponse.data.data.major);
+                      _that.$set(item, "stuNo", reponse.data.data.stuNo);
+                      _that.$set(
+                        item,
+                        "className",
+                        reponse.data.data.className
+                      );
+                    });
+                    i = that.allUser.length;
+                  }
                 }
-              }
-            });
-          })
-        );
+              });
+            })
+          );
+      } else {
+        //redis获得报名用户信息
+        axios
+          .all([
+            axios({
+              headers: {
+                Authorization: this.print.Authorization,
+              },
+              method: "get",
+              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+            }),
+            axios({
+              headers: { Authorization: this.print.Authorization },
+              method: "get",
+              url:
+                "http://kana.chat:70/userExamEntry/cache?examEntryId=" +
+                row.examEntryId,
+            }),
+          ])
+          .then(
+            axios.spread(function (userResponse, userEntryReponse) {
+              that.allUser = userResponse.data.data;
+              that.allReg = userEntryReponse.data.data;
+              //显示报名人姓名
+              that.allReg.forEach((item) => {
+                for (var i = 0; i < that.allUser.length; i++) {
+                  if (item.userId == that.allUser[i].userId) {
+                    that.$set(item, "email", that.allUser[i].email);
+                    var _that = that;
+                    axios({
+                      headers: { Authorization: that.print.Authorization },
+                      method: "get",
+                      url:
+                        "http://kana.chat:70/userInfo?username=" +
+                        that.allUser[i].userName,
+                    }).then(function (reponse) {
+                      _that.$set(item, "realName", reponse.data.data.realName);
+                      _that.$set(item, "major", reponse.data.data.major);
+                      _that.$set(item, "stuNo", reponse.data.data.stuNo);
+                      _that.$set(
+                        item,
+                        "className",
+                        reponse.data.data.className
+                      );
+                    });
+                    i = that.allUser.length;
+                  }
+                }
+              });
+            })
+          );
+      }
 
       console.log(this.examDetailId);
       axios({

@@ -45,6 +45,10 @@
             <!-- 管理员页面 -->
             <template v-if="role">
               <div class="dropdown-divider"></div>
+              <el-menu-item index="/usercenter/managerHomepage">
+                <i class="el-icon-reading"></i>
+                <span slot="title">主页编辑</span>
+              </el-menu-item>
               <el-menu-item index="/usercenter/managerChangeRole">
                 <i class="el-icon-help"></i>
                 <span slot="title">用户角色</span>

@@ -113,7 +113,11 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="消息内容" :label-width="formLabelWidth">
-          <el-input type="textarea" v-model="message_form.content"></el-input>
+          <el-input
+            type="textarea"
+            v-model="message_form.content"
+            @keyup.enter.native="sendMessage"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -506,7 +510,7 @@ export default {
           },
         ],
       }).then(
-        function (reponse) {
+        function (response) {
           that.$message({
             message: "发布成功",
             type: "success",
@@ -514,6 +518,7 @@ export default {
           that.reload();
         },
         function (err) {
+          console.log(err.data);
           that.$message.error("发布失败，请重新尝试");
         }
       );

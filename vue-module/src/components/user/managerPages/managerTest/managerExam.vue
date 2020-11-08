@@ -75,7 +75,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="考试限制" :label-width="formLabelWidth">
-          <el-input v-model="u_form.u_examLimit" autocomplete="off"></el-input>
+          <el-input v-model="u_form.u_examLimit" autocomplete="off" @keyup.enter.native="updateTestType"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -268,13 +268,6 @@
         width="100"
         align="center"
       ></el-table-column>
-      <el-table-column
-        prop="examTypeId"
-        label="考试id"
-        align="center"
-        width="300"
-      >
-      </el-table-column>
       <el-table-column prop="examTypeName" label="考试名称" align="center">
       </el-table-column>
       <el-table-column
@@ -544,6 +537,7 @@ export default {
         method: "put",
         url: "http://kana.chat:70/exam",
         data: {
+          examTypeId: this.u_form.u_examTypeId,
           examTypeName: this.u_form.u_examTypeName,
           examTypeDescription: this.u_form.u_examTypeDescription,
           examLimit: this.u_form.u_examLimit,

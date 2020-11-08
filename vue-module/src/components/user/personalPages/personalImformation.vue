@@ -1,138 +1,191 @@
 <template>
-  <div class="container">
-    <el-form :model="personInfo" class="demo-ruleForm" v-if="ifUpdate">
-      <fieldset disabled>
-        <div class="form-group">
-          <el-form-item prop="realName"
-            >姓名
-            <el-input
-              type="text"
-              autocomplete="off"
-              v-model="personInfo.realName"
-          /></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="stuNo"
-            >学号
-            <el-input type="text" autocomplete="off" v-model="personInfo.stuNo"
-          /></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="major"
-            >专业
-            <el-input type="text" autocomplete="off" v-model="personInfo.major"
-          /></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="className"
-            >专业班级
-            <el-input
-              type="text"
-              autocomplete="off"
-              v-model="personInfo.className"
-          /></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="identificationNumber"
-            >身份证号码
-            <el-input
-              type="text"
-              autocomplete="off"
-              v-model="personInfo.identificationNumber"
-          /></el-form-item>
-        </div>
-      </fieldset>
-      <el-button class="btn btn-primary" @click="changeIfUpdate"
-        >更改信息</el-button
-      >
-    </el-form>
-
-    <el-form
-      :model="personInfoUpdate"
-      ref="personInfoUpdate"
-      :rules="rule"
-      class="demo-ruleForm"
-      v-if="!ifUpdate"
-    >
-      <fieldset>
-        <div class="form-group">
-          <el-form-item prop="u_realName"
-            >姓名
-            <el-input
-              type="text"
-              autocomplete="off"
-              v-model="personInfoUpdate.u_realName"
-          /></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="u_stuNo"
-            >学号
-            <el-input
-              type="text"
-              autocomplete="off"
-              v-model="personInfoUpdate.u_stuNo"
-          /></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="u_major"
-            >专业<br />
-            <el-select
-              v-model="personInfoUpdate.u_major"
-              placeholder="请选择"
-              @change="getClassList(personInfoUpdate.u_major)"
-            >
-              <el-option
-                v-for="item in majorList"
-                :key="item.discipline"
-                :label="item.major + '系' + item.discipline"
-                :value="item.discipline"
-              >
-              </el-option> </el-select
-          ></el-form-item>
-        </div>
-        <div class="form-group" v-if="chooseMajor">
-          <el-form-item prop="u_className"
-            >专业班级<br />
-            <el-select
-              v-model="personInfoUpdate.u_className"
-              placeholder="请选择"
-            >
-              <el-option
-                v-for="item in classList"
-                :key="item"
-                :label="item"
-                :value="item"
-              >
-              </el-option> </el-select
-          ></el-form-item>
-        </div>
-        <div class="form-group">
-          <el-form-item prop="u_identificationNumber"
-            >身份证号码
-            <el-input
-              type="text"
-              autocomplete="off"
-              v-model="personInfoUpdate.u_identificationNumber"
-          /></el-form-item>
-        </div>
-      </fieldset>
-      <el-button type="button" @click="changeIfUpdate">取消更改</el-button>
-      <el-button type="button" @click="dialogVisible = true"
-        >更改信息</el-button
-      >
-
-      <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
-        <span>确认修改个人信息吗？</span>
-        <span slot="footer" class="dialog-footer">
-          <el-button @click="dialogVisible = false">取 消</el-button>
-          <el-button
-            type="primary"
-            @click="updateInformation('personInfoUpdate')"
-            >确 定</el-button
+  <div>
+    <br />
+    <el-container>
+      <el-header style="text-align: center; height: 100px">
+        <div class="block">
+          <el-avatar v-image-preview :src="imageUrl" :size="100"></el-avatar
+          ><el-button
+            @click="uploadExamDialog = true"
+            v-if="haveExam"
+            size="small"
+            >上传照片</el-button
           >
-        </span>
-      </el-dialog>
-    </el-form>
+          <el-button v-else type="danger" @click="deleteExam" size="small"
+            >删除照片</el-button
+          >
+        </div>
+      </el-header>
+      <el-main>
+        <el-form :model="personInfo" class="demo-ruleForm" v-if="ifUpdate">
+          <div class="form-group">
+            <el-form-item prop="realName"
+              >姓名
+              <el-input
+                type="text"
+                autocomplete="off"
+                v-model="personInfo.realName"
+            /></el-form-item>
+          </div>
+          <fieldset disabled>
+            <div class="form-group">
+              <el-form-item prop="stuNo"
+                >学号
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfo.stuNo"
+              /></el-form-item>
+            </div>
+            <div class="form-group">
+              <el-form-item prop="major"
+                >专业
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfo.major"
+              /></el-form-item>
+            </div>
+            <div class="form-group">
+              <el-form-item prop="className"
+                >专业班级
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfo.className"
+              /></el-form-item>
+            </div>
+            <div class="form-group">
+              <el-form-item prop="identificationNumber"
+                >身份证号码
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfo.identificationNumber"
+              /></el-form-item>
+            </div>
+          </fieldset>
+          <el-button @click="changeIfUpdate">更改信息</el-button>
+        </el-form>
+
+        <el-form
+          :model="personInfoUpdate"
+          ref="personInfoUpdate"
+          :rules="rule"
+          class="demo-ruleForm"
+          v-if="!ifUpdate"
+        >
+          <fieldset>
+            <div class="form-group">
+              <el-form-item prop="u_realName"
+                >姓名
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfoUpdate.u_realName"
+              /></el-form-item>
+            </div>
+            <div class="form-group">
+              <el-form-item prop="u_stuNo"
+                >学号
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfoUpdate.u_stuNo"
+              /></el-form-item>
+            </div>
+            <div class="form-group">
+              <el-form-item prop="u_major"
+                >专业<br />
+                <el-select
+                  v-model="personInfoUpdate.u_major"
+                  placeholder="请选择"
+                  @change="getClassList(personInfoUpdate.u_major)"
+                >
+                  <el-option
+                    v-for="item in majorList"
+                    :key="item.discipline"
+                    :label="item.major + '系' + item.discipline"
+                    :value="item.discipline"
+                  >
+                  </el-option> </el-select
+              ></el-form-item>
+            </div>
+            <div class="form-group" v-if="chooseMajor">
+              <el-form-item prop="u_className"
+                >专业班级<br />
+                <el-select
+                  v-model="personInfoUpdate.u_className"
+                  placeholder="请选择"
+                >
+                  <el-option
+                    v-for="item in classList"
+                    :key="item"
+                    :label="item"
+                    :value="item"
+                  >
+                  </el-option> </el-select
+              ></el-form-item>
+            </div>
+            <div class="form-group">
+              <el-form-item prop="u_identificationNumber"
+                >身份证号码
+                <el-input
+                  type="text"
+                  autocomplete="off"
+                  v-model="personInfoUpdate.u_identificationNumber"
+              /></el-form-item>
+            </div>
+          </fieldset>
+          <el-button type="button" @click="changeIfUpdate">取消更改</el-button>
+          <el-button type="button" @click="dialogVisible = true"
+            >更改信息</el-button
+          >
+
+          <el-dialog title="提示" :visible.sync="dialogVisible" width="30%">
+            <span>确认修改个人信息吗？</span>
+            <span slot="footer" class="dialog-footer">
+              <el-button @click="dialogVisible = false">取 消</el-button>
+              <el-button
+                type="primary"
+                @click="updateInformation('personInfoUpdate')"
+                >确 定</el-button
+              >
+            </span>
+          </el-dialog>
+        </el-form>
+      </el-main>
+      <el-footer></el-footer>
+    </el-container>
+
+    <el-dialog :visible.sync="uploadExamDialog" width="400px">
+      <el-upload
+        class="upload-demo"
+        ref="upload"
+        action=""
+        accept="image/jpeg, image/png"
+        :on-remove="handleRemove"
+        :auto-upload="false"
+        :on-change="uploadImg"
+        list-type="picture"
+        :file-list="fileUpLoadList"
+        :limit="1"
+      >
+        <el-button slot="trigger" size="small" type="primary"
+          >选取文件</el-button
+        >
+        <el-button
+          @click="uploadExam"
+          style="margin-left: 10px"
+          size="small"
+          type="success"
+          >上传照片</el-button
+        >
+        <div slot="tip" class="el-upload__tip">
+          只能上传jpg/png文件，且不超过1MB
+        </div>
+      </el-upload>
+    </el-dialog>
   </div>
 </template>
 
@@ -140,6 +193,7 @@
 import { mapState, mapActions } from "vuex";
 import axios from "axios";
 export default {
+  inject: ["reload"],
   name: "personalImformation",
   data() {
     return {
@@ -167,6 +221,23 @@ export default {
         u_identificationNumber: "",
       },
       dialogVisible: false,
+      //头像dialog
+      uploadExamDialog: false,
+      //获取头像
+      imageFile: {},
+      //上传头像的file
+      fileData: new FormData(),
+      fileData: new window.FormData(),
+      //图片名字
+      fileName: "",
+      //是否有头像
+      haveExam: true,
+      //图片地址
+      imageUrl: "",
+      //图片id
+      imageId: "",
+      //主页轮播图片表单
+      fileUpLoadList: [],
 
       rule: {
         u_realName: [
@@ -204,6 +275,7 @@ export default {
   computed: {
     ...mapState({
       print: (state) => state.print.all,
+      userId: (state) => state.userId.all,
     }),
   },
   methods: {
@@ -230,6 +302,23 @@ export default {
           that.$message.error("你没有信息，请尽快填写");
         }
       );
+
+      //获取考试准考证照片
+      axios({
+        headers: { Authorization: this.print.Authorization },
+        method: "get",
+        url: "http://kana.chat:70/image/user?userId=" + this.userId.userId,
+      }).then(function (response) {
+        that.imageFile = response.data.data;
+        that.imageFile = that.imageFile.filter((item) => item.tag == "Exam");
+        if (that.imageFile.length == 0) {
+          that.haveExam = true;
+          that.imageUrl = "";
+        } else {
+          that.haveExam = false;
+          that.imageUrl = that.imageFile[0].url;
+        }
+      });
     },
 
     changeIfUpdate: function () {
@@ -262,7 +351,9 @@ export default {
     //去掉相同项
     unique(arr) {
       const res = new Map();
-      return arr.filter((arr) => !res.has(arr.discipline) && res.set(arr.discipline, 1));
+      return arr.filter(
+        (arr) => !res.has(arr.discipline) && res.set(arr.discipline, 1)
+      );
     },
 
     getClassList: function (major) {
@@ -366,6 +457,87 @@ export default {
           return false;
         }
       });
+    },
+
+    uploadImg: function (file) {
+      const isLt2M = file.size / 1024 / 1024 < 1;
+      if (!isLt2M) {
+        this.$message.error("上传头像图片大小不能超过 1MB!");
+      }
+      this.fileData = file.raw;
+      this.fileName =
+        file.raw.name.slice(0, file.raw.name.length - 4) + this.userId.userId;
+    },
+
+    handleRemove(file, fileList) {
+      console.log(file, fileList);
+      this.fileUpLoadList = [];
+    },
+
+    uploadExam: function () {
+      let param = new FormData();
+      param.append("file", this.fileData);
+      param.append("fileName", this.fileName);
+      let config = {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: this.print.Authorization,
+        }, //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
+      }; //添加请求头
+      var that = this;
+      axios
+        .all([
+          axios.post("http://kana.chat:70/common/aliyun", param, config),
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "post",
+            url: "http://kana.chat:70/image",
+            params: {
+              imageName: this.fileData.name.slice(
+                0,
+                this.fileData.name.length - 4
+              ),
+              userId: this.userId.userId,
+              tag: "Exam",
+            },
+          }),
+        ])
+        .then(
+          axios.spread(function (aliyunResponse, infoResponse) {
+            that.$message({
+              message: "上传照片成功",
+              type: "success",
+            });
+            that.reload();
+          })
+        );
+    },
+
+    deleteExam: function () {
+      var that = this;
+      this.imageId = this.imageFile[0].imageId;
+      axios
+        .all([
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "delete",
+            url: "http://kana.chat:70/image?imageId=" + this.imageId,
+          }),
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "delete",
+            url: "http://kana.chat:70/common/aliyun?fileurl=" + this.imageUrl,
+          }),
+        ])
+        .then(
+          axios.spread(function (del1, del2) {
+            that.$message({
+              message: "删除照片成功",
+              type: "success",
+            });
+            that.reload();
+          })
+        );
     },
   },
 };
