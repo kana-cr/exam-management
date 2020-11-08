@@ -19,4 +19,6 @@ public class ExamTypeRequest {
 
     @NotBlank
     private String examTypeDescription;
+
+    private String examTypeId;
 }

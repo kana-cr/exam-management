@@ -114,9 +114,17 @@ public class UserService {
         userRoleRepo.save(new UserRole(user, studentRole));
         userRoleRepo.save(new UserRole(user, managerRole));
     }
+	
     @Transactional(rollbackFor = Exception.class)
+	//todo 加个邮箱登录
     public User find(String userName) {
-        return userRepo.findByUserName(userName).orElseThrow(() -> new UserNameNotFoundException(ImmutableMap.of(USERNAME, userName)));
+        //return userRepo.findByUserName(userName).orElseThrow(() -> new UserNameNotFoundException(ImmutableMap.of(USERNAME, userName)));
+        Optional<User> userByName = userRepo.findByUserName(userName);
+        Optional<User> userByEmail = userRepo.findByEmail(userName);
+        if (!userByEmail.isPresent() && !userByName.isPresent())
+            throw new UserNameNotFoundException(ImmutableMap.of(USERNAME, userName));
+
+        return userByName.orElseGet(userByEmail::get);
     }
     @Transactional(rollbackFor = Exception.class)
     public void modifyPasswordByEmail(String email , String password){

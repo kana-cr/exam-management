@@ -11,6 +11,8 @@ public interface UserExamEntryService {
 
     List<UserExamEntryBO> getUserEntryByUserId(String userId);
 
+    List<UserExamEntryBO> getUserEntryByCache(String examEntryId);
+
     UserExamEntryBO getUserEntryById(String userEntryId);
 
     UserExamEntryBO createUserEntry(UserExamEntryRequest request);
@@ -26,6 +28,8 @@ public interface UserExamEntryService {
     List<UserExamEntryBO> deleteUserEntryByUserId(String userId);
 
     UserExamEntryBO deleteUserEntryById(String userEntryId);
+
+
 
 
 }

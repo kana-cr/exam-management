@@ -15,7 +15,7 @@ public interface ExamDetailService {
 
     List<ExamDetailBO> find(ExamDetailRequest request , int pageNum , int pageSize);
 
-    void update(ExamDetailRequest request);
+    void update(ExamDetailRequest request) throws InterruptedException;
 
     void deleteByExamTypeId(String examTypeId);
 

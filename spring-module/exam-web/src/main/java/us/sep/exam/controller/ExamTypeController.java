@@ -10,6 +10,7 @@ import us.sep.exam.builder.ExamTypeBO;
 import us.sep.util.common.Result;
 import us.sep.util.enums.CommonResultCode;
 import us.sep.util.log.Log;
+import us.sep.util.utils.AssertUtil;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +46,8 @@ public class ExamTypeController {
     @PutMapping
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @Log(loggerName = LoggerName.WEB_DIGEST)
-    public Result<ExamTypeBO> UpdateExamType(ExamTypeRequest request, HttpServletRequest httpServletRequest){
+    public Result<ExamTypeBO> UpdateExamType(ExamTypeRequest request, HttpServletRequest httpServletRequest) throws InterruptedException {
+        AssertUtil.assertStringNotBlank(request.getExamTypeId(),"考试类型id不能为空");
         return new Result<>(true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(),examTypeService.update(request));
     }
 

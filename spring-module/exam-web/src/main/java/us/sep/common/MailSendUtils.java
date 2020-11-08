@@ -8,6 +8,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import us.sep.biz.common.util.RedisUtil;
 import us.sep.biz.user.request.EmailRequest;
 
 import javax.annotation.Resource;

@@ -45,7 +45,7 @@ public class ExamDetailController {
     @PutMapping
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
     @Log(loggerName = LoggerName.WEB_DIGEST)
-    public Result<ExamDetailRequest> updateExamDetail(@Valid ExamDetailRequest request , HttpServletRequest httpServletRequest){
+    public Result<ExamDetailRequest> updateExamDetail(ExamDetailRequest request , HttpServletRequest httpServletRequest) throws InterruptedException {
         AssertUtil.assertStringNotBlank(request.getExamDetailId(),"考试信息id不能为空");
         examDetailService.update(request);
         return new Result<>(true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(),request);

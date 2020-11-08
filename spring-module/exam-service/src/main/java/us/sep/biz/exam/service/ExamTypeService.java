@@ -35,5 +35,5 @@ public interface ExamTypeService {
      * 更新考试大类信息
      * @return
      */
-    ExamTypeBO update(ExamTypeRequest request);
+    ExamTypeBO update(ExamTypeRequest request) throws InterruptedException;
 }

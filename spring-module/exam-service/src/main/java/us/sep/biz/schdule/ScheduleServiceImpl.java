@@ -8,6 +8,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import us.sep.base.idfactory.BizIdFactory;
+import us.sep.biz.common.util.RedisUtil;
 import us.sep.exam.entity.*;
 import us.sep.exam.repo.*;
 import us.sep.util.utils.CollectionUtils;
@@ -19,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static us.sep.biz.common.config.RedisConfig.*;
 
 /**
   * 定时任务实现
@@ -51,6 +54,9 @@ public class ScheduleServiceImpl implements  ScheduleService {
     @Resource
     private UserExamEntryRepo userExamEntryRepo;
 
+    @Resource
+    private RedisUtil redisUtil;
+
 
     @Override
     @Scheduled(cron = ScheduleConstant.AM_TWO_OF_THE_CLOCK)
@@ -63,7 +69,10 @@ public class ScheduleServiceImpl implements  ScheduleService {
                 .before(now)).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(examDetailDOList)) {
             for (ExamDetailDO examDetailDO : examDetailDOList) {
+                //todo del redis cache
                 examDetailRepo.delete(examDetailDO);
+                redisUtil.hDelete(EXAM_DETAIL, EXAM_DETAIL_ID + examDetailDO.getExamDetailId());
+                redisUtil.zRemove(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamDetailId());
                 ExamRecordDO examRecordDO = new ExamRecordDO();
                 BeanUtils.copyProperties(examDetailDO, examRecordDO);
                 examRecordDO.setExamRecordId(bizIdFactory.getExamRecordId());

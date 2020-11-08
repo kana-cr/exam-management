@@ -34,6 +34,14 @@ public class ExamEntryRecordDO extends AbstractAuditBase {
     @Column(length = 32, nullable = false,updatable = false)
     private String examEntryRecordId;
 
+
+    /**
+     * 单类考试具体信息id
+     */
+    @Column(nullable = false , length = 32, updatable = false)
+    private String examDetailId;
+
+
     /**
      * 考试关联报名信息id
      */
@@ -56,7 +64,7 @@ public class ExamEntryRecordDO extends AbstractAuditBase {
 
     public ExamEntryRecordBO ToExamEntryRecordBO(){
         return ExamEntryRecordBO.builder().examEntryRecordId(examEntryRecordId).examEntryId(examEntryId)
-                .state(state).note(note).build();
+                .state(state).note(note).examDetailId(examDetailId).build();
     }
 
 

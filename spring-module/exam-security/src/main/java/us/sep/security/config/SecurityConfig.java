@@ -55,6 +55,10 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                //查看图片不设置权限
+                .antMatchers(HttpMethod.GET,"/image").permitAll()
+                // 轮播消息不设置权限
+                .antMatchers(HttpMethod.GET,"/carousel").permitAll()
                 // 指定路径下的资源需要验证了的用户才能访问
                 .antMatchers("/exam/**","/users/check,/userSub").authenticated()
                 //.antMatchers(HttpMethod.DELETE, "/**").hasAnyRole("ADMIN","MANAGER")

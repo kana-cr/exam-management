@@ -17,8 +17,5 @@ public class LoggerName {
      */
     public final static String WEB_DIGEST = "WEB_DIGEST";
 
-    /**
-     * 财务摘要日志
-     */
-    public final static String FINANCE_DIGEST="FINANCE_DIGEST";
+
 }

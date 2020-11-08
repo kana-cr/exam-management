@@ -6,7 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-import us.sep.biz.exam.common.CheckDateUtil;
+import us.sep.biz.common.util.CheckDateUtil;
 import us.sep.biz.exam.request.ExamRecordRequest;
 import us.sep.biz.exam.service.ExamRecordService;
 import us.sep.exam.builder.ExamRecordBO;

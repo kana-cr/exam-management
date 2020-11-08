@@ -112,25 +112,28 @@ public class ExamScoreServiceImpl implements ExamScoreService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteByExamDetailId(String examDetailId) {
-       if (examScoreRepo.existsByExamDetailId(examDetailId))
-           examScoreRepo.deleteByExamDetailId(examDetailId);
+       if (!examScoreRepo.existsByExamDetailId(examDetailId))
         throw new CustomizeException(CommonResultCode.UNFOUNDED,"未找到删除信息");
+
+        examScoreRepo.deleteByExamDetailId(examDetailId);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteByExamScoreId(String examScoreId) {
-        if (examScoreRepo.existsByExamScoreId(examScoreId))
-            examScoreRepo.existsByExamScoreId(examScoreId);
-        throw new CustomizeException(CommonResultCode.UNFOUNDED,"未找到删除信息");
+        if (!examScoreRepo.existsByExamScoreId(examScoreId))
+            throw new CustomizeException(CommonResultCode.UNFOUNDED,"未找到删除信息");
+
+            examScoreRepo.deleteByExamScoreId(examScoreId);
+
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void deleteByUserId(String userId) {
-        if (examScoreRepo.existsByUserId(userId))
-            examScoreRepo.deleteByUserId(userId);
+        if (!examScoreRepo.existsByUserId(userId))
         throw new CustomizeException(CommonResultCode.UNFOUNDED,"未找到删除信息");
+        examScoreRepo.deleteByUserId(userId);
     }
 
     @Override

@@ -109,4 +109,16 @@ public interface BizIdFactory {
      */
     String getUserExamEntryRecord();
 
+    /**
+     * 生成轮播图id
+     *
+     * @return
+     */
+    String getCarousel();
+
+    /**
+     * 生成图片id
+     *
+     */
+    String getImage();
 }

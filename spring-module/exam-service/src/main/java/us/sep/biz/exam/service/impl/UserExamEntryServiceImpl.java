@@ -8,7 +8,7 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import us.sep.base.idfactory.BizIdFactory;
-import us.sep.biz.exam.common.RedisLock;
+import us.sep.biz.common.util.RedisLock;
 import us.sep.biz.exam.enums.ExamEntryEnum;
 import us.sep.biz.exam.request.UserExamEntryRequest;
 import us.sep.biz.exam.service.UserExamEntryService;
@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,7 +48,7 @@ public class UserExamEntryServiceImpl implements UserExamEntryService {
 
     private static final String ExamEntryId = "EXAM_ENTRY_ID : ";
 
-    public static final ReentrantLock lock = new ReentrantLock();
+    //public static final ReentrantLock lock = new ReentrantLock();
 
     @Override
     public List<UserExamEntryBO> getUserEntryByExamEntryId(String examEntryId) {
@@ -61,6 +60,30 @@ public class UserExamEntryServiceImpl implements UserExamEntryService {
     public List<UserExamEntryBO> getUserEntryByUserId(String userId) {
         List<UserExamEntryDO> userExamEntryList = userExamEntryRepo.findByUserId(userId);
         return userExamEntryList.stream().map(UserExamEntryDO::ToUserExamEntryBO).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<UserExamEntryBO> getUserEntryByCache(String examEntryId) {
+        //报名不存在
+        if (!examEntryRepo.existsByExamEntryId(examEntryId))
+            throw new CustomizeException(CommonResultCode.UNFOUNDED, "不存在该报名");
+
+        if (!examEntryRepo.findByExamEntryId(examEntryId).get().getState().equals(ExamEntryEnum.Start.getState()))
+            throw new CustomizeException(CommonResultCode.SYSTEM_ERROR, "该报名已结束");
+
+        if (!stringRedisTemplate.hasKey(ExamEntryId + examEntryId)) {
+            throw new CustomizeException(CommonResultCode.UNFOUNDED, "不存在该报名");
+        }
+
+        List<UserExamEntryDO> userExamEntries = new ArrayList<>();
+
+        Map<Object, Object> entries = stringRedisTemplate.opsForHash().entries(ExamEntryId + examEntryId);
+
+        for (Object entry:entries.keySet()) {
+            String userExamJson = (String) stringRedisTemplate.opsForHash().get(ExamEntryId + examEntryId , entry);
+            userExamEntries.add(JSON.parseObject(userExamJson ,UserExamEntryDO.class));
+        }
+        return userExamEntries.stream().map(UserExamEntryDO::ToUserExamEntryBO).collect(Collectors.toList());
     }
 
     @Override

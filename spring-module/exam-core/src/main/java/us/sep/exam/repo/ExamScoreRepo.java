@@ -38,6 +38,12 @@ public interface ExamScoreRepo extends JpaRepository<ExamScoreDO,Long> {
      */
     void deleteByUserId(String userId);
 
+    /**
+     * 删除单条记录
+     * @param scoreId
+     */
+    void deleteByExamScoreId(String scoreId);
+
     boolean existsByExamDetailId(String examDetailId);
 
     boolean existsByUserId(String userId);

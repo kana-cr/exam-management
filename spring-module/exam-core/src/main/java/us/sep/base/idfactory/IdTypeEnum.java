@@ -70,6 +70,15 @@ public enum IdTypeEnum {
      */
     User_Entry_Exam_Record_ID("1013","用户报名归档id"),
 
+    /**
+     * 轮播图id
+     */
+    Carousel_ID("1014","轮播图id"),
+
+    /**
+     * 轮播图
+     */
+    IMAGE_ID("1015","轮播图id"),
     ;
 
 

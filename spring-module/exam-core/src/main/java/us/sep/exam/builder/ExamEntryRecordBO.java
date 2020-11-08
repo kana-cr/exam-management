@@ -28,6 +28,11 @@ public class ExamEntryRecordBO extends AbstractAuditBase {
     private String examEntryId;
 
     /**
+     * 单类考试具体信息id
+     */
+    private String examDetailId;
+
+    /**
      * 记录状态
      */
     private String state;
