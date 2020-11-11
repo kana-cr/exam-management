@@ -48,7 +48,7 @@ public class UserExamEntryServiceImpl implements UserExamEntryService {
 
     private static final String ExamEntryId = "EXAM_ENTRY_ID : ";
 
-    //public static final ReentrantLock lock = new ReentrantLock();
+    
 
     @Override
     public List<UserExamEntryBO> getUserEntryByExamEntryId(String examEntryId) {
@@ -135,12 +135,17 @@ public class UserExamEntryServiceImpl implements UserExamEntryService {
 
         long number = stringRedisTemplate.opsForHash().size(ExamEntryId + request.getExamEntryId());
 
-        if (number > examEntryRepo.findByExamEntryId(request.getExamEntryId()).get().getNumber())
+		
+		if (redisLock.setConcurrentLock(request.getExamEntryId())) {
+			
+        if (number > examEntryRepo.findByExamEntryId(request.getExamEntryId()).get().getNumber()){
+			 redisLock.deleteConcurrentLock(entryId);
             throw new CustomizeException(CommonResultCode.SYSTEM_ERROR, "报名人数已满");
+		}
 
         String entryId = request.getExamEntryId();
 
-       if (redisLock.setConcurrentLock(request.getExamEntryId())) {
+       
 
            UserExamEntryDO userExamEntryDO = new UserExamEntryDO();
            BeanUtils.copyProperties(request, userExamEntryDO);
