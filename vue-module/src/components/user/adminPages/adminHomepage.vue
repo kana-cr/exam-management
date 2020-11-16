@@ -645,6 +645,7 @@ export default {
     },
 
     deleteImg: function (item) {
+      //删除图片信息和图片地址
       var that = this;
       axios
         .all([

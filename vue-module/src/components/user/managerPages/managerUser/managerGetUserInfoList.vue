@@ -201,9 +201,7 @@ export default {
     },
 
     getUserDetail: function (row, rowList) {
-      //console.log(row);
       //this.loading = false;
-
       var that = this;
       if (rowList.length) {
         // 只展开一行//说明展开了

@@ -437,8 +437,8 @@ export default {
         document.removeEventListener("mouseup", up);
         dom.style.left = "";
         console.log(x, checkx);
-        let max = checkx - 5;
-        let min = checkx - 10;
+        let max = checkx - 2;
+        let min = checkx - 13;
         //允许正负误差1
         if ((max >= x && x >= min) || x === checkx) {
           console.log("滑动解锁成功");

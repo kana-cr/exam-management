@@ -109,7 +109,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examEntry/record?pageNum&pageSize",
+            url: "http://kana.chat:70/examEntry/record?pageNum&pageSize=100000",
           }),
           //考试信息表
           axios({

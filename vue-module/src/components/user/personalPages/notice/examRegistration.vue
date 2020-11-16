@@ -25,6 +25,7 @@
         prop="examAnnounce"
         label="成绩公布日期"
       ></el-table-column>
+      <el-table-column prop="location" label="座位"></el-table-column>
     </el-table>
     <el-pagination
       @current-change="handleCurrentChange"
@@ -58,6 +59,10 @@ export default {
       pagesize: 10,
       //数组总数
       pageTotal: 100000,
+      //归档总表
+      allFileList: [],
+      //用户报名归档表
+      userFileList: [],
     };
   },
   computed: {
@@ -72,6 +77,7 @@ export default {
     setTimeout(function () {}, 300);
   },
   methods: {
+    //获取还在报名的考试信息
     getRegistrationList: function () {
       var that = this;
       this.loading = true;
@@ -111,7 +117,6 @@ export default {
                     reponse.data.data.examDetailId ==
                     _that.examList[i].examDetailId
                   ) {
-                    console.log(_that.examList[i]);
                     _that.$set(
                       item,
                       "examDescription",
