@@ -11,7 +11,12 @@
     </el-carousel>
     <el-container>
       <el-header>
-        <el-divider content-position="left">最新咨询</el-divider>
+        <el-divider content-position="left"
+          >最新咨询<el-divider direction="vertical"></el-divider>
+          <el-button @click="getMore" size="mini" type="text"
+            >更多 more+</el-button
+          >
+        </el-divider>
       </el-header>
       <el-main>
         <el-timeline>
@@ -46,6 +51,7 @@
 import axios from "axios";
 import { mapState, mapActions } from "vuex";
 export default {
+  inject: ["searchMessage"],
   name: "homepage",
   data() {
     return {
@@ -59,13 +65,18 @@ export default {
       fiveImage: [],
     };
   },
+  computed: {
+    ...mapState({
+      print: (state) => state.print.all,
+      userId: (state) => state.userId.all,
+    }),
+  },
   mounted: function () {
     this.getHomepageCommont();
   },
   methods: {
     getHomepageCommont: function () {
       var that = this;
-
       axios
         .all([
           axios({
@@ -97,6 +108,10 @@ export default {
             }
           })
         );
+    },
+
+    getMore: function () {
+      this.searchMessage();
     },
   },
 };

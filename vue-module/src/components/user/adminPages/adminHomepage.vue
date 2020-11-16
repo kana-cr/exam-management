@@ -109,7 +109,7 @@
     </el-form>
 
     <!-- 编辑主页图片 -->
-    <div v-if="ifImg">
+    <div v-if="ifImg" v-loading="loading">
       <el-upload
         class="upload-demo"
         ref="upload"
@@ -301,7 +301,7 @@ import axios from "axios";
 import { mapState, mapActions } from "vuex";
 export default {
   inject: ["reload"],
-  name: "managerHomepage",
+  name: "adminHomepage",
   data() {
     return {
       //时间
@@ -381,7 +381,7 @@ export default {
           //默认到消息页面，取得全部消息
           axios({
             method: "get",
-            url: "http://kana.chat:70/carousel?pageNum=&pageSize",
+            url: "http://kana.chat:70/carousel?pageNum=&pageSize=100000",
           }),
           //获取账号信息
           axios({
@@ -426,11 +426,12 @@ export default {
 
       this.ifMessage = false;
       var that = this;
+      this.loading = true;
 
       //获取全部图片
       axios({
         method: "get",
-        url: "http://kana.chat:70/image/all?pageNum=&pageSize",
+        url: "http://kana.chat:70/image/all?pageNum=&pageSize=1000000",
       }).then(
         function (response) {
           that.imageList = response.data.data;
@@ -444,9 +445,11 @@ export default {
             );
             that.$set(item, "username", that.otherUser[0].userName);
           });
+          that.loading = false;
         },
         function (err) {
           that.$message.error("获取图片失败");
+          that.loading = false;
         }
       );
     },
@@ -598,7 +601,6 @@ export default {
         //图片base64数据
         //console.log(this.result);
       };
-      //console.log(file)
       this.imageName = file.raw.name;
       this.file = file.raw;
       this.fileName =
@@ -606,7 +608,6 @@ export default {
     },
 
     uploadFile: function () {
-      console.log(this.file);
       let param = new FormData();
       param.append("file", this.file);
       param.append("fileName", this.fileName);
@@ -617,31 +618,30 @@ export default {
         }, //这里是重点，需要和后台沟通好请求头，Content-Type不一定是这个值
       }; //添加请求头
       var that = this;
-      axios.post("http://kana.chat:70/common/aliyun", param, config).then(
-        (response) => {
-          console.log(response.data);
-          that.$message({
-            message: "上传成功",
-            type: "success",
-          });
-        },
-        (err) => {
-          that.$message.error("上传失败");
-        }
-      );
-      axios({
-        headers: { Authorization: this.print.Authorization },
-        method: "post",
-        url: "http://kana.chat:70/image",
-        params: {
-          imageName: this.imageName.slice(0, this.imageName.length - 4),
-          userId: this.userId.userId,
-          tag: "Show",
-        },
-      }).then(function (response) {
-        console.log("success");
-      });
-      this.reload();
+
+      axios
+        .all([
+          axios.post("http://kana.chat:70/common/aliyun", param, config),
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "post",
+            url: "http://kana.chat:70/image",
+            params: {
+              imageName: this.imageName.slice(0, this.imageName.length - 4),
+              userId: this.userId.userId,
+              tag: "Show",
+            },
+          }),
+        ])
+        .then(
+          axios.spread(function (aliyunResponse, infoResponse) {
+            that.$message({
+              message: "上传图像成功",
+              type: "success",
+            });
+            that.reload();
+          })
+        );
     },
 
     deleteImg: function (item) {
@@ -692,7 +692,7 @@ export default {
         //获取全部图片
         axios({
           method: "get",
-          url: "http://kana.chat:70/image/all?pageNum=&pageSize",
+          url: "http://kana.chat:70/image/all?pageNum=&pageSize=1000000",
         }).then(function (response) {
           that.imageList = response.data.data;
           that.imageList.forEach((item) => {

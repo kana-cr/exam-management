@@ -42,17 +42,9 @@
                 >
               </el-menu-item-group>
             </el-submenu>
-            <!-- 管理员页面 -->
-            <template v-if="role">
+            <!-- 教师页面 -->
+            <template v-if="teacher">
               <div class="dropdown-divider"></div>
-              <el-menu-item index="/usercenter/managerHomepage">
-                <i class="el-icon-reading"></i>
-                <span slot="title">主页编辑</span>
-              </el-menu-item>
-              <el-menu-item index="/usercenter/managerChangeRole">
-                <i class="el-icon-help"></i>
-                <span slot="title">用户角色</span>
-              </el-menu-item>
               <el-menu-item index="/usercenter/managerGetUserInfo">
                 <i class="el-icon-document-copy"></i>
                 <span slot="title">获取用户信息</span>
@@ -79,7 +71,20 @@
                 <i class="el-icon-monitor"></i>
                 <span slot="title">频道管理</span>
               </el-menu-item>
-              <el-menu-item index="/usercenter/managerGetLog">
+            </template>
+
+            <!-- 管理员页面 -->
+            <template v-if="admin">
+              <div class="dropdown-divider"></div>
+              <el-menu-item index="/usercenter/adminHomepage">
+                <i class="el-icon-reading"></i>
+                <span slot="title">主页编辑</span>
+              </el-menu-item>
+              <el-menu-item index="/usercenter/adminChangeRole">
+                <i class="el-icon-help"></i>
+                <span slot="title">用户角色</span>
+              </el-menu-item>
+              <el-menu-item index="/usercenter/adminGetLog">
                 <i class="el-icon-printer"></i>
                 <span slot="title">获取日志</span>
               </el-menu-item>
@@ -107,13 +112,16 @@ export default {
   name: "usercenter",
   data() {
     return {
-      role: false,
       //ei-menu 是否显示
       isCollapse: true,
+      //教师
+      teacher: false,
+      //管理员
+      admin: false,
     };
   },
   mounted: function () {
-    this.getUser();
+    this.getUserRole();
   },
   computed: {
     ...mapState({
@@ -121,8 +129,9 @@ export default {
     }),
   },
   methods: {
-    getUser: function () {
+    getUserRole: function () {
       var that = this;
+      //判断教师
       axios({
         headers: {
           Authorization: this.print.Authorization,
@@ -132,14 +141,22 @@ export default {
           username: this.print.username,
         },
         url: "http://kana.chat:70/users/check",
-      }).then(
-        function (reponse) {
-          that.role = reponse.data.data;
+      }).then(function (response) {
+        that.teacher = response.data.data;
+      });
+      //判断管理员
+      axios({
+        headers: {
+          Authorization: this.print.Authorization,
         },
-        function (err) {
-          console.log(err);
-        }
-      );
+        method: "get",
+        params: {
+          username: this.print.username,
+        },
+        url: "http://kana.chat:70/users/check/admin",
+      }).then(function (response) {
+        that.admin = response.data.data;
+      });
     },
 
     logout: function () {

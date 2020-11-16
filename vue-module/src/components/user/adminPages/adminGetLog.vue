@@ -110,7 +110,7 @@ import axios from "axios";
 import { mapState, mapActions } from "vuex";
 export default {
   inject: ["reload"],
-  name: "managerGetLog",
+  name: "adminGetLog",
   data() {
     return {
       log: [],

@@ -75,7 +75,11 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="考试限制" :label-width="formLabelWidth">
-          <el-input v-model="u_form.u_examLimit" autocomplete="off" @keyup.enter.native="updateTestType"></el-input>
+          <el-input
+            v-model="u_form.u_examLimit"
+            autocomplete="off"
+            @keyup.enter.native="updateTestType"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -404,11 +408,9 @@ export default {
         function (reponse) {
           that.testList = reponse.data.data;
           that.pageTotal = reponse.data.data.length;
-          that.loading = false;
         },
         function (err) {
           that.$message.error("获取失败");
-          that.loading = false;
         }
       );
     },
@@ -423,9 +425,11 @@ export default {
         }).then(
           function (reponse) {
             that.$set(item, "number", reponse.data.data.length);
+            that.loading = false;
           },
           function (err) {
             that.$message.error("获取信息数量失败");
+            that.loading = false;
           }
         );
       });

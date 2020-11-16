@@ -5,7 +5,6 @@
         examList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
       "
       style="width: 100%"
-      :default-sort="{ prop: 'date', order: 'descending' }"
       v-loading="loading"
     >
       <el-table-column prop="examDescription" label="考试名称">

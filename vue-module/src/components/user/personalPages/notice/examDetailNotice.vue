@@ -6,6 +6,7 @@
       "
       style="width: 100%"
       :default-sort="{ prop: 'date', order: 'descending' }"
+      v-loading="loading"
     >
       <el-table-column prop="examDescription" label="考试内容" fixed>
       </el-table-column>
@@ -25,12 +26,12 @@
       </el-table-column>
     </el-table>
     <el-pagination
+      align="center"
       @current-change="handleCurrentChange"
       :current-page="currentPage"
       :page-size="pagesize"
       background
-      align="center"
-      layout="total, prev, pager, next"
+      layout="total, prev, pager, next, jumper"
       :total="pageTotal"
     >
     </el-pagination>
@@ -74,7 +75,6 @@ export default {
     setTimeout(function () {
       that.getExamMessage();
     }, 300);
-    console.log(this.examList);
   },
   methods: {
     getPersonalChannel: function () {
@@ -86,14 +86,14 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/channel?pageNum=0&pageSize=10000",
+            url: "http://kana.chat:70/channel?pageNum=0&pageSize=100000",
           }),
           //获取用户订阅的表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userSub/user?pageNum&pageSize&userId=" +
+              "http://kana.chat:70/userSub/user?pageNum&pageSize=100000&userId=" +
               this.userId.userId,
           }),
         ])
@@ -115,7 +115,6 @@ export default {
                 }
               }
             }
-            that.loading = false;
           })
         );
     },
@@ -136,9 +135,11 @@ export default {
               that.examList.push(reponse.data.data[j]);
               that.pageTotal += 1;
             }
+            that.loading = false;
           },
           function (err) {
             that.$message.error("查无考试消息");
+            that.loading = false;
           }
         );
       }

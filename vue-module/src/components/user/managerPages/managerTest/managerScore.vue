@@ -6,6 +6,7 @@
       "
       style="width: 100%"
       :default-sort="{ prop: 'date', order: 'descending' }"
+      v-loading="loading"
     >
       <el-table-column
         prop="examDescription"
@@ -42,6 +43,16 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      align="center"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-size="pagesize"
+      background
+      layout="total, prev, pager, next, jumper"
+      :total="pageTotal"
+    >
+    </el-pagination>
 
     <!-- 报名dialog -->
     <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
@@ -249,7 +260,7 @@ export default {
           axios.spread(function (fileResponse, examResponse) {
             that.fileList = fileResponse.data.data;
             that.examList = examResponse.data.data;
-            that.pageToatl = fileResponse.data.data.length;
+            that.pageTotal = fileResponse.data.data.length;
           })
         );
     },
@@ -269,23 +280,11 @@ export default {
           }
         }
       });
+      this.loading = false;
     },
 
-    getExamInformation: function () {
-      this.fileList.forEach((item) => {
-        for (var i = 0; i < this.examList.length; i++) {
-          if (item.examDetailId == this.examList[i].examDetailId) {
-            this.$set(
-              item,
-              "examDescription",
-              this.examList[i].examDescription
-            );
-            this.$set(item, "examLocation", this.examList[i].examLocation);
-            this.$set(item, "examStartTime", this.examList[i].examStartTime);
-            this.$set(item, "examEndTime", this.examList[i].examEndTime);
-          }
-        }
-      });
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage;
     },
 
     getScore: function (row) {

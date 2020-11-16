@@ -24,7 +24,7 @@
               >主页 <span class="sr-only">(current)</span></router-link
             >
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown" v-if="ifShow">
             <a
               class="nav-link dropdown-toggle"
               href="#"
@@ -55,7 +55,6 @@
               data-toggle="dropdown"
               aria-haspopup="true"
               aria-expanded="false"
-              @click="showDrop"
             >
               {{ student_Name }}
             </a>
@@ -131,6 +130,11 @@ import homepageMessage from "./public/message/homepagemessage";
 export default {
   inject: ["reload"],
   name: "HelloWorld",
+  provide() {
+    return {
+      searchMessage: this.searchMessage,
+    };
+  },
   components: {
     homepageMessage,
   },
@@ -146,6 +150,8 @@ export default {
       imageFile: [],
       //头像地址
       userAvatar: "",
+      //获取登陆的remeber，判断cookie存放时间
+      rememberMe: this.$route.params.rememberMe,
     };
   },
   computed: {
@@ -167,20 +173,36 @@ export default {
     }
   },
   created: function () {
+    //cookie操作
+    if (this.print.Authorization == "" || this.print.username == "") {
+      //获取cookie并存到vuex store
+      this.$store.commit("print/setPrint", {
+        Authorization: this.$cookies.get("Authorization"),
+        username: this.$cookies.get("username"),
+      });
+    } else {
+      //存到cookie
+      //记住保存七天，不记住保存一小时
+      if (this.rememberMe) {
+        console.log("保存7天");
+        this.$cookies.set(
+          "Authorization",
+          this.print.Authorization,
+          60 * 60 * 24 * 7
+        );
+        this.$cookies.set("username", this.print.username, 60 * 60 * 24 * 7);
+      } else {
+        console.log("保存1小时");
+        this.$cookies.set("Authorization", this.print.Authorization, "1h");
+        this.$cookies.set("username", this.print.username, "1h");
+      }
+    }
     this.setState();
   },
   methods: {
-    showDrop: function () {
-      if (this.student_Name != "未登录") {
-        this.ifShow = true;
-      } else {
-        this.ifShow = false;
-      }
-    },
-
     getUserName: function () {
       var that = this;
-      if (this.print.username != "") {
+      if (this.print.username != "" && this.print.username != null) {
         //获取学生真名
         axios({
           headers: {
@@ -189,31 +211,61 @@ export default {
           method: "get",
           url: "http://kana.chat:70/userInfo?username=" + this.print.username,
         }).then(
-          function (reponse) {
-            that.student_Name = reponse.data.data.realName;
+          function (response) {
+            that.student_Name = response.data.data.realName;
+            var _that = that;
+            //获取头像
+            axios({
+              headers: { Authorization: that.print.Authorization },
+              method: "get",
+              url:
+                "http://kana.chat:70/image/user?userId=" +
+                response.data.data.userId,
+            }).then(function (response) {
+              _that.imageFile = response.data.data;
+              _that.imageFile = _that.imageFile.filter(
+                (item) => item.tag == "Avatar"
+              );
+              //_that.userAvatar = _that.imageFile[0].url;
+              if (_that.imageFile.length == 0) {
+                var _that_that = _that;
+                axios({
+                  method: "get",
+                  url: "http://kana.chat:70/image/tag?tag=Show",
+                }).then(function (response) {
+                  _that_that.imageFile = response.data.data;
+                  _that_that.imageFile.forEach((img) => {
+                    if (img.imageName == "black") {
+                      _that_that.userAvatar = img.url;
+                    }
+                  });
+                });
+              } else {
+                _that.userAvatar = _that.imageFile[0].url;
+              }
+            });
           },
           function (err) {
             that.student_Name = "你不配有名字";
+            //获得小黑头像
+            var _that = that;
+            axios({
+              method: "get",
+              url: "http://kana.chat:70/image/tag?tag=Show",
+            }).then(function (response) {
+              _that.imageFile = response.data.data;
+              _that.imageFile.forEach((img) => {
+                if (img.imageName == "black") {
+                  _that.userAvatar = img.url;
+                }
+              });
+            });
           }
         );
 
-        //获取头像
-        axios({
-          headers: { Authorization: this.print.Authorization },
-          method: "get",
-          url: "http://kana.chat:70/image/user?userId=" + this.userId.userId,
-        }).then(
-          function (response) {
-            that.imageFile = response.data.data;
-            that.imageFile = that.imageFile.filter(
-              (item) => item.tag == "Avatar"
-            );
-            that.userAvatar = that.imageFile[0].url;
-          },
-          function (err) {
-            that.userAvatar = "";
-          }
-        );
+        this.ifShow = true;
+      } else {
+        this.ifShow = false;
       }
     },
 
@@ -226,16 +278,11 @@ export default {
         },
         method: "get",
         url: "http://kana.chat:70/users/single?username=" + this.print.username,
-      }).then(
-        function (reponse) {
-          that.$store.commit("userId/setUserId", {
-            userId: reponse.data.data.userId,
-          });
-        },
-        function (err) {
-          console.log(err);
-        }
-      );
+      }).then(function (reponse) {
+        that.$store.commit("userId/setUserId", {
+          userId: reponse.data.data.userId,
+        });
+      });
     },
 
     logout: function () {
@@ -249,6 +296,8 @@ export default {
       this.$router.push({
         name: "homepage",
       });
+      this.$cookies.remove("Authorization");
+      this.$cookies.remove("username");
       this.$router.go(0);
     },
 
@@ -282,7 +331,7 @@ export default {
       else
         axios({
           method: "get",
-          url: "http://kana.chat:70/carousel?pageNum=&pageSize",
+          url: "http://kana.chat:70/carousel?pageNum=&pageSize=100000",
         }).then(
           function (response) {
             that.messageList = response.data.data;

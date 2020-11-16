@@ -128,7 +128,6 @@ export default {
             that.channelList = reponseAll.data.data;
             that.userChannelList = reponseUser.data.data;
             that.pageTotal = reponseAll.data.data.length;
-            console.log(that.userChannelList);
             if (that.userChannelList.length != 0) {
               for (var i = 0; i < that.channelList.length; i++) {
                 for (var j = 0; j < that.userChannelList.length; j++) {
@@ -148,7 +147,6 @@ export default {
                 that.subList[i] = true;
               }
             }
-            that.loading = false;
           })
         );
     },
@@ -208,8 +206,6 @@ export default {
           this.userChannelId = this.userChannelList[i].userChannelId;
         }
       }
-      console.log(this.userChannelId);
-      console.log(this.userId.userId);
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
@@ -242,9 +238,11 @@ export default {
         }).then(
           function (reponse) {
             that.$set(item, "number", reponse.data.data.length);
+            that.loading = false;
           },
           function (err) {
             that.$message.error("获取订阅人数失败");
+            that.loading = false;
           }
         );
       });

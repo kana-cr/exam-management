@@ -24,28 +24,6 @@
               >主页 <span class="sr-only">(current)</span></router-link
             >
           </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              考试报名
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <router-link class="dropdown-item" to="/publicGetExam"
-                >报名中心</router-link
-              >
-              <div class="dropdown-divider"></div>
-              <router-link class="dropdown-item" to="/publicGetTest"
-                >考试频道</router-link
-              >
-            </div>
-          </li>
         </ul>
       </div>
     </nav>
@@ -220,6 +198,8 @@ export default {
       time: 60,
       ifGetCode: false,
       ifRightCode: false,
+      //如果邮箱登陆获得username
+      username: "",
 
       rule: {
         username: [
@@ -276,17 +256,39 @@ export default {
           axios.post("http://kana.chat:70/auth/login", this.loginForm).then(
             function (reponse) {
               that.authorization = reponse.headers.authorization;
-              //存到vuex store
-              that.$store.commit("print/setPrint", {
-                Authorization: that.authorization,
-                username: that.loginForm.username,
-              });
+              //判断是否是email，待更新
+              if (that.loginForm.username.indexOf("@") < 0) {
+                //存到vuex store
+                that.$store.commit("print/setPrint", {
+                  Authorization: that.authorization,
+                  username: that.loginForm.username,
+                });
+              } else {
+                var _that = that;
+                axios({
+                  headers: { Authorization: that.authorization },
+                  method: "get",
+                  url:
+                    "http://kana.chat:70/users/userEmail?email=" +
+                    that.loginForm.username,
+                }).then(function (response) {
+                  _that.username = response.data.data.userName;
+                  _that.$store.commit("print/setPrint", {
+                    Authorization: _that.authorization,
+                    username: _that.username,
+                  });
+                });
+              }
+
               that.$message({
                 message: "登陆成功",
                 type: "success",
               });
               that.$router.push({
                 name: "homepage",
+                params:{
+                  rememberMe: that.loginForm.rememberMe
+                }
               });
             },
             function (err) {

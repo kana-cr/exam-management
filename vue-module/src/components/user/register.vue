@@ -24,28 +24,6 @@
               >主页 <span class="sr-only">(current)</span></router-link
             >
           </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              考试报名
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <router-link class="dropdown-item" to="/publicGetExam"
-                >报名中心</router-link
-              >
-              <div class="dropdown-divider"></div>
-              <router-link class="dropdown-item" to="/publicGetTest"
-                >考试频道</router-link
-              >
-            </div>
-          </li>
         </ul>
       </div>
     </nav>
