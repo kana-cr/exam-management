@@ -35,11 +35,13 @@ axios.interceptors.response.use(function (response) {
             router.replace({
                 path: '/login',
             })
+        } else if (err.response.data.message.indexOf('Full authentication is required to access this resource') == 0) {
+            router.replace({
+                path: '/homepage',
+            })
         }
         switch (err.response.status) {
-            case 400:
-                this.$message.error(err.message)
-                break
+            case 400: err.message = '请求错误(400)'; break
             case 401: err.message = '请求错误(401)'; break
             case 500: err.message = '登录超时(500)'; break
             case "(failed)": err.message = '掉线'; break

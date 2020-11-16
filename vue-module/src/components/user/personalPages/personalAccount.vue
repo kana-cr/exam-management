@@ -211,6 +211,8 @@ export default {
       imageId: "",
       //主页轮播图片表单
       fileUpLoadList: [],
+      //获得全部头像，为了小黑
+      allImage: [],
 
       rule: {
         u_fullName: [
@@ -267,7 +269,19 @@ export default {
         that.imageFile = that.imageFile.filter((item) => item.tag == "Avatar");
         if (that.imageFile.length == 0) {
           that.haveAvatar = true;
-          that.imageUrl = "";
+          //获得小黑头像
+          var _that = that;
+          axios({
+            method: "get",
+            url: "http://kana.chat:70/image/tag?tag=Show",
+          }).then(function (response) {
+            _that.allImage = response.data.data;
+            _that.allImage.forEach((img) => {
+              if (img.imageName == "black") {
+                _that.imageUrl = img.url;
+              }
+            });
+          });
         } else {
           that.haveAvatar = false;
           that.imageUrl = that.imageFile[0].url;

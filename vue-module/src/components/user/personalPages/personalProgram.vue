@@ -3,7 +3,6 @@
     <el-table
       v-loading="loading"
       :data="newChannelList"
-      height="800"
       stripe
       style="width: 100%"
       @row-click="showMessage"
@@ -25,6 +24,16 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      align="center"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-size="pagesize"
+      background
+      layout="total, prev, pager, next, jumper"
+      :total="pageTotal"
+    >
+    </el-pagination>
 
     <el-dialog :visible.sync="messageDialog" width="60%">
       <el-table :data="messageList">
@@ -48,6 +57,12 @@ export default {
   data() {
     return {
       loading: false,
+      //初始页
+      currentPage: 1,
+      //每页的数据
+      pagesize: 10,
+      //数组总数
+      pageTotal: 100000,
       //全频道列表
       channelList: [],
       //用户订阅频道对应关系列表
@@ -85,14 +100,14 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/channel?pageNum=0&pageSize=10000",
+            url: "http://kana.chat:70/channel?pageNum=0&pageSize=100000",
           }),
           //获取用户订阅的表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userSub/user?pageNum&pageSize&userId=" +
+              "http://kana.chat:70/userSub/user?pageNum&pageSize=100000&userId=" +
               this.userId.userId,
           }),
         ])
@@ -114,9 +129,16 @@ export default {
                 }
               }
             }
-            that.loading = false;
+            that.pageTotal = that.newChannelList.length;
           })
         );
+    },
+
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage;
     },
 
     cannelSubscribe(index, row) {
@@ -155,14 +177,16 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/message?pageNum=0&pageSize=10&channel=" +
+            "http://kana.chat:70/message?pageNum=0&pageSize=100000&channel=" +
             item.channel,
         }).then(
           function (reponse) {
             that.$set(item, "number", reponse.data.data.length);
+            that.loading = false;
           },
           function (err) {
             that.$message.error("获取订阅人数失败");
+            that.loading = false;
           }
         );
       });
@@ -174,7 +198,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "get",
         url:
-          "http://kana.chat:70/message?pageNum=0&pageSize=10&channel=" +
+          "http://kana.chat:70/message?pageNum=0&pageSize=100000&channel=" +
           index.channel,
       }).then(
         function (reponse) {

@@ -96,7 +96,6 @@ export default {
     var that = this;
     setTimeout(function () {
       that.getListToge();
-      that.loading = false;
     }, 300);
   },
   methods: {
@@ -189,6 +188,7 @@ export default {
           );
         }
       });
+      this.loading = false;
     },
 
     //表格数据转换

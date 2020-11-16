@@ -6,6 +6,7 @@
       "
       style="width: 100%"
       :default-sort="{ prop: 'date', order: 'descending' }"
+      v-loading="loading"
     >
       <el-table-column
         prop="examDescription"
@@ -31,7 +32,7 @@
       :page-size="pagesize"
       background
       align="center"
-      layout="total, prev, pager, next"
+      layout="total, prev, pager, next, jumper"
       :total="pageTotal"
     >
     </el-pagination>
@@ -140,6 +141,7 @@ export default {
                 }
               });
             });
+            that.loading = false;
           })
         );
     },
