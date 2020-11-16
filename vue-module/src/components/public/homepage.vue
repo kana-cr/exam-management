@@ -85,7 +85,7 @@ export default {
           }),
           axios({
             method: "get",
-            url: "http://kana.chat:70/carousel?pageNum=&pageSize",
+            url: "http://kana.chat:70/carousel?pageNum=&pageSize=1000000",
           }),
         ])
         .then(
