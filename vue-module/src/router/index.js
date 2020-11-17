@@ -51,7 +51,7 @@ Router.prototype.push = function push(location) {
 }
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -217,3 +217,14 @@ export default new Router({
     },
   ]
 })
+
+//路由守卫
+router.beforeEach((to, from, next) => {
+  if (to == "/" || from == "/")
+    next({
+      path: "homepage"
+    })
+  next();
+})
+
+export default router;

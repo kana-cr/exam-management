@@ -140,7 +140,7 @@ export default {
         params: {
           username: this.print.username,
         },
-        url: "http://kana.chat:70/users/check",
+        url: "/api/users/check",
       }).then(function (response) {
         that.teacher = response.data.data;
       });
@@ -153,7 +153,7 @@ export default {
         params: {
           username: this.print.username,
         },
-        url: "http://kana.chat:70/users/check/admin",
+        url: "/api/users/check/admin",
       }).then(function (response) {
         that.admin = response.data.data;
       });

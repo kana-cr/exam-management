@@ -57,6 +57,7 @@
         </div>
         <div class="form-group">
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
+          <el-button type="text" @click="autherLogin">百度登陆</el-button>
         </div>
         <br />
         <div class="form-group">
@@ -253,7 +254,7 @@ export default {
       this.$refs["loginForm"].validate((valid) => {
         if (valid) {
           var that = this;
-          axios.post("http://kana.chat:70/auth/login", this.loginForm).then(
+          axios.post("/api/auth/login", this.loginForm).then(
             function (reponse) {
               that.authorization = reponse.headers.authorization;
               //判断是否是email，待更新
@@ -269,7 +270,7 @@ export default {
                   headers: { Authorization: that.authorization },
                   method: "get",
                   url:
-                    "http://kana.chat:70/users/userEmail?email=" +
+                    "/api/users/userEmail?email=" +
                     that.loginForm.username,
                 }).then(function (response) {
                   _that.username = response.data.data.userName;
@@ -286,9 +287,9 @@ export default {
               });
               that.$router.push({
                 name: "homepage",
-                params:{
-                  rememberMe: that.loginForm.rememberMe
-                }
+                params: {
+                  rememberMe: that.loginForm.rememberMe,
+                },
               });
             },
             function (err) {
@@ -306,7 +307,7 @@ export default {
         var that = this;
         axios
           .post(
-            "http://kana.chat:70/users/email?email=" + this.getPassForm.email
+            "/api/users/email?email=" + this.getPassForm.email
           )
           .then(
             function (reponse) {
@@ -340,7 +341,7 @@ export default {
     checkVerifyCode: function () {
       var that = this;
       axios
-        .get("http://kana.chat:70/users/email?email=" + this.getPassForm.email)
+        .get("/api/users/email?email=" + this.getPassForm.email)
         .then(
           function (reponse) {
             //console.log(reponse.data.data);
@@ -362,7 +363,7 @@ export default {
         var that = this;
         axios({
           method: "put",
-          url: "http://kana.chat:70/users/email",
+          url: "/api/users/email",
           params: {
             email: this.getPassForm.email,
             verifyCode: this.getPassForm.verifyCode,
@@ -389,7 +390,7 @@ export default {
       var that = this;
       axios({
         method: "get",
-        url: "http://kana.chat:70/image/tag?tag=Show",
+        url: "/api/image/tag?tag=Show",
       }).then(
         function (response) {
           that.imageList = response.data.data;
@@ -514,6 +515,17 @@ export default {
       ctx.stroke();
       ctx[type]();
       ctx.globalCompositeOperation = "xor";
+    },
+
+    autherLogin: function () {
+      //跳转到百度授权登陆页面
+      //var url = "/api/oauth/render/BAIDU";
+      //window.location.href = url;
+      axios
+        .get("/api/oauth/render/BAIDU")
+        .then(function (response) {
+          console.log(response.data.data);
+        });
     },
   },
 };

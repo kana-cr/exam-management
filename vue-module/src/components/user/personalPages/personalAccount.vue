@@ -246,7 +246,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/users/single?username=" + this.print.username,
+        url: "/api/users/single?username=" + this.print.username,
       }).then(
         function (reponse) {
           that.personAccount = reponse.data.data;
@@ -263,7 +263,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/image/user?userId=" + this.userId.userId,
+        url: "/api/image/user?userId=" + this.userId.userId,
       }).then(function (response) {
         that.imageFile = response.data.data;
         that.imageFile = that.imageFile.filter((item) => item.tag == "Avatar");
@@ -273,7 +273,7 @@ export default {
           var _that = that;
           axios({
             method: "get",
-            url: "http://kana.chat:70/image/tag?tag=Show",
+            url: "/api/image/tag?tag=Show",
           }).then(function (response) {
             _that.allImage = response.data.data;
             _that.allImage.forEach((img) => {
@@ -306,7 +306,7 @@ export default {
           fullName: this.personAccountUpdate.u_fullName,
           password: this.personAccountUpdate.password,
         },
-        url: "http://kana.chat:70/users",
+        url: "/api/users",
       }).then(
         function (reponse) {
           that.$message({
@@ -349,11 +349,11 @@ export default {
       var that = this;
       axios
         .all([
-          axios.post("http://kana.chat:70/common/aliyun", param, config),
+          axios.post("/api/common/aliyun", param, config),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "post",
-            url: "http://kana.chat:70/image",
+            url: "/api/image",
             params: {
               imageName: this.fileData.name.slice(
                 0,
@@ -383,12 +383,12 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/image?imageId=" + this.imageId,
+            url: "/api/image?imageId=" + this.imageId,
           }),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/common/aliyun?fileurl=" + this.imageUrl,
+            url: "/api/common/aliyun?fileurl=" + this.imageUrl,
           }),
         ])
         .then(

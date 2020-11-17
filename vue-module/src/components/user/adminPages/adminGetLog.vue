@@ -161,7 +161,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/log?pageNum=&pageSize=100000",
+        url: "/api/log?pageNum=&pageSize=100000",
       }).then(
         function (reponse) {
           that.log = reponse.data.data;
@@ -217,7 +217,7 @@ export default {
           time: this.form.time,
           createTime: this.form.createTime,
         },
-        url: "http://kana.chat:70/log/condition",
+        url: "/api/log/condition",
       }).then(
         function (reponse) {
           that.log = reponse.data.data;

@@ -113,14 +113,14 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userExamEntry/user?userId=" +
+              "/api/userExamEntry/user?userId=" +
               this.userId.userId,
           }),
           //考试信息表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examDetail",
+            url: "/api/examDetail",
           }),
         ])
         .then(
@@ -134,7 +134,7 @@ export default {
                 headers: { Authorization: that.print.Authorization },
                 method: "get",
                 url:
-                  "http://kana.chat:70/examEntry?examEntryId=" +
+                  "/api/examEntry?examEntryId=" +
                   item.examEntryId,
               }).then(function (reponse) {
                 for (var i = 0; i < _that.examList.length; i++) {
@@ -186,7 +186,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "get",
         url:
-          "http://kana.chat:70/examLocation/user?userId=" + this.userId.userId,
+          "/api/examLocation/user?userId=" + this.userId.userId,
       }).then(function (response) {
         response.data.data.forEach((item) => {
           for (var i = 0; i < that.fileList.length; i++) {

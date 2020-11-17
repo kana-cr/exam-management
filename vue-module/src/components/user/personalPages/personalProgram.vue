@@ -100,14 +100,14 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/channel?pageNum=0&pageSize=100000",
+            url: "/api/channel?pageNum=0&pageSize=100000",
           }),
           //获取用户订阅的表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userSub/user?pageNum&pageSize=100000&userId=" +
+              "/api/userSub/user?pageNum&pageSize=100000&userId=" +
               this.userId.userId,
           }),
         ])
@@ -154,7 +154,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "delete",
         url:
-          "http://kana.chat:70/userSub/single?userChannelId=" +
+          "/api/userSub/single?userChannelId=" +
           this.userChannelId,
       }).then(
         function (reponse) {
@@ -177,7 +177,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/message?pageNum=0&pageSize=100000&channel=" +
+            "/api/message?pageNum=0&pageSize=100000&channel=" +
             item.channel,
         }).then(
           function (reponse) {
@@ -198,7 +198,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "get",
         url:
-          "http://kana.chat:70/message?pageNum=0&pageSize=100000&channel=" +
+          "/api/message?pageNum=0&pageSize=100000&channel=" +
           index.channel,
       }).then(
         function (reponse) {

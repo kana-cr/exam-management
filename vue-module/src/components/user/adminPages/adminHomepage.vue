@@ -381,13 +381,13 @@ export default {
           //默认到消息页面，取得全部消息
           axios({
             method: "get",
-            url: "http://kana.chat:70/carousel?pageNum=&pageSize=100000",
+            url: "/api/carousel?pageNum=&pageSize=100000",
           }),
           //获取账号信息
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/users?pageNum=0&pageSize=100000",
+            url: "/api/users?pageNum=0&pageSize=100000",
           }),
         ])
         .then(
@@ -431,7 +431,7 @@ export default {
       //获取全部图片
       axios({
         method: "get",
-        url: "http://kana.chat:70/image/all?pageNum=&pageSize=1000000",
+        url: "/api/image/all?pageNum=&pageSize=1000000",
       }).then(
         function (response) {
           that.imageList = response.data.data;
@@ -471,7 +471,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "post",
-        url: "http://kana.chat:70/carousel",
+        url: "/api/carousel",
         params: this.messageForm,
       }).then(
         function (response) {
@@ -499,7 +499,7 @@ export default {
       var that = this;
       axios({
         method: "get",
-        url: "http://kana.chat:70/carousel/single?carouselId=" + row.carouselId,
+        url: "/api/carousel/single?carouselId=" + row.carouselId,
       }).then(
         function (response) {
           that.messageForm = {
@@ -524,7 +524,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/carousel?carouselId=" + row.carouselId,
+        url: "/api/carousel?carouselId=" + row.carouselId,
       }).then(
         function (response) {
           that.$message({
@@ -559,7 +559,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "put",
-        url: "http://kana.chat:70/carousel",
+        url: "/api/carousel",
         params: {
           carouselId: this.carouselId,
           title: this.messageForm.title,
@@ -621,11 +621,11 @@ export default {
 
       axios
         .all([
-          axios.post("http://kana.chat:70/common/aliyun", param, config),
+          axios.post("/api/common/aliyun", param, config),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "post",
-            url: "http://kana.chat:70/image",
+            url: "/api/image",
             params: {
               imageName: this.imageName.slice(0, this.imageName.length - 4),
               userId: this.userId.userId,
@@ -655,7 +655,7 @@ export default {
               "Content-Type": "multipart/form-data",
             },
             method: "delete",
-            url: "http://kana.chat:70/common/aliyun",
+            url: "/api/common/aliyun",
             params: {
               fileurl: item.url,
             },
@@ -666,7 +666,7 @@ export default {
               "Content-Type": "application/x-www-form-urlencoded",
             },
             method: "delete",
-            url: "http://kana.chat:70/image",
+            url: "/api/image",
             params: {
               imageId: item.imageId,
             },
@@ -693,7 +693,7 @@ export default {
         //获取全部图片
         axios({
           method: "get",
-          url: "http://kana.chat:70/image/all?pageNum=&pageSize=1000000",
+          url: "/api/image/all?pageNum=&pageSize=1000000",
         }).then(function (response) {
           that.imageList = response.data.data;
           that.imageList.forEach((item) => {
@@ -711,7 +711,7 @@ export default {
         //获得分类图片
         axios({
           method: "get",
-          url: "http://kana.chat:70/image/tag?tag=" + tab.name,
+          url: "/api/image/tag?tag=" + tab.name,
         }).then(function (response) {
           that.imageList = response.data.data;
           that.imageList.forEach((item) => {

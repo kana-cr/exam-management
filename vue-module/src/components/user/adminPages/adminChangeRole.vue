@@ -172,7 +172,7 @@ export default {
               Authorization: this.print.Authorization,
             },
             method: "get",
-            url: "http://kana.chat:70/users?pageNum=0&pageSize=100000",
+            url: "/api/users?pageNum=0&pageSize=100000",
           }),
           //获取权限角色
           axios({
@@ -180,7 +180,7 @@ export default {
               Authorization: this.print.Authorization,
             },
             method: "get",
-            url: "http://kana.chat:70/roles",
+            url: "/api/roles",
           }),
         ])
         .then(
@@ -203,7 +203,7 @@ export default {
                 params: {
                   username: item.userName,
                 },
-                url: "http://kana.chat:70/users/check",
+                url: "/api/users/check",
               }).then(function (response) {
                 if (response.data.data == true)
                   _that.$set(item, "description", "教师");
@@ -217,7 +217,7 @@ export default {
                 params: {
                   username: item.userName,
                 },
-                url: "http://kana.chat:70/users/check/admin",
+                url: "/api/users/check/admin",
               }).then(function (response) {
                 if (response.data.data == true)
                   _that.$set(item, "description", "管理员");
@@ -243,7 +243,7 @@ export default {
         },
         method: "delete",
         url:
-          "http://kana.chat:70/roles?name=" +
+          "/api/roles?name=" +
           row.name +
           "&description=" +
           row.description,
@@ -269,7 +269,7 @@ export default {
         },
         method: "post",
         url:
-          "http://kana.chat:70/roles?name=" +
+          "/api/roles?name=" +
           this.name +
           "&description=" +
           this.description,
@@ -297,7 +297,7 @@ export default {
           },
           method: "put",
           url:
-            "http://kana.chat:70/roles?name=" +
+            "/api/roles?name=" +
             this.name +
             "&description=" +
             this.description,
@@ -341,7 +341,7 @@ export default {
               "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
             },
             method: "post",
-            url: "http://kana.chat:70/userRole",
+            url: "/api/userRole",
             params: {
               userName: row.userName,
               roleName: row.description,
@@ -366,7 +366,7 @@ export default {
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "delete",
-              url: "http://kana.chat:70/userRole",
+              url: "/api/userRole",
               params: {
                 userName: row.userName,
                 roleName: this.oldRole,
@@ -391,7 +391,7 @@ export default {
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "delete",
-              url: "http://kana.chat:70/userRole",
+              url: "/api/userRole",
               params: {
                 userName: row.userName,
                 roleName: this.oldRole,
@@ -406,7 +406,7 @@ export default {
                       "application/x-www-form-urlencoded;charset=UTF-8",
                   },
                   method: "post",
-                  url: "http://kana.chat:70/userRole",
+                  url: "/api/userRole",
                   params: {
                     userName: row.userName,
                     roleName: row.description,
@@ -445,7 +445,7 @@ export default {
           Authorization: that.print.Authorization,
         },
         method: "put",
-        url: "http://kana.chat:70/users",
+        url: "/api/users",
         data: {
           userName: row.userName,
           enabled: bool,

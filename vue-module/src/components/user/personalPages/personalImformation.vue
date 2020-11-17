@@ -288,7 +288,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/userInfo?username=" + this.print.username,
+        url: "/api/userInfo?username=" + this.print.username,
       }).then(
         function (reponse) {
           that.personInfo = reponse.data.data;
@@ -309,7 +309,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/image/user?userId=" + this.userId.userId,
+        url: "/api/image/user?userId=" + this.userId.userId,
       }).then(function (response) {
         that.imageFile = response.data.data;
         that.imageFile = that.imageFile.filter((item) => item.tag == "Exam");
@@ -319,7 +319,7 @@ export default {
           var _that = that;
           axios({
             method: "get",
-            url: "http://kana.chat:70/image/tag?tag=Show",
+            url: "/api/image/tag?tag=Show",
           }).then(function (response) {
             _that.allImage = response.data.data;
             _that.allImage.forEach((img) => {
@@ -348,7 +348,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/major/all?pageNum&pageSize",
+        url: "/api/major/all?pageNum&pageSize",
       }).then(function (reponse) {
         for (var i = 0; i < reponse.data.data.length; i++) {
           that.majorList[i] = {
@@ -384,7 +384,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url: "http://kana.chat:70/major?major=" + this.value,
+          url: "/api/major?major=" + this.value,
         }).then(function (reponse) {
           reponse.data.data.forEach((item) => {
             if (item.discipline == major) {
@@ -406,7 +406,7 @@ export default {
             //录入 post请求
             axios({
               method: "post",
-              url: "http://kana.chat:70/userInfo",
+              url: "/api/userInfo",
               headers: {
                 Authorization: this.print.Authorization,
                 "Content-Type":
@@ -438,7 +438,7 @@ export default {
             //更新 put请求
             axios({
               method: "put",
-              url: "http://kana.chat:70/userInfo",
+              url: "/api/userInfo",
               params: {
                 username: this.print.username,
                 realName: this.personInfoUpdate.u_realName,
@@ -501,11 +501,11 @@ export default {
       var that = this;
       axios
         .all([
-          axios.post("http://kana.chat:70/common/aliyun", param, config),
+          axios.post("/api/common/aliyun", param, config),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "post",
-            url: "http://kana.chat:70/image",
+            url: "/api/image",
             params: {
               imageName: this.fileData.name.slice(
                 0,
@@ -535,12 +535,12 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/image?imageId=" + this.imageId,
+            url: "/api/image?imageId=" + this.imageId,
           }),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/common/aliyun?fileurl=" + this.imageUrl,
+            url: "/api/common/aliyun?fileurl=" + this.imageUrl,
           }),
         ])
         .then(
