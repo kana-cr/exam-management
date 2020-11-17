@@ -57,7 +57,7 @@
         </div>
         <div class="form-group">
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
-          <el-button type="text" @click="autherLogin">百度登陆</el-button>
+          <el-button type="text" @click="authorizeLogin">百度登陆</el-button>
         </div>
         <br />
         <div class="form-group">
@@ -269,9 +269,7 @@ export default {
                 axios({
                   headers: { Authorization: that.authorization },
                   method: "get",
-                  url:
-                    "/api/users/userEmail?email=" +
-                    that.loginForm.username,
+                  url: "/api/users/userEmail?email=" + that.loginForm.username,
                 }).then(function (response) {
                   _that.username = response.data.data.userName;
                   _that.$store.commit("print/setPrint", {
@@ -305,18 +303,14 @@ export default {
     sendEmail(formName) {
       this.$refs[formName].validate((valid) => {
         var that = this;
-        axios
-          .post(
-            "/api/users/email?email=" + this.getPassForm.email
-          )
-          .then(
-            function (reponse) {
-              that.ifGetCode = true;
-            },
-            function (err) {
-              that.$message.error("查无此账号邮箱");
-            }
-          );
+        axios.post("/api/users/email?email=" + this.getPassForm.email).then(
+          function (reponse) {
+            that.ifGetCode = true;
+          },
+          function (err) {
+            that.$message.error("查无此账号邮箱");
+          }
+        );
 
         //60S后重发验证码
         if (valid) {
@@ -340,22 +334,20 @@ export default {
 
     checkVerifyCode: function () {
       var that = this;
-      axios
-        .get("/api/users/email?email=" + this.getPassForm.email)
-        .then(
-          function (reponse) {
-            //console.log(reponse.data.data);
-            if (that.getPassForm.verifyCode == reponse.data.data) {
-              that.ifRightCode = true;
-            } else {
-              that.emailDialog = false;
-              that.$message.error("验证码错误！");
-            }
-          },
-          function (err) {
-            that.$message.error("获取指定邮箱验证码失败");
+      axios.get("/api/users/email?email=" + this.getPassForm.email).then(
+        function (reponse) {
+          //console.log(reponse.data.data);
+          if (that.getPassForm.verifyCode == reponse.data.data) {
+            that.ifRightCode = true;
+          } else {
+            that.emailDialog = false;
+            that.$message.error("验证码错误！");
           }
-        );
+        },
+        function (err) {
+          that.$message.error("获取指定邮箱验证码失败");
+        }
+      );
     },
 
     updatePassword: function (formName) {
@@ -517,15 +509,14 @@ export default {
       ctx.globalCompositeOperation = "xor";
     },
 
-    autherLogin: function () {
+    authorizeLogin: function () {
       //跳转到百度授权登陆页面
-      //var url = "/api/oauth/render/BAIDU";
-      //window.location.href = url;
-      axios
-        .get("/api/oauth/render/BAIDU")
-        .then(function (response) {
-          console.log(response.data.data);
-        });
+      var url = "/api/oauth/render/BAIDU";
+      window.open(url, "_blank");
+      //跳转到中间页
+      this.$router.push({
+        name: "authorize",
+      });
     },
   },
 };
