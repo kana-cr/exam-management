@@ -1,0 +1,483 @@
+<template>
+  <div>
+    <el-button @click="dialogTableVisible = true"> 角色管理 </el-button><br />
+
+    <el-dialog title="角色列表" :visible.sync="dialogTableVisible">
+      <el-table :data="roleList">
+        <el-table-column
+          v-model="name"
+          property="name"
+          label="权限"
+        ></el-table-column>
+
+        <el-table-column
+          property="description"
+          label="注解 身份"
+        ></el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button
+              type="primary"
+              icon="el-icon-delete"
+              value="deleteRole"
+              @click="handleDelete(scope.$index, scope.row)"
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+
+      <el-input v-model="name" placeholder="請輸入權限" />
+      <el-input v-model="description" placeholder="請輸入描述的内容" />
+      <el-button
+        type="primary"
+        icon="el-icon-circle-plus"
+        value="addRole"
+        @click="addRole"
+        >添加角色</el-button
+      >
+      <el-button
+        type="primary"
+        icon="el-icon-share"
+        value="updateRole"
+        @click="updateRole"
+        >修改角色</el-button
+      >
+    </el-dialog>
+
+    <div>
+      <el-table
+        :data="
+          userList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
+        "
+        style="width: 100%"
+        v-loading="loading"
+      >
+        <el-table-column prop="userName" label="用户名" align="center">
+        </el-table-column>
+        <el-table-column prop="fullName" label="昵称" align="center">
+        </el-table-column>
+        <el-table-column label="身份" align="center">
+          <template slot-scope="scope">
+            <template v-if="!scope.row.ifChange">
+              {{ scope.row.description }}
+            </template>
+            <template v-else>
+              <el-select v-model="scope.row.description" placeholder="请选择">
+                <el-option
+                  v-for="item in roleList"
+                  :key="item.name"
+                  :label="item.description"
+                  :value="item.name"
+                >
+                </el-option>
+              </el-select>
+            </template>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <el-button
+              @click="scope.row.ifChange = false"
+              v-if="scope.row.ifChange"
+              size="mini"
+              >取消更改</el-button
+            >
+            <el-button size="mini" @click="changeRole(scope.$index, scope.row)"
+              >更改权限</el-button
+            >
+            <el-popconfirm
+              confirm-button-text="好的"
+              cancel-button-text="不用了"
+              icon="el-icon-info"
+              icon-color="red"
+              title="你确定要封掉这个账号吗？"
+              @onConfirm="prohibitAccount(scope.row, false)"
+            >
+              <el-button
+                type="danger"
+                size="mini"
+                slot="reference"
+                v-if="scope.row.enable"
+                >封禁账号</el-button
+              >
+            </el-popconfirm>
+            <el-button
+              size="mini"
+              slot="reference"
+              v-if="!scope.row.enable"
+              @click="prohibitAccount(scope.row, true)"
+              >解封账号</el-button
+            >
+          </template>
+        </el-table-column>
+      </el-table>
+      <el-pagination
+        align="center"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-size="pagesize"
+        background
+        layout="total, prev, pager, next, jumper"
+        :total="pageTotal"
+      >
+      </el-pagination>
+      <!-- 封禁账号 -->
+    </div>
+  </div>
+</template>
+
+<script>
+import axios from "axios";
+import { mapState, mapActions } from "vuex";
+export default {
+  inject: ["reload"],
+  name: "adminChangeRole",
+  data() {
+    return {
+      loading: false,
+      //权限表
+      roleList: [],
+      name: "",
+      description: "",
+      dialogTableVisible: false,
+      //用户列表
+      userList: [],
+      //初始页
+      currentPage: 1,
+      //每页的数据
+      pagesize: 10,
+      //数组总数
+      pageTotal: 100000,
+      //旧的权限
+      oldRole: "",
+    };
+  },
+  computed: {
+    ...mapState({
+      print: (state) => state.print.all,
+    }),
+  },
+  mounted: function () {
+    this.getUserList();
+  },
+  methods: {
+    getUserList: function () {
+      var that = this;
+      this.loading = true;
+      axios
+        .all([
+          //获取用户信息
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            url: "http://kana.chat:70/users?pageNum=0&pageSize=100000",
+          }),
+          //获取权限角色
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            url: "http://kana.chat:70/roles",
+          }),
+        ])
+        .then(
+          axios.spread(function (userResponse, roleResponse) {
+            //用户返回处理
+            that.userList = userResponse.data.data;
+            that.pageTotal = that.userList.length;
+            //角色返回处理
+            that.roleList = roleResponse.data.data;
+            //获得用户角色
+            var _that = that;
+            that.userList.forEach((item) => {
+              that.$set(item, "description", "普通用户");
+              //判断教师
+              axios({
+                headers: {
+                  Authorization: that.print.Authorization,
+                },
+                method: "get",
+                params: {
+                  username: item.userName,
+                },
+                url: "http://kana.chat:70/users/check",
+              }).then(function (response) {
+                if (response.data.data == true)
+                  _that.$set(item, "description", "教师");
+              });
+              //判断管理员
+              axios({
+                headers: {
+                  Authorization: that.print.Authorization,
+                },
+                method: "get",
+                params: {
+                  username: item.userName,
+                },
+                url: "http://kana.chat:70/users/check/admin",
+              }).then(function (response) {
+                if (response.data.data == true)
+                  _that.$set(item, "description", "管理员");
+              });
+              that.$set(item, "ifChange", false);
+            });
+            that.loading = false;
+          })
+        );
+    },
+
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage;
+    },
+
+    //新的刪除角色
+    handleDelete(index, row) {
+      var that = this;
+      axios({
+        headers: {
+          Authorization: this.print.Authorization,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        method: "delete",
+        url:
+          "http://kana.chat:70/roles?name=" +
+          row.name +
+          "&description=" +
+          row.description,
+      }).then(
+        function (repponse) {
+          that.$message({
+            message: "删除成功",
+            type: "success",
+          });
+          that.reload();
+        },
+        function (err) {
+          that.$message.error("删除失败，请重新尝试");
+        }
+      );
+    },
+
+    addRole: function () {
+      var that = this;
+      axios({
+        headers: {
+          Authorization: this.print.Authorization,
+        },
+        method: "post",
+        url:
+          "http://kana.chat:70/roles?name=" +
+          this.name +
+          "&description=" +
+          this.description,
+      }).then(
+        function (repponse) {
+          that.$message({
+            message: "添加成功",
+            type: "success",
+          });
+          that.reload();
+        },
+        function (err) {
+          that.$message.error("添加失败，请重新尝试");
+        }
+      );
+    },
+
+    updateRole: function () {
+      var that = this;
+      if (this.name != "" && this.description != "") {
+        axios({
+          headers: {
+            Authorization: this.print.Authorization,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          method: "put",
+          url:
+            "http://kana.chat:70/roles?name=" +
+            this.name +
+            "&description=" +
+            this.description,
+        }).then(
+          function (repponse) {
+            that.$message({
+              message: "更改成功",
+              type: "success",
+            });
+            that.reload();
+          },
+          function (err) {
+            that.$message.error("更改失败，请重新尝试");
+          }
+        );
+      } else {
+        that.$message({
+          message: "没有填写表单",
+          type: "warning",
+        });
+      }
+    },
+
+    handleFall(index, row) {
+      var that = this;
+    },
+
+    changeRole: function (index, row) {
+      if (row.ifChange == false) {
+        row.ifChange = true;
+        if (row.description == "管理员") this.oldRole = "ADMIN";
+        else if (row.description == "教师") this.oldRole = "MANAGER";
+        else if (row.description == "普通用户") this.oldRole = "USER";
+      } else {
+        var that = this;
+        //普通用户不需要删除角色
+        if (this.oldRole == "USER") {
+          axios({
+            headers: {
+              Authorization: that.print.Authorization,
+              "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+            },
+            method: "post",
+            url: "http://kana.chat:70/userRole",
+            params: {
+              userName: row.userName,
+              roleName: row.description,
+            },
+          }).then(
+            function (response) {
+              that.$message({
+                message: "更改权限成功",
+                type: "success",
+              });
+              if (row.description == "ADMIN") row.description = "管理员";
+              else if (row.description == "MANAGER") row.description = "教师";
+              else if (row.description == "USER") row.description = "普通用户";
+            },
+            function (err) {
+              that.$message.error("更改权限失败");
+            }
+          );
+        } else {
+          //变回普通用户需要删除
+          if (row.description == "USER") {
+            axios({
+              headers: { Authorization: this.print.Authorization },
+              method: "delete",
+              url: "http://kana.chat:70/userRole",
+              params: {
+                userName: row.userName,
+                roleName: this.oldRole,
+              },
+            }).then(
+              function (response) {
+                that.$message({
+                  message: "更改权限成功",
+                  type: "success",
+                });
+                if (row.description == "ADMIN") row.description = "管理员";
+                else if (row.description == "MANAGER") row.description = "教师";
+                else if (row.description == "USER")
+                  row.description = "普通用户";
+              },
+              function (err) {
+                that.$message.error("更改权限失败");
+              }
+            );
+          } else {
+            //先删除角色
+            axios({
+              headers: { Authorization: this.print.Authorization },
+              method: "delete",
+              url: "http://kana.chat:70/userRole",
+              params: {
+                userName: row.userName,
+                roleName: this.oldRole,
+              },
+            }).then(
+              function (response) {
+                var _that = that;
+                axios({
+                  headers: {
+                    Authorization: that.print.Authorization,
+                    "Content-Type":
+                      "application/x-www-form-urlencoded;charset=UTF-8",
+                  },
+                  method: "post",
+                  url: "http://kana.chat:70/userRole",
+                  params: {
+                    userName: row.userName,
+                    roleName: row.description,
+                  },
+                }).then(
+                  function (response) {
+                    _that.$message({
+                      message: "更改权限成功",
+                      type: "success",
+                    });
+                    if (row.description == "ADMIN") row.description = "管理员";
+                    else if (row.description == "MANAGER")
+                      row.description = "教师";
+                    else if (row.description == "USER")
+                      row.description = "普通用户";
+                  },
+                  function (err) {
+                    _that.$message.error("更改权限失败");
+                  }
+                );
+              },
+              function (err) {
+                that.$message.error("更改权限失败");
+              }
+            );
+          }
+        }
+        row.ifChange = false;
+      }
+    },
+
+    prohibitAccount: function (row, bool) {
+      var that = this;
+      axios({
+        headers: {
+          Authorization: that.print.Authorization,
+        },
+        method: "put",
+        url: "http://kana.chat:70/users",
+        data: {
+          userName: row.userName,
+          enabled: bool,
+        },
+      }).then(
+        function (response) {
+          if (bool == false) {
+            that.$message({
+              message: "封禁用户成功",
+              type: "success",
+            });
+            row.enable = false;
+          } else {
+            that.$message({
+              message: "解禁用户成功",
+              type: "success",
+            });
+            row.enable = true;
+          }
+        },
+        function (err) {
+          that.$message.error("操作失败");
+        }
+      );
+    },
+  },
+};
+</script>
+
+<style>
+.transfer-footer {
+  margin-left: 20px;
+  padding: 6px 5px;
+}
+</style>

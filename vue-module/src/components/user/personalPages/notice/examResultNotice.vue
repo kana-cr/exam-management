@@ -6,6 +6,7 @@
       "
       style="width: 100%"
       :default-sort="{ prop: 'date', order: 'descending' }"
+      v-loading="loading"
     >
       <el-table-column
         prop="examDescription"
@@ -28,7 +29,7 @@
       :page-size="pagesize"
       background
       align="center"
-      layout="total, prev, pager, next"
+      layout="total, prev, pager, next, jumper"
       :total="pageTotal"
     >
     </el-pagination>
@@ -68,15 +69,16 @@ export default {
   methods: {
     getScoreList: function () {
       var that = this;
+      this.loading = true;
       //获取分数
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
         url: "http://kana.chat:70/examScore/user?userId=" + this.userId.userId,
-      }).then(
-        function (reponse) {
-          that.scoreList = reponse.data.data;
-          that.pageTotal = reponse.data.data.length;
+      }).then(function (response) {
+        that.scoreList = response.data.data;
+        if (that.scoreList != null) {
+          that.pageTotal = response.data.data.length;
           //获取考试信息
           var _that = that;
           that.scoreList.forEach((item) => {
@@ -86,30 +88,36 @@ export default {
               url:
                 "http://kana.chat:70/examDetail?examDetailId=" +
                 item.examDetailId,
-            }).then(function (reponse) {
+            }).then(function (response) {
               _that.$set(
                 item,
                 "examDescription",
-                reponse.data.data[0].examDescription
+                response.data.data[0].examDescription
               );
               _that.$set(
                 item,
                 "examLocation",
-                reponse.data.data[0].examLocation
+                response.data.data[0].examLocation
               );
               _that.$set(
                 item,
                 "examStartTime",
-                reponse.data.data[0].examStartTime
+                response.data.data[0].examStartTime
               );
-              _that.$set(item, "examEndTime", reponse.data.data[0].examEndTime);
+              _that.$set(
+                item,
+                "examEndTime",
+                response.data.data[0].examEndTime
+              );
             });
           });
-        },
-        function (err) {
-          that.$message.error("获取失败");
+        } else {
+          that.pageTotal = 0;
+          that.scoreList = [];
         }
-      );
+
+        that.loading = false;
+      });
     },
 
     handleCurrentChange: function (currentPage) {

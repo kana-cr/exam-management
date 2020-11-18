@@ -9,7 +9,7 @@
       "
       style="width: 100%"
       @cell-click="ifUpdateState"
-      :default-sort="{ prop: 'date', order: 'descending' }"
+      v-loading="loading"
     >
       <el-table-column prop="contact" label="联系人" align="center" width="100">
       </el-table-column>
@@ -297,6 +297,7 @@ export default {
           });
         }
       });
+      this.loading = false;
     },
 
     //表格数据转换
