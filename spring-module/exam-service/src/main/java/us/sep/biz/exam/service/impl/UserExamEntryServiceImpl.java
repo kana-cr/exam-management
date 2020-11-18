@@ -139,7 +139,7 @@ public class UserExamEntryServiceImpl implements UserExamEntryService {
 		if (redisLock.setConcurrentLock(request.getExamEntryId())) {
 			
         if (number > examEntryRepo.findByExamEntryId(request.getExamEntryId()).get().getNumber()){
-			 redisLock.deleteConcurrentLock(entryId);
+			 redisLock.deleteConcurrentLock(request.getExamEntryId());
             throw new CustomizeException(CommonResultCode.SYSTEM_ERROR, "报名人数已满");
 		}
 
