@@ -16,7 +16,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.Calendar;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * @author MessiahJK
@@ -55,6 +57,8 @@ public class AliyunOssUtil {
      * 缺省的最大上传文件大小：20M
      */
     private final int DEFAULT_MAXIMUM_FILE_SIZE = 20;
+
+    private static final String url = "https://kana-bucket.oss-cn-beijing.aliyuncs.com/";
 
     /**
      * endpoint
@@ -249,14 +253,15 @@ public class AliyunOssUtil {
      */
     private String getHostUrl() {
         String hostUrl = null;
-        if (this.endpoint.startsWith(FLAG_HTTP)) {
+
+        if ((this.endpoint).startsWith(FLAG_HTTP)) {
             hostUrl = FLAG_HTTP.concat(this.bucketName).concat(FLAG_DOT)
                     .concat(this.endpoint.replace(FLAG_HTTP, FLAG_EMPTY_STRING)).concat(FLAG_SLANTING_ROD);
         } else if (this.endpoint.startsWith(FLAG_HTTPS)) {
             return FLAG_HTTPS.concat(this.bucketName).concat(FLAG_DOT)
                     .concat(this.endpoint.replace(FLAG_HTTPS, FLAG_EMPTY_STRING)).concat(FLAG_SLANTING_ROD);
         }
-        return hostUrl;
+        return hostUrl == null?"":hostUrl;
     }
 
 
@@ -290,5 +295,67 @@ public class AliyunOssUtil {
             }
         }
     }
+
+    /**
+     * 删除文件
+     *
+     * @param fileUrl 文件访问的全路径
+     * @Author: Captain&D
+     * @cnblogs: https://www.cnblogs.com/captainad
+     */
+    public void deleteFileUrl(String fileUrl) {
+        if (StringUtils.isEmpty(fileUrl)
+                || (!fileUrl.startsWith(FLAG_HTTP)
+                && !fileUrl.startsWith(FLAG_HTTPS))) {
+            return;
+        }
+        OSSClient ossClient = null;
+        try {
+
+            String key = fileUrl.replace(url, FLAG_EMPTY_STRING);
+            ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+            ossClient.deleteObject(bucketName, key);
+        } catch (Exception e) {
+
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
+
+    /**
+     * 批量删除文件
+     *
+     * @param urls 文件访问的全路径集合
+     * @Author: Captain&D
+     * @cnblogs: https://www.cnblogs.com/captainad
+     */
+    public void deleteFileUrlInBatch(List<String> urls) {
+        if (urls.isEmpty()) {
+            return;
+        }
+        OSSClient ossClient = null;
+        try {
+
+            List<String> keys = urls.stream().map(key ->  key.replace(url, FLAG_EMPTY_STRING)).collect(Collectors.toList());
+            keys.forEach(System.out::println);
+            ossClient = new OSSClient(endpoint, accessKeyId, accessKeySecret);
+            ossClient.deleteObjects(new DeleteObjectsRequest(bucketName).withKeys(keys));
+            //help gc
+            keys = null;
+            //DeleteObjectsResult deleteObjectsResult =
+            //List<String> deletedObjects = deleteObjectsResult.getDeletedObjects();
+
+        } catch (Exception e) {
+
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
 
 }
