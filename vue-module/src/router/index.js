@@ -229,6 +229,8 @@ router.beforeEach((to, from, next) => {
     next({
       path: "homepage"
     })
+  // console.log(to)
+  // console.log(from)
   next();
 })
 

@@ -510,10 +510,7 @@ export default {
     },
 
     authorizeLogin: function () {
-      //跳转到百度授权登陆页面
-      var url = "/api/oauth/render/BAIDU";
-      window.open(url, "_blank");
-      //跳转到中间页
+      //跳转到授权中间页
       this.$router.push({
         name: "authorize",
       });
