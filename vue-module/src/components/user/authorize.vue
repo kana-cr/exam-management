@@ -26,13 +26,13 @@ export default {
   methods: {
     authorize: function () {
       //跳转到百度授权登陆页面
-      //var url = "/api/oauth/render/BAIDU";
+      var url = "/api/oauth/render/BAIDU";
       //window.location.href = url;
       //window.open(url, "_blank");
       var that = this;
       axios
         .get(
-          "/api/oauth/callback/BAIDU"
+          "/baidu/oauth/render/BAIDU"
         )
         .then((res) => {
           console.log(res);

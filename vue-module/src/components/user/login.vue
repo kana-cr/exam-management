@@ -57,7 +57,7 @@
         </div>
         <div class="form-group">
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
-          <el-button type="text" @click="authorizeLogin">百度登陆</el-button>
+          <!-- <el-button type="text" @click="authorizeLogin">百度登陆</el-button> -->
         </div>
         <br />
         <div class="form-group">
