@@ -19,6 +19,53 @@
 注: 部分架构设计参考项目:haetae (beta)
 
 ## 该实训项目采用前后端分离开发。
-## 技术栈
-spring 2.0 、mysql 5.7、redis
-前端使用Vue开发。
+
+### 技术栈&运行环境  
+
+```
+maven
+Java 1.8
+Spring boot
+Mysql
+Redis
+Vue
+```
+### 开发人员
+> 参与开发人员，排名不分先后  
+
+1. [dgxgefg1.hx](https://github.com/dgxgefg1)
+2. [hjy200022.hjy](https://github.com/hjy200022)
+3. [j2471571477.jcb](https://github.com/j2471571477)  
+
+### 目录结构
+```
+|-- exam-service  （业务层）
+|-- exam-core  (独立的业务领域核心)
+    |-- user        (用户领域核心)
+    |-- message    (消息领域核心)
+    |-- common   	(通用领域核心)
+    |-- exam      (物考试领域核心)
+|-- exam-security  (服务安全层)    
+|-- exam-web   (接口交互层)
+|-- util  (通用工具模块 -- 来自Beta的二方库)
+
+```
+> 业务码和模块划分暂不列出
+
+### 界面展示
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856514231.png)
+
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856717366.png)
+
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856938638.png)
+
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856947774.png)
+
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856956500.png)
+
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605857177957.png)
+
+### 数据库展示
+![图片](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856276349.png)
+
+
