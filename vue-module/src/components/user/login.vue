@@ -129,7 +129,11 @@
         v-if="ifRightCode"
       >
         <el-form-item prop="password" label="密码">
-          <el-input v-model="getPassForm.password"></el-input>
+          <el-input
+            type="password"
+            v-model="getPassForm.password"
+            show-password
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <el-button @click="updatePassword('getPassForm')">修改密码</el-button>
@@ -176,6 +180,15 @@ import axios from "axios";
 export default {
   name: "login",
   data() {
+    var checkpwd = /(?!^(\d+|[a-zA-Z]+|[~!@#$%^&*?]+)$)^[\w~!@#$%^&*?]{6,20}$/;
+    var validatePwd = (rule, value, callback) => {
+      if (!checkpwd.test(value)) {
+        callback(new Error("密码应是6-20位数字，字母或字符！"));
+      } else {
+        callback();
+      }
+    };
+
     return {
       //登陆表单
       loginForm: {
@@ -368,6 +381,7 @@ export default {
               message: "请记住新密码重新登陆",
               type: "success",
             });
+            that.loginForm.username = that.getPassForm.email;
             that.loginForm.password = that.getPassForm.password;
           },
           function (err) {
