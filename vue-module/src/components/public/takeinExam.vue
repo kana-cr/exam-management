@@ -118,7 +118,6 @@
       <template v-if="step == 2">
         <el-container>
           <table
-          
             border="3"
             width="95%"
             cellspacing="0"
@@ -142,11 +141,7 @@
                 专业班级：{{ personInfo.className }}
               </td>
               <td style="border-style: none; border-wigth: 0px">
-                <img
-                  :src="imageUrl"
-                  width="170"
-                  height="200"
-                />
+                <img :src="imageUrl" width="170" height="200" />
               </td>
             </tr>
             <tr id="juzhong" height="400">
@@ -249,7 +244,6 @@ export default {
   mounted: function () {
     var that = this;
     this.checkIfReg();
-    setTimeout(function () {}, 200);
   },
   methods: {
     prev() {
@@ -274,18 +268,31 @@ export default {
 
     checkIfReg: function () {
       var that = this;
+      //没报名过也会返回空数组
       if (this.number > 1000) {
-        alert("人数大于1000的考试无法获得信息，且确认自己是否已经报名！");
-      }
-      axios({
-        headers: { Authorization: this.print.Authorization },
-        method: "get",
-        url:
-          "/api/userExamEntry/user?userId=" + this.userId.userId,
-      }).then(
-        function (reponse) {
-          for (var i = 0; i < reponse.data.data.length; i++) {
-            if (reponse.data.data[i].examEntryId == that.examEntryId) {
+        axios({
+          headers: { Authorization: this.print.Authorization },
+          method: "get",
+          url: "/api/userExamEntry/cache?examEntryId=" + this.examEntryId,
+        }).then(function (response) {
+          response.data.data.forEach((item) => {
+            if (item.userId == that.userId.userId) {
+              that.$message({
+                message: "已经报名该考试，无法再次报名",
+                type: "warning",
+              });
+              that.$router.push({ name: "publicGetExam" });
+            }
+          });
+        });
+      } else
+        axios({
+          headers: { Authorization: this.print.Authorization },
+          method: "get",
+          url: "/api/userExamEntry/user?userId=" + this.userId.userId,
+        }).then(function (response) {
+          for (var i = 0; i < response.data.data.length; i++) {
+            if (response.data.data[i].examEntryId == that.examEntryId) {
               that.$message({
                 message: "已经报名该考试，无法再次报名",
                 type: "warning",
@@ -293,11 +300,7 @@ export default {
               that.$router.push({ name: "publicGetExam" });
             }
           }
-        },
-        function (err) {
-          that.$message.error("获取用户报名信息失败");
-        }
-      );
+        });
     },
 
     checkStep: function (active) {
@@ -326,22 +329,34 @@ export default {
             //获取考试头像
             axios({
               method: "get",
-              url:
-                "/api/image/user?userId=" + that.userId.userId,
+              url: "/api/image/user?userId=" + that.userId.userId,
             }).then(function (response) {
               _that.imageFile = response.data.data;
               if (_that.imageFile.length == 0) {
                 _that.imageUrl = "";
+                _that.$message.error(
+                  "你没有准考证学生照片，无法进行报名，即将跳转至个人中心"
+                );
+                _that.$router.push({
+                  name: "personalImformation",
+                });
               } else {
                 _that.imageFile.forEach((item) => {
                   if (item.tag == "Exam") _that.imageUrl = item.url;
-                  // _that.personInfo
+                  if (_that.imageUrl == "") {
+                    _that.$message.error(
+                      "你没有准考证学生照片，无法进行报名，即将跳转至个人中心"
+                    );
+                    _that.$router.push({
+                      name: "personalImformation",
+                    });
+                  }
                 });
               }
             });
           },
           function (err) {
-            that.$message.error("你没有信息，无法进行报名，跳转个人中心填写");
+            that.$message.error("你没有信息，无法进行报名，即将跳转至个人中心");
             that.$router.push({
               name: "personalImformation",
             });
@@ -353,7 +368,6 @@ export default {
         this.step = 2;
       } else if (active == 3) {
         //打印准考证
-        //选择考场，点击下一步后调
         this.step = 3;
       }
     },
@@ -368,9 +382,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url:
-            "/api/userExamEntry/remain?examEntryId=" +
-            this.examEntryId,
+          url: "/api/userExamEntry/remain?examEntryId=" + this.examEntryId,
         }).then(function (reponse) {
           if (reponse.data.data == 0) {
             that.$message.error("报名人数已满");
@@ -401,8 +413,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "/api/userExamEntry/cache/remain?examEntryId=" +
-            this.examEntryId,
+            "/api/userExamEntry/cache/remain?examEntryId=" + this.examEntryId,
         }).then(function (reponse) {
           if (reponse.data.data == 0) {
             that.$message.error("报名人数已满");
