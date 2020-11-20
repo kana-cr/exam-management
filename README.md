@@ -54,16 +54,22 @@ Vue
 
 ### 界面展示
 
+主页
 ![图片1.png](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856514231.png)
 
+登录页面/邮箱找回密码
 ![图片2.png](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856717366.png)
 
+个人信息
 ![图片3.png](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856938638.png)
 
+用户信息
 ![图片4.png](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856947774.png)
 
+考试报名
 ![图片5.png](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605856956500.png)
 
+图片管理
 ![图片6.png](https://kana-bucket.oss-cn-beijing.aliyuncs.com/图片_1605857177957.png)
 
 ### 数据库展示
