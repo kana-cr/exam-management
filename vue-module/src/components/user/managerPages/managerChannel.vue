@@ -290,7 +290,7 @@ export default {
         method: "get",
         //限制页大小，待改善
         //参数 channel：测试频道 channeld：频道id examTypeId 考试类型id
-        url: "http://kana.chat:70/channel?pageNum=0&pageSize=" + this.pageTotal,
+        url: "/api/channel?pageNum=0&pageSize=" + this.pageTotal,
       }).then(
         function (reponse) {
           that.pageTotal = reponse.data.data.length;
@@ -333,7 +333,7 @@ export default {
         method: "get",
         //限制页大小，待改善
         //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         data: {
           pageNum: 0,
           pageSize: 100000,
@@ -356,7 +356,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "post",
-        url: "http://kana.chat:70/channel",
+        url: "/api/channel",
         params: {
           channel: this.form.channel,
           examTypeId: this.form.examTypeId,
@@ -388,7 +388,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/channel",
+            url: "/api/channel",
             params: {
               channelId: this.multipleSelection[i].channelId,
             },
@@ -432,7 +432,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "put",
-        url: "http://kana.chat:70/channel",
+        url: "/api/channel",
         data: {
           channelId: this.u_form.u_channelId,
           channel: this.u_form.u_channel,
@@ -494,7 +494,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "post",
-        url: "http://kana.chat:70/message",
+        url: "/api/message",
         data: this.message_form,
         transformRequest: [
           function (data) {
@@ -535,7 +535,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url: "http://kana.chat:70/message?pageNum=0&pageSize=100000",
+          url: "/api/message?pageNum=0&pageSize=100000",
         }).then(
           function (reponse) {
             that.channelMessageList = reponse.data.data;
@@ -557,7 +557,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/message?pageNum=0&pageSize=100000&channel=" +
+            "/api/message?pageNum=0&pageSize=100000&channel=" +
             this.multipleSelection[0].channel,
         }).then(
           function (reponse) {
@@ -592,7 +592,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
         method: "delete",
-        url: "http://kana.chat:70/message",
+        url: "/api/message",
         params: {
           publisher: row.row.publisher,
           content: row.row.content,

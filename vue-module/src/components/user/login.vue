@@ -57,6 +57,7 @@
         </div>
         <div class="form-group">
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
+          <!-- <el-button type="text" @click="authorizeLogin">百度登陆</el-button> -->
         </div>
         <br />
         <div class="form-group">
@@ -253,7 +254,7 @@ export default {
       this.$refs["loginForm"].validate((valid) => {
         if (valid) {
           var that = this;
-          axios.post("http://kana.chat:70/auth/login", this.loginForm).then(
+          axios.post("/api/auth/login", this.loginForm).then(
             function (reponse) {
               that.authorization = reponse.headers.authorization;
               //判断是否是email，待更新
@@ -268,9 +269,7 @@ export default {
                 axios({
                   headers: { Authorization: that.authorization },
                   method: "get",
-                  url:
-                    "http://kana.chat:70/users/userEmail?email=" +
-                    that.loginForm.username,
+                  url: "/api/users/userEmail?email=" + that.loginForm.username,
                 }).then(function (response) {
                   _that.username = response.data.data.userName;
                   _that.$store.commit("print/setPrint", {
@@ -286,9 +285,9 @@ export default {
               });
               that.$router.push({
                 name: "homepage",
-                params:{
-                  rememberMe: that.loginForm.rememberMe
-                }
+                params: {
+                  rememberMe: that.loginForm.rememberMe,
+                },
               });
             },
             function (err) {
@@ -304,18 +303,14 @@ export default {
     sendEmail(formName) {
       this.$refs[formName].validate((valid) => {
         var that = this;
-        axios
-          .post(
-            "http://kana.chat:70/users/email?email=" + this.getPassForm.email
-          )
-          .then(
-            function (reponse) {
-              that.ifGetCode = true;
-            },
-            function (err) {
-              that.$message.error("查无此账号邮箱");
-            }
-          );
+        axios.post("/api/users/email?email=" + this.getPassForm.email).then(
+          function (reponse) {
+            that.ifGetCode = true;
+          },
+          function (err) {
+            that.$message.error("查无此账号邮箱");
+          }
+        );
 
         //60S后重发验证码
         if (valid) {
@@ -339,22 +334,20 @@ export default {
 
     checkVerifyCode: function () {
       var that = this;
-      axios
-        .get("http://kana.chat:70/users/email?email=" + this.getPassForm.email)
-        .then(
-          function (reponse) {
-            //console.log(reponse.data.data);
-            if (that.getPassForm.verifyCode == reponse.data.data) {
-              that.ifRightCode = true;
-            } else {
-              that.emailDialog = false;
-              that.$message.error("验证码错误！");
-            }
-          },
-          function (err) {
-            that.$message.error("获取指定邮箱验证码失败");
+      axios.get("/api/users/email?email=" + this.getPassForm.email).then(
+        function (reponse) {
+          //console.log(reponse.data.data);
+          if (that.getPassForm.verifyCode == reponse.data.data) {
+            that.ifRightCode = true;
+          } else {
+            that.emailDialog = false;
+            that.$message.error("验证码错误！");
           }
-        );
+        },
+        function (err) {
+          that.$message.error("获取指定邮箱验证码失败");
+        }
+      );
     },
 
     updatePassword: function (formName) {
@@ -362,7 +355,7 @@ export default {
         var that = this;
         axios({
           method: "put",
-          url: "http://kana.chat:70/users/email",
+          url: "/api/users/email",
           params: {
             email: this.getPassForm.email,
             verifyCode: this.getPassForm.verifyCode,
@@ -389,7 +382,7 @@ export default {
       var that = this;
       axios({
         method: "get",
-        url: "http://kana.chat:70/image/tag?tag=Show",
+        url: "/api/image/tag?tag=Show",
       }).then(
         function (response) {
           that.imageList = response.data.data;
@@ -437,8 +430,8 @@ export default {
         document.removeEventListener("mouseup", up);
         dom.style.left = "";
         console.log(x, checkx);
-        let max = checkx - 5;
-        let min = checkx - 10;
+        let max = checkx - 2;
+        let min = checkx - 13;
         //允许正负误差1
         if ((max >= x && x >= min) || x === checkx) {
           console.log("滑动解锁成功");
@@ -514,6 +507,13 @@ export default {
       ctx.stroke();
       ctx[type]();
       ctx.globalCompositeOperation = "xor";
+    },
+
+    authorizeLogin: function () {
+      //跳转到授权中间页
+      this.$router.push({
+        name: "authorize",
+      });
     },
   },
 };

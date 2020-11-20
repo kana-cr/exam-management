@@ -281,7 +281,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "get",
         url:
-          "http://kana.chat:70/userExamEntry/user?userId=" + this.userId.userId,
+          "/api/userExamEntry/user?userId=" + this.userId.userId,
       }).then(
         function (reponse) {
           for (var i = 0; i < reponse.data.data.length; i++) {
@@ -314,7 +314,7 @@ export default {
             Authorization: this.print.Authorization,
           },
           method: "get",
-          url: "http://kana.chat:70/userInfo?username=" + this.print.username,
+          url: "/api/userInfo?username=" + this.print.username,
         }).then(
           function (reponse) {
             that.personInfo = reponse.data.data;
@@ -327,7 +327,7 @@ export default {
             axios({
               method: "get",
               url:
-                "http://kana.chat:70/image/user?userId=" + that.userId.userId,
+                "/api/image/user?userId=" + that.userId.userId,
             }).then(function (response) {
               _that.imageFile = response.data.data;
               if (_that.imageFile.length == 0) {
@@ -369,7 +369,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/userExamEntry/remain?examEntryId=" +
+            "/api/userExamEntry/remain?examEntryId=" +
             this.examEntryId,
         }).then(function (reponse) {
           if (reponse.data.data == 0) {
@@ -380,7 +380,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "post",
-          url: "http://kana.chat:70/userExamEntry",
+          url: "/api/userExamEntry",
           params: {
             examEntryId: this.examEntryId,
             userId: this.userId.userId,
@@ -401,7 +401,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/userExamEntry/cache/remain?examEntryId=" +
+            "/api/userExamEntry/cache/remain?examEntryId=" +
             this.examEntryId,
         }).then(function (reponse) {
           if (reponse.data.data == 0) {
@@ -412,7 +412,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "post",
-          url: "http://kana.chat:70/userExamEntry/cache",
+          url: "/api/userExamEntry/cache",
           params: {
             examEntryId: this.examEntryId,
             userId: this.userId.userId,

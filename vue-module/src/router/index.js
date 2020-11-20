@@ -1,8 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import HelloWorld from '@/components/HelloWorld'
-import login from '../components/user/login'
-import register from '../components/user/register'
 import usercenter from '../components/user/usercenter'
 /* usercenter子路由 */
 /* 普通用户 */
@@ -14,7 +12,6 @@ import personalNotice from '../components/user/personalPages/personalNotice'
 import examDetailNotice from '../components/user/personalPages/notice/examDetailNotice'
 import examRegistration from '../components/user/personalPages/notice/examRegistration'
 import examResultNotice from '../components/user/personalPages/notice/examResultNotice'
-
 /* 教师 */
 import managerTestType from '../components/user/managerPages/managerTestType'
 import managerChannel from '../components/user/managerPages/managerChannel'
@@ -30,12 +27,10 @@ import fileRegistration from '../components/user/managerPages/managerTest/regist
 /* 用户管理子路由 */
 import managerGetUserInfoList from '../components/user/managerPages/managerUser/managerGetUserInfoList'
 import managerGetUserClassList from '../components/user/managerPages/managerUser/managerGetUserClassList'
-
 /* 管理员 */
 import adminHomepage from '../components/user/adminPages/adminHomepage'
 import adminChangeRole from '../components/user/adminPages/adminChangeRole'
 import adminGetLog from '../components/user/adminPages/adminGetLog'
-
 /* 主页菜单子路由 */
 import homepage from '../components/public/homepage'
 import publicGetChannel from '../components/public/publicGetChannel'
@@ -43,6 +38,11 @@ import publicGetExam from '../components/public/publicGetExam'
 import takeinExam from '../components/public/takeinExam'
 /* 主页消息页面 */
 import homepagemessage from '../components/public/message/homepagemessage'
+/* 登陆注册 */
+import login from '../components/user/login'
+import register from '../components/user/register'
+/* 登陆跳转中间页 */
+import authorize from '../components/user/authorize.vue'
 
 // 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
 const originalPush = Router.prototype.push
@@ -51,7 +51,7 @@ Router.prototype.push = function push(location) {
 }
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   routes: [
     {
       path: '/',
@@ -215,5 +215,23 @@ export default new Router({
       name: 'register',
       component: register
     },
+    {
+      path: '/authorize',
+      name: 'authorize',
+      component: authorize
+    },
   ]
 })
+
+//路由守卫
+router.beforeEach((to, from, next) => {
+  if (to == "/" || from == "/")
+    next({
+      path: "homepage"
+    })
+  // console.log(to)
+  // console.log(from)
+  next();
+})
+
+export default router;

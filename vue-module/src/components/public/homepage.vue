@@ -81,11 +81,11 @@ export default {
         .all([
           axios({
             method: "get",
-            url: "http://kana.chat:70/image/tag?tag=Show",
+            url: "/api/image/tag?tag=Show",
           }),
           axios({
             method: "get",
-            url: "http://kana.chat:70/carousel?pageNum=&pageSize=1000000",
+            url: "/api/carousel?pageNum=&pageSize=1000000",
           }),
         ])
         .then(

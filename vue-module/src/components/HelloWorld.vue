@@ -163,7 +163,7 @@ export default {
   mounted: function () {
     this.getUserName();
     console.log(this.$route.path);
-    if (this.$route.path == "/" || this.$route.path == "/homepagemessage") {
+    if (this.$route.path == "/") {
       var that = this;
       setTimeout(function () {
         that.$router.push({
@@ -209,7 +209,7 @@ export default {
             Authorization: this.print.Authorization,
           },
           method: "get",
-          url: "http://kana.chat:70/userInfo?username=" + this.print.username,
+          url: "/api/userInfo?username=" + this.print.username,
         }).then(
           function (response) {
             that.student_Name = response.data.data.realName;
@@ -219,7 +219,7 @@ export default {
               headers: { Authorization: that.print.Authorization },
               method: "get",
               url:
-                "http://kana.chat:70/image/user?userId=" +
+                "/api/image/user?userId=" +
                 response.data.data.userId,
             }).then(function (response) {
               _that.imageFile = response.data.data;
@@ -231,7 +231,7 @@ export default {
                 var _that_that = _that;
                 axios({
                   method: "get",
-                  url: "http://kana.chat:70/image/tag?tag=Show",
+                  url: "/api/image/tag?tag=Show",
                 }).then(function (response) {
                   _that_that.imageFile = response.data.data;
                   _that_that.imageFile.forEach((img) => {
@@ -251,7 +251,7 @@ export default {
             var _that = that;
             axios({
               method: "get",
-              url: "http://kana.chat:70/image/tag?tag=Show",
+              url: "/api/image/tag?tag=Show",
             }).then(function (response) {
               _that.imageFile = response.data.data;
               _that.imageFile.forEach((img) => {
@@ -277,7 +277,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/users/single?username=" + this.print.username,
+        url: "/api/users/single?username=" + this.print.username,
       }).then(function (reponse) {
         that.$store.commit("userId/setUserId", {
           userId: reponse.data.data.userId,
@@ -310,7 +310,7 @@ export default {
       if (this.search != "")
         axios({
           method: "get",
-          url: "http://kana.chat:70/carousel/title?title=" + this.search,
+          url: "/api/carousel/title?title=" + this.search,
         }).then(
           function (response) {
             that.messageList = response.data.data;
@@ -331,7 +331,7 @@ export default {
       else
         axios({
           method: "get",
-          url: "http://kana.chat:70/carousel?pageNum=&pageSize=100000",
+          url: "/api/carousel?pageNum=&pageSize=100000",
         }).then(
           function (response) {
             that.messageList = response.data.data;

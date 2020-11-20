@@ -172,7 +172,7 @@ export default {
         if (valid) {
           var that = this;
           axios
-            .post("http://kana.chat:70/users/sign-up", this.registerForm)
+            .post("/api/users/sign-up", this.registerForm)
             .then(
               function (reponse) {
                 that.$message({

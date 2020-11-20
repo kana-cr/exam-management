@@ -128,7 +128,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/major/all?pageNum&pageSize=1000000",
+        url: "/api/major/all?pageNum&pageSize=1000000",
       }).then(
         function (reponse) {
           that.allMajorClass = reponse.data.data;
@@ -151,7 +151,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "post",
-        url: "http://kana.chat:70/major",
+        url: "/api/major",
         params: this.majorForm,
       }).then(
         function (reponse) {
@@ -175,7 +175,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/major?major=" + row.major,
+        url: "/api/major?major=" + row.major,
       }).then(
         function (reponse) {
           that.$message({
@@ -195,7 +195,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/major/class?className=" + row.className,
+        url: "/api/major/class?className=" + row.className,
       }).then(
         function (reponse) {
           that.$message({

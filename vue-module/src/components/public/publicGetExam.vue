@@ -108,13 +108,13 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examEntry/all?pageNum&pageSize",
+            url: "/api/examEntry/all?pageNum&pageSize",
           }),
           //考试信息表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examDetail",
+            url: "/api/examDetail",
           }),
         ])
         .then(
@@ -161,7 +161,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userExamEntry/remain?examEntryId=" +
+              "/api/userExamEntry/remain?examEntryId=" +
               item.examEntryId,
           }).then(
             function (reponse) {
@@ -176,7 +176,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userExamEntry/cache/remain?examEntryId=" +
+              "/api/userExamEntry/cache/remain?examEntryId=" +
               item.examEntryId,
           }).then(
             function (reponse) {

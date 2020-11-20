@@ -201,13 +201,13 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examEntry/all?pageNum&pageSize",
+            url: "/api/examEntry/all?pageNum&pageSize",
           }),
           //考试信息表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examDetail",
+            url: "/api/examDetail",
           }),
         ])
         .then(
@@ -256,7 +256,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userExamEntry/remain?examEntryId=" +
+              "/api/userExamEntry/remain?examEntryId=" +
               item.examEntryId,
           }).then(
             function (reponse) {
@@ -271,7 +271,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userExamEntry/cache/remain?examEntryId=" +
+              "/api/userExamEntry/cache/remain?examEntryId=" +
               item.examEntryId,
           }).then(
             function (reponse) {
@@ -352,7 +352,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "put",
-          url: "http://kana.chat:70/examEntry",
+          url: "/api/examEntry",
           params: {
             examEntryId: row.examEntryId,
             examDetailId: row.examDetailId,
@@ -380,7 +380,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/examEntry?examEntryId=" + row.examEntryId,
+        url: "/api/examEntry?examEntryId=" + row.examEntryId,
       }).then(
         function (reponse) {
           that.$message({
@@ -410,13 +410,13 @@ export default {
                 Authorization: this.print.Authorization,
               },
               method: "get",
-              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+              url: "/api/users?pageNum&pageSize=1000000",
             }),
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
               url:
-                "http://kana.chat:70/userExamEntry?examEntryId=" +
+                "/api/userExamEntry?examEntryId=" +
                 row.examEntryId,
             }),
           ])
@@ -434,7 +434,7 @@ export default {
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
                       url:
-                        "http://kana.chat:70/userInfo?username=" +
+                        "/api/userInfo?username=" +
                         that.allUser[i].userName,
                     }).then(function (reponse) {
                       _that.$set(item, "realName", reponse.data.data.realName);
@@ -461,13 +461,13 @@ export default {
                 Authorization: this.print.Authorization,
               },
               method: "get",
-              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+              url: "/api/users?pageNum&pageSize=1000000",
             }),
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
               url:
-                "http://kana.chat:70/userExamEntry/cache?examEntryId=" +
+                "/api/userExamEntry/cache?examEntryId=" +
                 row.examEntryId,
             }),
           ])
@@ -485,7 +485,7 @@ export default {
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
                       url:
-                        "http://kana.chat:70/userInfo?username=" +
+                        "/api/userInfo?username=" +
                         that.allUser[i].userName,
                     }).then(function (reponse) {
                       _that.$set(item, "realName", reponse.data.data.realName);
@@ -509,7 +509,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/examLocation/examDetail",
+        url: "/api/examLocation/examDetail",
         params: {
           examDetailId: this.examDetailId,
         },
@@ -543,7 +543,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/userExamEntry",
+            url: "/api/userExamEntry",
             params: {
               examEntryId: row.examEntryId,
               userId: row.userId,
@@ -552,7 +552,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/examLocation/user",
+            url: "/api/examLocation/user",
             params: {
               userId: row.userId,
             },
@@ -577,7 +577,7 @@ export default {
           axios({
             headers: { Authorization: _that.print.Authorization },
             method: "post",
-            url: "http://kana.chat:70/examLocation",
+            url: "/api/examLocation",
             params: {
               examDetailId: _that.examDetailId,
               location: index + 1,

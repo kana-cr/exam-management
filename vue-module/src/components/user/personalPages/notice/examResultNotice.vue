@@ -74,7 +74,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/examScore/user?userId=" + this.userId.userId,
+        url: "/api/examScore/user?userId=" + this.userId.userId,
       }).then(function (response) {
         that.scoreList = response.data.data;
         if (that.scoreList != null) {
@@ -86,7 +86,7 @@ export default {
               headers: { Authorization: that.print.Authorization },
               method: "get",
               url:
-                "http://kana.chat:70/examDetail?examDetailId=" +
+                "/api/examDetail?examDetailId=" +
                 item.examDetailId,
             }).then(function (response) {
               _that.$set(

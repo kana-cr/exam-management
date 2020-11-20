@@ -109,13 +109,13 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examEntry/record?pageNum&pageSize",
+            url: "/api/examEntry/record?pageNum&pageSize=100000",
           }),
           //考试信息表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examDetail",
+            url: "/api/examDetail",
           }),
         ])
         .then(
@@ -155,13 +155,13 @@ export default {
               Authorization: this.print.Authorization,
             },
             method: "get",
-            url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+            url: "/api/users?pageNum&pageSize=1000000",
           }),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userExamEntry/recordByExam?examEntryId=" +
+              "/api/userExamEntry/recordByExam?examEntryId=" +
               row.examEntryId,
           }),
         ])
@@ -180,7 +180,7 @@ export default {
                     headers: { Authorization: that.print.Authorization },
                     method: "get",
                     url:
-                      "http://kana.chat:70/userInfo?username=" +
+                      "/api/userInfo?username=" +
                       that.allUser[i].userName,
                   }).then(function (reponse) {
                     _that.$set(item, "realName", reponse.data.data.realName);

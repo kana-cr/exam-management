@@ -399,7 +399,7 @@ export default {
         method: "get",
         //限制页大小，待改善
         //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         data: {
           pageNum: 0,
           pageSize: this.pageTotal,
@@ -421,7 +421,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url: "http://kana.chat:70/examDetail?examTypeId=" + item.examTypeId,
+          url: "/api/examDetail?examTypeId=" + item.examTypeId,
         }).then(
           function (reponse) {
             that.$set(item, "number", reponse.data.data.length);
@@ -462,7 +462,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "post",
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         params: {
           examTypeName: this.form.examTypeName,
           examTypeDescription: this.form.examTypeDescription,
@@ -494,7 +494,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/exam",
+            url: "/api/exam",
             params: {
               examTypeId: this.multipleSelection[i].examTypeId,
             },
@@ -539,7 +539,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "put",
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         data: {
           examTypeId: this.u_form.u_examTypeId,
           examTypeName: this.u_form.u_examTypeName,
@@ -598,7 +598,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "post",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
         params: this.examdetail_form,
       }).then(
         function (reponse) {
@@ -621,7 +621,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url: "http://kana.chat:70/examDetail",
+          url: "/api/examDetail",
         }).then(
           function (reponse) {
             that.$message({
@@ -640,7 +640,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/examDetail?examTypeId=" +
+            "/api/examDetail?examTypeId=" +
             this.multipleSelection[0].examTypeId,
         }).then(
           function (reponse) {
@@ -688,7 +688,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "put",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
         params: {
           examDetailId: this.examdetail_formUpdate.examDetailId,
           examTypeId: this.examdetail_formUpdate.u_examTypeId,
@@ -717,7 +717,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
         params: {
           examDetailId: props.row.examDetailId,
         },

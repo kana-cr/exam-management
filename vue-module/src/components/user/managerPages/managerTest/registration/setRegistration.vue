@@ -124,7 +124,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
       }).then(
         function (reponse) {
           that.examList = reponse.data.data;
@@ -158,7 +158,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
         method: "post",
-        url: "http://kana.chat:70/examEntry",
+        url: "/api/examEntry",
         params: this.registrationForm,
       }).then(
         function (reponse) {
@@ -180,7 +180,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "delete",
         url:
-          "http://kana.chat:70/examEntry/examDetail?examDetailId=" +
+          "/api/examEntry/examDetail?examDetailId=" +
           row.examDetailId,
       }).then(
         function (reponse) {
