@@ -114,8 +114,6 @@ export default {
   },
   mounted: function () {
     this.getExam();
-    var that = this;
-    setTimeout(function () {}, 300);
   },
   methods: {
     getExam: function () {

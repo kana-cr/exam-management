@@ -85,10 +85,6 @@ export default {
   },
   mounted: function () {
     this.getPersonalChannel();
-    var that = this;
-    setTimeout(function () {
-      that.getChannelMessageNum();
-    }, 300);
   },
   methods: {
     getPersonalChannel: function () {
@@ -130,8 +126,12 @@ export default {
               }
             }
             that.pageTotal = that.newChannelList.length;
+            that.getChannelMessageNum();
           })
-        );
+        )
+        .catch((err) => {
+          this.loading = false;
+        });
     },
 
     handleSelectionChange(val) {
@@ -153,9 +153,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "/api/userSub/single?userChannelId=" +
-          this.userChannelId,
+        url: "/api/userSub/single?userChannelId=" + this.userChannelId,
       }).then(
         function (reponse) {
           that.$message({
@@ -176,9 +174,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url:
-            "/api/message?pageNum=0&pageSize=100000&channel=" +
-            item.channel,
+          url: "/api/message?pageNum=0&pageSize=100000&channel=" + item.channel,
         }).then(
           function (reponse) {
             that.$set(item, "number", reponse.data.data.length);
@@ -197,9 +193,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url:
-          "/api/message?pageNum=0&pageSize=100000&channel=" +
-          index.channel,
+        url: "/api/message?pageNum=0&pageSize=100000&channel=" + index.channel,
       }).then(
         function (reponse) {
           that.messageList = reponse.data.data;

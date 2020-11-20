@@ -55,7 +55,12 @@
     </el-pagination>
 
     <!-- 报名dialog -->
-    <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
+    <el-dialog
+      title="报名表"
+      height="500"
+      :visible.sync="userListDialog"
+      v-loading=""
+    >
       <el-button type="primary" size="mini" @click="beforeSetScore"
         >录入成绩</el-button
       >
@@ -232,10 +237,6 @@ export default {
   },
   mounted: function () {
     this.getRegistrationList();
-    var that = this;
-    setTimeout(function () {
-      that.getExamInformation();
-    }, 300);
   },
   methods: {
     getRegistrationList: function () {
@@ -261,6 +262,7 @@ export default {
             that.fileList = fileResponse.data.data;
             that.examList = examResponse.data.data;
             that.pageTotal = fileResponse.data.data.length;
+            that.getExamInformation();
           })
         );
     },
@@ -314,9 +316,7 @@ export default {
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
-              url:
-                "/api/examScore/examDetail?examDetailId=" +
-                row.examDetailId,
+              url: "/api/examScore/examDetail?examDetailId=" + row.examDetailId,
             }),
           ])
           .then(
@@ -337,9 +337,7 @@ export default {
                     axios({
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
-                      url:
-                        "/api/userInfo?username=" +
-                        that.allUser[i].userName,
+                      url: "/api/userInfo?username=" + that.allUser[i].userName,
                     }).then(function (response) {
                       _that.$set(item, "realName", response.data.data.realName);
                       _that.$set(item, "major", response.data.data.major);
@@ -452,30 +450,31 @@ export default {
 
     setScore() {
       var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-          "content-type": "application/x-www-form-urlencoded",
-        },
-        method: "post",
-        url: "/api/examScore",
-        params: {
-          examDetailId: this.oneRegForm.examDetailId,
-          examScore: this.examScore,
-          userId: this.oneRegForm.userId,
-          stuNo: this.oneRegForm.stuNo,
-        },
-      }).then(
-        function (response) {
-          //不干任何事
-          console.log(response.data.data);
-        },
-        function (err) {
-          that.$message.error("录入学生成绩失败");
-          //返回上一页
-          that.prev();
-        }
-      );
+      if (this.examScore != "")
+        axios({
+          headers: {
+            Authorization: this.print.Authorization,
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          method: "post",
+          url: "/api/examScore",
+          params: {
+            examDetailId: this.oneRegForm.examDetailId,
+            examScore: this.examScore,
+            userId: this.oneRegForm.userId,
+            stuNo: this.oneRegForm.stuNo,
+          },
+        }).then(
+          function (response) {
+            //不干任何事
+            console.log(response.data.data);
+          },
+          function (err) {
+            that.$message.error("录入学生成绩失败");
+            //返回上一页
+            that.prev();
+          }
+        );
     },
 
     deleteScore: function () {
@@ -483,9 +482,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "/api/examScore/examDetail?examDetailId=" +
-          this.examDetailId,
+        url: "/api/examScore/examDetail?examDetailId=" + this.examDetailId,
       }).then(
         function (response) {
           that.$message({

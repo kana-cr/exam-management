@@ -388,7 +388,7 @@ export default {
         }).then(
           function (reponse) {
             that.$message({
-              message: "报名成功，请选择最后考场位置",
+              message: "报名成功，请选择查看准考证",
               type: "success",
             });
           },

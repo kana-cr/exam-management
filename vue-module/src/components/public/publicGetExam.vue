@@ -93,10 +93,6 @@ export default {
   },
   mounted: function () {
     this.getRegistrationList();
-    var that = this;
-    setTimeout(function () {
-      that.getListToge();
-    }, 300);
   },
   methods: {
     getRegistrationList: function () {
@@ -122,6 +118,7 @@ export default {
             that.registrationList = regResponse.data.data;
             that.pageTotal = regResponse.data.data.length;
             that.examList = examResponse.data.data;
+            that.getListToge();
           })
         );
     },
@@ -160,9 +157,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url:
-              "/api/userExamEntry/remain?examEntryId=" +
-              item.examEntryId,
+            url: "/api/userExamEntry/remain?examEntryId=" + item.examEntryId,
           }).then(
             function (reponse) {
               that.$set(item, "last", reponse.data.data);
@@ -176,8 +171,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "/api/userExamEntry/cache/remain?examEntryId=" +
-              item.examEntryId,
+              "/api/userExamEntry/cache/remain?examEntryId=" + item.examEntryId,
           }).then(
             function (reponse) {
               that.$set(item, "last", reponse.data.data);

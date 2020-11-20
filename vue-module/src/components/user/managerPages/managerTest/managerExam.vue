@@ -383,10 +383,6 @@ export default {
   },
   mounted: function () {
     this.getTestType();
-    var that = this;
-    setTimeout(function () {
-      that.getExamDetailNum();
-    }, 300);
   },
   methods: {
     getTestType: function () {
@@ -408,6 +404,7 @@ export default {
         function (reponse) {
           that.testList = reponse.data.data;
           that.pageTotal = reponse.data.data.length;
+          that.getExamDetailNum();
         },
         function (err) {
           that.$message.error("获取失败");

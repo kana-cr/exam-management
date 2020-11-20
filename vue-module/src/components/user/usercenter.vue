@@ -47,7 +47,7 @@
               <div class="dropdown-divider"></div>
               <el-menu-item index="/usercenter/managerGetUserInfo">
                 <i class="el-icon-document-copy"></i>
-                <span slot="title">获取用户信息</span>
+                <span slot="title">学生信息</span>
               </el-menu-item>
               <el-submenu index="/usercenter/managerTestType">
                 <template slot="title">

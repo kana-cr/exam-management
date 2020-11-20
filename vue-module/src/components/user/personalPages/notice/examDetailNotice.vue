@@ -60,7 +60,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数据总数
-      pageTotal: 10000,
+      pageTotal: 0,
     };
   },
   computed: {
@@ -78,7 +78,7 @@ export default {
   },
   methods: {
     getPersonalChannel: function () {
-      this.loading = true;
+      //this.loading = true;
       var that = this;
       axios
         .all([
@@ -116,7 +116,10 @@ export default {
               }
             }
           })
-        );
+        )
+        .catch((err) => {
+          this.loading = false;
+        });
     },
 
     getExamMessage: function () {
@@ -127,8 +130,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "/api/examDetail?examTypeId=" +
-            this.newChannelList[i].examTypeId,
+            "/api/examDetail?examTypeId=" + this.newChannelList[i].examTypeId,
         }).then(
           function (reponse) {
             for (var j = 0; j < reponse.data.data.length; j++) {

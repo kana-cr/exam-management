@@ -24,13 +24,13 @@
         prop="examStartTime"
         label="考试开始时间"
         align="center"
-        width="180"
+        width="150"
       ></el-table-column>
       <el-table-column
         prop="examEndTime"
         label="考试结束时间"
         align="center"
-        width="180"
+        width="150"
       ></el-table-column>
       <el-table-column
         prop="examAnnounce"
@@ -42,7 +42,7 @@
         prop="location"
         label="座位"
         align="center"
-        width="60"
+        width="100"
       ></el-table-column>
       <el-table-column
         prop="examLocationId"
@@ -81,7 +81,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
       //归档总表
       allFileList: [],
       //用户报名归档表
@@ -112,9 +112,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url:
-              "/api/userExamEntry/user?userId=" +
-              this.userId.userId,
+            url: "/api/userExamEntry/user?userId=" + this.userId.userId,
           }),
           //考试信息表
           axios({
@@ -133,9 +131,7 @@ export default {
               axios({
                 headers: { Authorization: that.print.Authorization },
                 method: "get",
-                url:
-                  "/api/examEntry?examEntryId=" +
-                  item.examEntryId,
+                url: "/api/examEntry?examEntryId=" + item.examEntryId,
               }).then(function (reponse) {
                 for (var i = 0; i < _that.examList.length; i++) {
                   if (
@@ -185,23 +181,29 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url:
-          "/api/examLocation/user?userId=" + this.userId.userId,
-      }).then(function (response) {
-        response.data.data.forEach((item) => {
-          for (var i = 0; i < that.fileList.length; i++) {
-            if (item.userExamEntryId == that.fileList[i].userExamEntryId) {
-              that.$set(that.fileList[i], "location", item.location);
-              that.$set(
-                that.fileList[i],
-                "examLocationId",
-                item.examLocationId
-              );
+        url: "/api/examLocation/user?userId=" + this.userId.userId,
+      }).then(
+        function (response) {
+          response.data.data.forEach((item) => {
+            for (var i = 0; i < that.fileList.length; i++) {
+              if (item.userExamEntryId == that.fileList[i].userExamEntryId) {
+                that.$set(that.fileList[i], "location", item.location);
+                that.$set(
+                  that.fileList[i],
+                  "examLocationId",
+                  item.examLocationId
+                );
+              }
             }
-          }
-        });
-        that.loading = false;
-      });
+          });
+          that.loading = false;
+        },
+        function (errpr) {
+          that.fileList.forEach((item) => {
+            that.$set(item, "location", "未安排座位");
+          });
+        }
+      );
     },
   },
 };

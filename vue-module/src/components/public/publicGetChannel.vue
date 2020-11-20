@@ -96,10 +96,6 @@ export default {
   },
   mounted: function () {
     this.getChannel();
-    var that = this;
-    setTimeout(function () {
-      that.getChannelPersonNum();
-    }, 300);
   },
   methods: {
     getChannel: function () {
@@ -118,7 +114,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "/api/userSub/user?pageNum&pageSize&userId=" +
+              "/api/userSub/user?pageNum&pageSize=10000&userId=" +
               this.userId.userId,
           }),
         ])
@@ -147,6 +143,7 @@ export default {
                 that.subList[i] = true;
               }
             }
+            that.getChannelPersonNum();
           })
         );
     },
@@ -160,9 +157,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url:
-          "/api/message?pageNum=0&pageSize=10&channel=" +
-          index.channel,
+        url: "/api/message?pageNum=0&pageSize=10&channel=" + index.channel,
       }).then(
         function (reponse) {
           that.messageDialog = true;
@@ -209,9 +204,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "/api/userSub/single?userChannelId=" +
-          this.userChannelId,
+        url: "/api/userSub/single?userChannelId=" + this.userChannelId,
       }).then(
         function (reponse) {
           that.$message({
@@ -233,18 +226,11 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "/api/userSub/channel?pageNum&pageSize&channelId=" +
-            item.channelId,
-        }).then(
-          function (reponse) {
-            that.$set(item, "number", reponse.data.data.length);
-            that.loading = false;
-          },
-          function (err) {
-            that.$message.error("获取订阅人数失败");
-            that.loading = false;
-          }
-        );
+            "/api/userSub/channel?pageNum&pageSize&channelId=" + item.channelId,
+        }).then(function (reponse) {
+          that.$set(item, "number", reponse.data.data.length);
+          that.loading = false;
+        });
       });
     },
   },

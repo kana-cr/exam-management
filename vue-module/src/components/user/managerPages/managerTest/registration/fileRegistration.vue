@@ -94,10 +94,6 @@ export default {
   },
   mounted: function () {
     this.getRegistrationList();
-    var that = this;
-    setTimeout(function () {
-      that.getExamInformation();
-    }, 300);
   },
   methods: {
     getRegistrationList: function () {
@@ -123,6 +119,7 @@ export default {
             that.fileList = fileResponse.data.data;
             that.examList = examResponse.data.data;
             that.pageToatl = fileResponse.data.data.length;
+            that.getExamInformation();
           })
         );
     },
@@ -161,8 +158,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "/api/userExamEntry/recordByExam?examEntryId=" +
-              row.examEntryId,
+              "/api/userExamEntry/recordByExam?examEntryId=" + row.examEntryId,
           }),
         ])
         .then(
@@ -179,9 +175,7 @@ export default {
                   axios({
                     headers: { Authorization: that.print.Authorization },
                     method: "get",
-                    url:
-                      "/api/userInfo?username=" +
-                      that.allUser[i].userName,
+                    url: "/api/userInfo?username=" + that.allUser[i].userName,
                   }).then(function (reponse) {
                     _that.$set(item, "realName", reponse.data.data.realName);
                     _that.$set(item, "major", reponse.data.data.major);
