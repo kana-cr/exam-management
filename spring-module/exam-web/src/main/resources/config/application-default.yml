@@ -1,0 +1,85 @@
+server:
+  tomcat:
+    remote-ip-header: x-forwarded-for
+    protocol-header: x-forwarded-proto
+    port-header: X-Forwarded-Port
+    use-forward-headers: true
+  port: 8080
+spring:
+  redis:
+    database: 0
+    host: localhost
+    port: 6379
+    password: 
+    timeout: 500
+
+
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost/exam-management?serverTimezone=Asia/Shanghai&useSSL=false&characterEncoding=utf8
+    username: root
+    password: 
+    # 初始化，最小，最大连接数
+    druid:
+     initialSize: 2
+     minidle: 3
+     maxActive: 18
+    # 获取数据库连接等待的超时时间
+     maxWait: 60000
+    # 配置多久进行一次检测，检测需要关闭的空闲连接 单位毫秒
+     timeBetweenEvictionRunsMillis: 60000
+     validationQuery: SELECT 1 FROM dual
+     filters: stat,wall
+     connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=5000
+
+  jpa:
+    properties:
+       hibernate:
+         enable_lazy_load_no_trans: true
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+  banner:
+    location: config/banner.txt
+  jackson:
+    serialization:
+      write-dates-as-timestamps: true
+
+  mail:
+    host: smtp.qq.com
+    default-encoding: UTF-8
+    protocol: smtp
+    port: 587
+    username: 
+    password: 
+logging:
+  config: classpath:config/logback.xml
+
+
+kana:
+  password: 
+  email: 
+
+aliyun:
+  oss:
+    endpoint: 
+    keyid:
+    keysecret: 
+    bucketname: 
+    filehost: 
+# url即oss服务存放图片的文件夹全路径
+    url: 
+# 授权登录
+auth:
+  github:
+    clientid:
+    secret: 
+  baidu:
+    clientid: 
+    secret: 
+# 回调地址
+  url: 
