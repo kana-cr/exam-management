@@ -177,6 +177,9 @@
 
 <script>
 import axios from "axios";
+//本地图片引入
+import localImg1 from "../../assets/localImg1.jpg";
+import localImg2 from "../../assets/localImg2.jpg";
 export default {
   name: "login",
   data() {
@@ -400,6 +403,8 @@ export default {
       }).then(
         function (response) {
           that.imageList = response.data.data;
+          if (that.imageList == [])
+            that.imageList = [{ url: localImg1 }, { url: localImg2 }];
         },
         function (err) {
           that.$message.error("获取验证码图片失败");

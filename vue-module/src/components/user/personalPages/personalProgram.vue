@@ -36,7 +36,7 @@
     </el-pagination>
 
     <el-dialog :visible.sync="messageDialog" width="60%">
-      <el-table :data="messageList">
+      <el-table :data="selectMessageList">
         <el-table-column property="publisher" label="推送人"></el-table-column>
         <el-table-column
           property="examDescription"
@@ -69,12 +69,14 @@ export default {
       userChannelList: [],
       //存放用户订阅的频道列表
       newChannelList: [],
-      //频道消息列表
+      //频道全部消息列表
       messageList: [],
       //消息通知dialog
       messageDialog: false,
       //取消订阅频道id
       userChannelId: "",
+      //选择的频道消息列表
+      selectMessageList: [],
     };
   },
   computed: {
@@ -142,14 +144,12 @@ export default {
     },
 
     cannelSubscribe(index, row) {
-      //console.log(index, row);
       var that = this;
       for (var i = 0; i < this.userChannelList.length; i++) {
         if (this.userChannelList[i].channelId == row.channelId) {
           this.userChannelId = this.userChannelList[i].userChannelId;
         }
       }
-      console.log(this.userChannelId);
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
@@ -170,39 +170,40 @@ export default {
 
     getChannelMessageNum: function () {
       var that = this;
-      this.channelList.forEach((item) => {
-        axios({
-          headers: { Authorization: this.print.Authorization },
-          method: "get",
-          url: "/api/message?pageNum=0&pageSize=100000&channel=" + item.channel,
-        }).then(
-          function (reponse) {
-            that.$set(item, "number", reponse.data.data.length);
-            that.loading = false;
-          },
-          function (err) {
-            that.$message.error("获取订阅人数失败");
-            that.loading = false;
-          }
-        );
-      });
-    },
-
-    showMessage: function (index, row) {
-      var that = this;
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "/api/message?pageNum=0&pageSize=100000&channel=" + index.channel,
+        url: "/api/message?pageNum=0&pageSize=100000",
       }).then(
-        function (reponse) {
-          that.messageList = reponse.data.data;
-          that.messageDialog = true;
-          //console.log(reponse.data.data);
+        function (response) {
+          that.messageList = response.data.data;
+          //去掉草稿的部分
+          that.messageList = that.messageList.filter(
+            (message) => message.ifPublish == true
+          );
+          that.newChannelList.forEach((channel) => {
+            that.$set(
+              channel,
+              "number",
+              that.messageList.filter(
+                (message) => message.channel == channel.channel
+              ).length
+            );
+          });
+          that.loading = false;
         },
         function (err) {
-          that.$message.error("获取失败，请重新尝试");
+          that.$message.error("获取订阅人数失败");
+          that.loading = false;
         }
+      );
+    },
+
+    showMessage: function (row, index) {
+      this.messageDialog = true;
+      console.log(row);
+      this.selectMessageList = this.messageList.filter(
+        (message) => message.channel == row.channel
       );
     },
   },

@@ -164,12 +164,9 @@ export default {
     this.getUserName();
     console.log(this.$route.path);
     if (this.$route.path == "/") {
-      var that = this;
-      setTimeout(function () {
-        that.$router.push({
-          name: "homepage",
-        });
-      }, 300);
+      this.$router.push({
+        name: "homepage",
+      });
     }
   },
   created: function () {
@@ -218,9 +215,7 @@ export default {
             axios({
               headers: { Authorization: that.print.Authorization },
               method: "get",
-              url:
-                "/api/image/user?userId=" +
-                response.data.data.userId,
+              url: "/api/image/user?userId=" + response.data.data.userId,
             }).then(function (response) {
               _that.imageFile = response.data.data;
               _that.imageFile = _that.imageFile.filter(
@@ -262,7 +257,6 @@ export default {
             });
           }
         );
-
         this.ifShow = true;
       } else {
         this.ifShow = false;

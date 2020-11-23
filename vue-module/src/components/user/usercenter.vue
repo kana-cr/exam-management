@@ -45,6 +45,10 @@
             <!-- 教师页面 -->
             <template v-if="teacher">
               <div class="dropdown-divider"></div>
+              <el-menu-item index="/usercenter/adminHomepage">
+                <i class="el-icon-reading"></i>
+                <span slot="title">主页编辑</span>
+              </el-menu-item>
               <el-menu-item index="/usercenter/managerGetUserInfo">
                 <i class="el-icon-document-copy"></i>
                 <span slot="title">学生信息</span>

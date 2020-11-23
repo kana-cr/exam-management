@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <el-button @click="openMessageForm">编辑主页内容</el-button>
-    <el-button @click="openImgForm">编辑主页图片</el-button>
+    <el-button @click="openImgForm" v-if="!teacher">编辑主页图片</el-button>
     <br />
     <br />
     <br />
@@ -14,12 +14,12 @@
     >
       <el-table-column prop="title" label="标题" align="center">
       </el-table-column>
-      <el-table-column prop="label" label="标签" width="120" align="center">
+      <el-table-column prop="label" label="标签" width="150" align="center">
       </el-table-column>
       <el-table-column
         prop="subDate"
         label="发布日期"
-        width="100"
+        width="150"
         align="center"
       >
       </el-table-column>
@@ -28,7 +28,10 @@
           <el-button size="mini" @click="getMessageDetail(scope.row)"
             >详细</el-button
           >
-          <el-button type="danger" size="mini" @click="deleteMessage(scope.row)"
+          <el-button
+            type="danger"
+            size="mini"
+            @click="deleteMessage(scope.row, scope.$index)"
             >删除</el-button
           >
         </template>
@@ -54,9 +57,21 @@
         <el-input v-model="messageForm.subDate" readonly></el-input>
       </el-form-item>
       <el-form-item label="标签">
-        <el-select v-model="messageForm.label" placeholder="请选择活动区域">
+        <el-select
+          v-model="messageForm.label"
+          placeholder="请选择活动区域"
+          v-if="!teacher"
+        >
           <el-option label="考试相关" value="考试相关"></el-option>
           <el-option label="网站相关" value="网站相关"></el-option>
+          <el-option label="其他" value="其他"></el-option>
+        </el-select>
+        <el-select
+          v-model="messageForm.label"
+          placeholder="请选择活动区域"
+          v-else
+        >
+          <el-option label="考试相关" value="考试相关"></el-option>
           <el-option label="其他" value="其他"></el-option>
         </el-select>
       </el-form-item>
@@ -81,11 +96,7 @@
         <el-input v-model="messageForm.subDate" readonly></el-input>
       </el-form-item>
       <el-form-item label="标签">
-        <el-select v-model="messageForm.label">
-          <el-option label="考试相关" value="考试相关"></el-option>
-          <el-option label="网站相关" value="网站相关"></el-option>
-          <el-option label="其他" value="其他"></el-option>
-        </el-select>
+        <el-input v-model="messageForm.label" readonly></el-input>
       </el-form-item>
       <el-form-item label="内容">
         <el-input
@@ -350,6 +361,8 @@ export default {
       userList: [],
       //不同类别图片不同用用户表
       otherUser: [],
+      //判断是否是教师
+      teacher: true,
     };
   },
   computed: {
@@ -389,14 +402,38 @@ export default {
             method: "get",
             url: "/api/users?pageNum=0&pageSize=100000",
           }),
+          //判断教师
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            params: {
+              username: this.print.username,
+            },
+            url: "/api/users/check",
+          }),
         ])
         .then(
-          axios.spread(function (messageResponse, userResponse) {
+          axios.spread(function (
+            messageResponse,
+            userResponse,
+            ifTeacherResponse
+          ) {
             that.messageList = messageResponse.data.data;
             that.pageTotal = messageResponse.data.data.length;
             that.loading = false;
 
             that.userList = userResponse.data.data;
+
+            that.teacher = ifTeacherResponse.data.data;
+            //如果是教师，消息里不显示网站相关消息
+            if (that.teacher) {
+              that.messageList = that.messageList.filter(
+                (item) => item.label != "网站相关"
+              );
+              that.pageTotal = that.messageList.length;
+            }
           })
         );
     },
@@ -412,8 +449,6 @@ export default {
       if (this.ifMessage == false) this.ifMain = true;
       else this.ifMain = false;
       this.messageForm = {};
-      this.messageForm.subDate = this.newData;
-
       this.messageForm.subDate = this.newData;
     },
 
@@ -519,19 +554,22 @@ export default {
       );
     },
 
-    deleteMessage: function (row) {
+    deleteMessage: function (row, index) {
       var that = this;
+
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
         url: "/api/carousel?carouselId=" + row.carouselId,
       }).then(
         function (response) {
+          that.messageList.splice(index, 1);
+          that.pageTotal--;
+          if (index == 0) that.currentPage--;
           that.$message({
             message: "删除成功",
             type: "success",
           });
-          that.reload();
         },
         function (err) {
           that.$message.error("获取详细消息失败");

@@ -1,8 +1,9 @@
 <template>
   <div>
-    <el-button @click="dialogTableVisible = true"> 角色管理 </el-button><br />
+    <el-button @click="roleDialog = true"> 角色管理 </el-button>
+    <el-button @click="legendData"> 图例查询 </el-button><br />
 
-    <el-dialog title="角色列表" :visible.sync="dialogTableVisible">
+    <el-dialog title="角色列表" :visible.sync="roleDialog">
       <el-table :data="roleList">
         <el-table-column
           v-model="name"
@@ -17,34 +18,50 @@
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button
-              type="primary"
+              type="danger"
               icon="el-icon-delete"
-              value="deleteRole"
-              @click="handleDelete(scope.$index, scope.row)"
+              @click="deleteRole(scope.$index, scope.row)"
+            ></el-button>
+            <el-button
+              type="warning"
+              icon="el-icon-share"
+              @click="beforeUpdateRole(scope.$index, scope.row)"
             ></el-button>
           </template>
-        </el-table-column>
-      </el-table>
+        </el-table-column> </el-table
+      ><br />
 
-      <el-input v-model="name" placeholder="請輸入權限" />
-      <el-input v-model="description" placeholder="請輸入描述的内容" />
-      <el-button
-        type="primary"
-        icon="el-icon-circle-plus"
-        value="addRole"
-        @click="addRole"
-        >添加角色</el-button
-      >
-      <el-button
-        type="primary"
-        icon="el-icon-share"
-        value="updateRole"
-        @click="updateRole"
-        >修改角色</el-button
-      >
+      <el-form>
+        <el-form-item>
+          <el-input
+            v-model="name"
+            placeholder="請輸入權限"
+            :readonly="ifUpdate"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-input
+            v-model="description"
+            placeholder="請輸入描述的内容"
+          ></el-input>
+        </el-form-item>
+        <el-button type="primary" icon="el-icon-circle-plus" @click="addRole"
+          >添加角色</el-button
+        >
+        <el-button
+          type="warning"
+          icon="el-icon-share"
+          @click="updateRole"
+          v-if="ifUpdate"
+          >修改角色</el-button
+        >
+        <el-button icon="el-icon-share" @click="cancelUpdate" v-if="ifUpdate"
+          >取消修改</el-button
+        >
+      </el-form>
     </el-dialog>
 
-    <div>
+    <template>
       <el-table
         :data="
           userList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
@@ -121,8 +138,16 @@
         :total="pageTotal"
       >
       </el-pagination>
-      <!-- 封禁账号 -->
-    </div>
+    </template>
+
+    <!-- 图例dialog -->
+    <el-dialog
+      :visible.sync="legendDataDialog"
+      width="640px"
+      :before-close="dialogClose"
+    >
+      <v-chart :options="legendPie" autoresize theme="light"></v-chart>
+    </el-dialog>
   </div>
 </template>
 
@@ -137,9 +162,14 @@ export default {
       loading: false,
       //权限表
       roleList: [],
+      //权限名称
       name: "",
+      //权限描述
       description: "",
-      dialogTableVisible: false,
+      //权限dialog
+      roleDialog: false,
+      //更新按钮显示
+      ifUpdate: false,
       //用户列表
       userList: [],
       //初始页
@@ -150,6 +180,10 @@ export default {
       pageTotal: 100000,
       //旧的权限
       oldRole: "",
+      //图例dialog
+      legendDataDialog: false,
+      //饼状图
+      legendPie: {},
     };
   },
   computed: {
@@ -234,7 +268,7 @@ export default {
     },
 
     //新的刪除角色
-    handleDelete(index, row) {
+    deleteRole(index, row) {
       var that = this;
       axios({
         headers: {
@@ -242,18 +276,14 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "delete",
-        url:
-          "/api/roles?name=" +
-          row.name +
-          "&description=" +
-          row.description,
+        url: "/api/roles?name=" + row.name + "&description=" + row.description,
       }).then(
         function (repponse) {
           that.$message({
             message: "删除成功",
             type: "success",
           });
-          that.reload();
+          that.roleList.splice(index, 1);
         },
         function (err) {
           that.$message.error("删除失败，请重新尝试");
@@ -269,22 +299,34 @@ export default {
         },
         method: "post",
         url:
-          "/api/roles?name=" +
-          this.name +
-          "&description=" +
-          this.description,
+          "/api/roles?name=" + this.name + "&description=" + this.description,
       }).then(
         function (repponse) {
           that.$message({
             message: "添加成功",
             type: "success",
           });
-          that.reload();
+          that.roleList.push({
+            name: that.name,
+            description: that.description,
+          });
         },
         function (err) {
           that.$message.error("添加失败，请重新尝试");
         }
       );
+    },
+
+    beforeUpdateRole: function (index, row) {
+      this.ifUpdate = true;
+      this.name = row.name;
+      this.description = row.description;
+    },
+
+    cancelUpdate: function () {
+      this.ifUpdate = false;
+      this.name = "";
+      this.description = "";
     },
 
     updateRole: function () {
@@ -297,10 +339,7 @@ export default {
           },
           method: "put",
           url:
-            "/api/roles?name=" +
-            this.name +
-            "&description=" +
-            this.description,
+            "/api/roles?name=" + this.name + "&description=" + this.description,
         }).then(
           function (repponse) {
             that.$message({
@@ -470,6 +509,95 @@ export default {
           that.$message.error("操作失败");
         }
       );
+    },
+
+    legendData: function () {
+      this.legendDataDialog = true;
+      // 指定图表的配置项和数据
+      // 只包含了三个角色
+      this.legendPie = {
+        // 图例
+        legend: {
+          data: ["管理员", "教师", "普通用户"],
+        },
+        // 提示框
+        tooltip: {
+          trigger: "item",
+          formatter: "{b} : {c} ({d}%)",
+        },
+        //工具栏
+        toolbox: {
+          show: true,
+          feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            magicType: {
+              show: true,
+              type: ["pie", "funnel"],
+            },
+            restore: { show: true },
+            saveAsImage: { show: true },
+          },
+        },
+        calculable: true,
+        series: [
+          {
+            name: "用户饼状图",
+            // 设置图表类型为饼图
+            type: "pie",
+            // 饼图的半径，外半径为可视区尺寸（容器高宽中较小一项）的 55% 长度。
+            radius: "55%",
+            // 把饼图显示成南丁格尔图
+            // roseType: "angle",
+            // 数据数组，name 为数据项名称，value 为数据项值
+            data: [
+              {
+                value: this.userList.filter(
+                  (item) => item.description == "管理员"
+                ).length,
+                name: "管理员",
+              },
+              {
+                value: this.userList.filter(
+                  (item) => item.description == "教师"
+                ).length,
+                name: "教师",
+              },
+              {
+                value: this.userList.filter(
+                  (item) => item.description == "普通用户"
+                ).length,
+                name: "普通用户",
+              },
+            ],
+            label: {
+              normal: {
+                show: false,
+              },
+              emphasis: {
+                show: true,
+              },
+            },
+            lableLine: {
+              normal: {
+                show: false,
+              },
+              emphasis: {
+                show: true,
+              },
+            },
+          },
+        ],
+      };
+    },
+
+    //防止操作时点击dialog外部
+    dialogClose: function () {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          this.legendDataDialog = false;
+        })
+        .catch((_) => {});
     },
   },
 };

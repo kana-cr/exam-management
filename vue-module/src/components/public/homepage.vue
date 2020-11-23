@@ -50,6 +50,9 @@
 <script>
 import axios from "axios";
 import { mapState, mapActions } from "vuex";
+//本地图片引入
+import localImg1 from "../../assets/localImg1.jpg";
+import localImg2 from "../../assets/localImg2.jpg";
 export default {
   inject: ["searchMessage"],
   name: "homepage",
@@ -101,11 +104,13 @@ export default {
                 that.$set(item, "type", "warning");
               else if (item.label == "其他") that.$set(item, "type", "info");
             });
-            //图片返回处理
+            //图片返回处理，如果空，显示本地图片（两张）
             that.imageList = imageResponse.data.data;
-            for (var i = 0; i < 5; i++) {
-              that.fiveImage.push(that.imageList.pop());
-            }
+            if (that.imageList != [])
+              for (var i = 0; i < 5; i++) {
+                that.fiveImage.push(that.imageList.pop());
+              }
+            else that.fiveImage = [{ url: localImg1 }, { url: localImg2 }];
           })
         );
     },

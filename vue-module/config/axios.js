@@ -30,17 +30,11 @@ axios.interceptors.response.use(function (response) {
 }, function (err) {
     // 对响应错误做点什么
     if (err && err.response) {
-        var time = 0;
         if (err.response.data.message.indexOf('JWT expired at') == 0) {
-            //防止因请求太多次弹出太多次
-            if (time != 0) {
-                alert("令牌已失效，请重新登陆")
-                router.replace({
-                    path: '/login',
-                })
-                time += 1;
-            }
-
+            alert("令牌已失效，请重新登陆")
+            router.replace({
+                path: '/login',
+            })
         } else if (err.response.data.message.indexOf('Full authentication is required to access this resource') == 0) {
             router.replace({
                 path: '/homepage',

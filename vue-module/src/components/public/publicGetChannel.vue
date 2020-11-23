@@ -43,8 +43,8 @@
     >
     </el-pagination>
 
-    <el-dialog :visible.sync="messageDialog" width="60%">
-      <el-table :data="messageList" width="100%">
+    <el-dialog :visible.sync="messageDialog" width="60%" v-loading="loading">
+      <el-table :data="selectMessageList" width="100%">
         <el-table-column prop="publisher" label="推送人"></el-table-column>
         <el-table-column
           prop="examDescription"
@@ -77,7 +77,10 @@ export default {
       loading: false,
       //显示消息dialog
       messageDialog: false,
+      //全部的消息列表
       messageList: [],
+      //选择的消息列表
+      selectMessageList: [],
       //取消订阅用id
       userChannelId: [],
       //初始页
@@ -152,19 +155,28 @@ export default {
       this.currentPage = currentPage;
     },
 
-    showMessage: function (index, row) {
+    showMessage: function (row) {
+      this.messageDialog = true;
+      this.loading = true;
       var that = this;
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "/api/message?pageNum=0&pageSize=10&channel=" + index.channel,
+        url: "/api/message?pageNum=0&pageSize=10",
       }).then(
         function (reponse) {
-          that.messageDialog = true;
           that.messageList = reponse.data.data;
+          that.messageList = that.messageList.filter(
+            (message) => message.ifPublish == true
+          );
+          that.selectMessageList = that.messageList.filter(
+            (message) => message.channel == row.channel
+          );
+          that.loading = false;
         },
         function (err) {
           that.$message.error("获取失败，请重新尝试");
+          that.loading = false;
         }
       );
     },
@@ -185,7 +197,9 @@ export default {
             message: "订阅成功",
             type: "success",
           });
-          that.reload();
+          that.subList[index] = false;
+          that.messageDialog = false;
+          row.number++;
         },
         function (err) {
           that.$message.error("订阅失败");
@@ -194,7 +208,6 @@ export default {
     },
 
     cannelSubscribe(index, row) {
-      //console.log(index, row);
       var that = this;
       for (var i = 0; i < this.userChannelList.length; i++) {
         if (this.userChannelList[i].channelId == row.channelId) {
@@ -211,7 +224,9 @@ export default {
             message: "取消订阅成功",
             type: "success",
           });
-          that.reload();
+          that.subList[index] = true;
+          that.messageDialog = false;
+          row.number--;
         },
         function (err) {
           that.$message.error("取消订阅失败");
