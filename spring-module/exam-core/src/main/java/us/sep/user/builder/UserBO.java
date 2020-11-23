@@ -18,4 +18,5 @@ public class UserBO {
     private String userId;
 
     private String email;
+    private boolean enable;
 }

@@ -63,7 +63,7 @@ public class UserExamEntryController {
     }
 
     @GetMapping("/recordByExam")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
     @Log(loggerName = LoggerName.WEB_DIGEST)
     public Result<List<UserExamEntryRecordBO>> getUserEntryRecordByExamEntry(String examEntryId, HttpServletRequest httpServletRequest){
         AssertUtil.assertStringNotBlank(examEntryId,"报名信息id不能为空");
@@ -72,7 +72,7 @@ public class UserExamEntryController {
 
 
     @GetMapping("/recordByUser")
-    @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
     @Log(loggerName = LoggerName.WEB_DIGEST)
     public Result<List<UserExamEntryRecordBO>> getUserEntryRecordByUserId(String userId, HttpServletRequest httpServletRequest){
         AssertUtil.assertStringNotBlank(userId,"用户id不能为空");

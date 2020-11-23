@@ -50,7 +50,7 @@ public class User extends AbstractAuditBase {
 
     public UserBO toUserBO() {
         return UserBO.builder().fullName(this.fullName)
-                .userName(this.userName).userId(userId).email(email).build();
+                .userName(this.userName).userId(userId).email(email).enable(enabled).build();
     }
 
 }

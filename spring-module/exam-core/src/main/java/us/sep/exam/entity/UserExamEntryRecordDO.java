@@ -41,7 +41,7 @@ public class UserExamEntryRecordDO extends AbstractAuditBase {
     /**
      * 是否出席
      */
-    @Column(nullable = false , updatable = false)
+    @Column(nullable = false )
     private boolean ifAttend;
 
     public UserExamEntryRecordBO ToUserExamEntryBO(){

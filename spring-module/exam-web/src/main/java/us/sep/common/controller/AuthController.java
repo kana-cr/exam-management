@@ -123,7 +123,6 @@ public class AuthController {
     }
 
     @RequestMapping("/refresh/{source}/{uuid}")
-    @ResponseBody
     public Object refreshAuth(@PathVariable("source") String source, @PathVariable("uuid") String uuid) {
         AuthRequest authRequest = getAuthRequest(source.toLowerCase());
 

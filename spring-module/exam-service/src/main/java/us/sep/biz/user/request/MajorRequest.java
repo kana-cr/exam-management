@@ -2,7 +2,6 @@ package us.sep.biz.user.request;
 
 import lombok.Data;
 
-import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 /**
@@ -14,25 +13,25 @@ public class MajorRequest {
     /**
      * 专业
      */
-    @Valid
+    @NotBlank(message = "专业大类不能为空")
     private String major;
 
     /**
      * 专业小类(细分)
      */
-    @NotBlank
+    @NotBlank(message = "专业不能为空")
     private String discipline;
 
 
     /**
      * 学生班级
      */
-    @NotBlank
+    @NotBlank(message = "学生班级不能为空")
     private String className;
 
     /**
      * 班级人数
      */
-    @NotBlank
+    @NotBlank(message = "班级人数不能为空")
     private String classNumber;
 }

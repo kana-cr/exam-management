@@ -8,6 +8,7 @@ import us.sep.biz.user.validator.FullName;
 import us.sep.user.entity.User;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 
 @Data
@@ -19,6 +20,7 @@ public class UserRegisterRequest {
     private String userName;
 
     @NotBlank(message = "用户密码不能为空")
+    @Size(min = 6,max = 25,message = "密码必须为6 - 25位")
     private String password;
 
     @FullName

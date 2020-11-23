@@ -11,13 +11,13 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class ExamTypeRequest {
 
-    @NotBlank
+    @NotBlank(message = "考试类型名不能为空")
     private String examTypeName;
 
-    @NotBlank
+    @NotBlank(message = "考试报名限制不能为空")
     private String examLimit;
 
-    @NotBlank
+    @NotBlank(message = "考试类型描述信息不能为空")
     private String examTypeDescription;
 
     private String examTypeId;

@@ -34,6 +34,8 @@ public class InitServiceImpl implements InitService {
     @Value("${kana.password}")
     private String password;
 
+    @Value("${kana.email}")
+    private String email;
     @Resource
     private UserRepo userRepo;
 
@@ -99,7 +101,7 @@ public class InitServiceImpl implements InitService {
         Optional root = userRepo.findByUserName("kana");
         if (!root.isPresent()) {
             user = User.builder().enabled(true).fullName("admin").userName("kana").password(bCryptPasswordEncoder.encode(password))
-                    .userId(bizIdFactory.getUserId()).build();
+                    .userId(bizIdFactory.getUserId()).email(email).build();
             userRepo.save(user);
         }
         if (user != null) {
@@ -118,14 +120,14 @@ public class InitServiceImpl implements InitService {
 
         for (ExamTypeDO examType:examTypes) {
             redisUtil.zAdd(EXAM_TYPE_PAGE,EXAM_TYPE_ID + examType.getExamTypeId() ,examType.getId());
-            redisUtil.hPut(EXAM_TYPE,EXAM_TYPE_ID + examType.getExamTypeId(), JSON.toJSONString(examType));
+            redisUtil.hPut(EXAM_TYPE,EXAM_TYPE_ID + examType.getExamTypeId(), JSON.toJSONString(examType.ToExamTypeBO()));
         }
 
        List<ExamDetailDO> examDetails =  examDetailRepo.findAll();
         for (ExamDetailDO examDetailDO:examDetails) {
             //写入cache
             redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamDetailId(),examDetailDO.getId());
-            redisUtil.hPut(EXAM_DETAIL, EXAM_DETAIL_ID + examDetailDO.getExamDetailId() , JSON.toJSONString(examDetailDO));
+            redisUtil.hPut(EXAM_DETAIL, EXAM_DETAIL_ID + examDetailDO.getExamDetailId() , JSON.toJSONString(examDetailDO.ToExamDetailBO()));
 
         }
 

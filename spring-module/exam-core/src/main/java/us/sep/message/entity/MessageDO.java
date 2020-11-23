@@ -44,10 +44,12 @@ public class MessageDO extends AbstractAuditBase {
     //该种考试描述
     @Column(nullable = false,length = 32)
     private String examDescription;
-
+    //消息是否发布
+    @Column(nullable = false)
+    private boolean ifPublish;
     public MessageBO ToMessageBO(){
        return MessageBO.builder().content(content).channel(channel)
                 .publisher(publisher).examType(examTypeId)
-                .examDescription(examDescription).build();
+                .examDescription(examDescription).ifPublish(ifPublish).build();
     }
 }

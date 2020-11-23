@@ -14,9 +14,9 @@ public class ChannelRequest {
 
     private String channelId;
 
-    @NotBlank
+    @NotBlank(message = "频道名不能为空")
     private String channel;
 
-    @NotBlank
+    @NotBlank(message = "考试类型id不能为空")
     private String examTypeId;
 }

@@ -205,6 +205,17 @@ public class UserController {
         return new Result<>(true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(),number);
     }
 
+    @GetMapping("/userEmail")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_MANAGER','ROLE_ADMIN')")
+    @Log(loggerName = LoggerName.WEB_DIGEST)
+    public Result<UserBO> getUserNameByEmail(String email , HttpServletRequest request) {
+        AssertUtil.assertStringNotBlank(email,"邮箱不能为空");
+        if (emailPatternValidator.isValid(email)) {
+            UserBO userBo = userService.getUserByEmail(email);
+            return new Result<>(true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(), userBo);
+        }
+        return new Result<>(true, CommonResultCode.ILLEGAL_PARAMETERS.getCode(), "邮箱格式错误" );
+    }
 
     @GetMapping("/role")
     @PreAuthorize("hasAnyRole('ROLE_MANAGER','ROLE_ADMIN')")

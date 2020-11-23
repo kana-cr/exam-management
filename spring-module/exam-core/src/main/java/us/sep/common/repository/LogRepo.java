@@ -8,7 +8,7 @@ import org.springframework.stereotype.Repository;
 import us.sep.common.entity.LogDO;
 
 @Repository
-public interface LogRepo extends JpaRepository<LogDO,Long>  {
+public interface LogRepo extends JpaRepository<LogDO,Long> , JpaSpecificationExecutor<LogDO>  {
 
    Page<LogDO> findByTransferUserName(String name, Pageable pageable);
     /*

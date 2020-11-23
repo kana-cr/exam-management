@@ -7,6 +7,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import us.sep.base.idfactory.BizIdFactory;
 import us.sep.biz.user.enums.RoleTypeEnum;
 import us.sep.biz.user.exception.UserNameAlreadyExistException;
@@ -28,7 +29,6 @@ import javax.annotation.Resource;
 import javax.management.relation.RoleNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 
@@ -133,18 +133,21 @@ public class UserService {
            throw new CustomizeException(CommonResultCode.UNFOUNDED,"该用户不存在");
        User user = optional.get();
        user.setPassword(bCryptPasswordEncoder.encode(password));
-        userRepo.save(user);
+       userRepo.save(user);
     }
     @Transactional(rollbackFor = Exception.class)
     public void update(UserUpdateRequest userUpdateRequest) {
+        if (!userRepo.existsByUserName(userUpdateRequest.getUserName())) {
+            throw new UserNameNotFoundException(ImmutableMap.of(USERNAME, userUpdateRequest.getUserName()));
+        }
         User user = find(userUpdateRequest.getUserName());
-        if (Objects.nonNull(userUpdateRequest.getFullName())) {
+        if (!StringUtils.isEmpty(userUpdateRequest.getFullName())) {
             user.setFullName(userUpdateRequest.getFullName());
         }
-        if (Objects.nonNull(userUpdateRequest.getPassword())) {
+        if (!StringUtils.isEmpty(userUpdateRequest.getPassword())) {
             user.setPassword(bCryptPasswordEncoder.encode(userUpdateRequest.getPassword()));
         }
-        if (Objects.nonNull(userUpdateRequest.getEnabled())) {
+        if (!StringUtils.isEmpty(userUpdateRequest.getEnabled())) {
             user.setEnabled(userUpdateRequest.getEnabled());
         }
         userRepo.save(user);
@@ -180,18 +183,36 @@ public class UserService {
         return optional.get().toUserBO();
     }
 
+    public UserBO getUserByEmail(String email) {
+        Optional<User> optional = userRepo.findByEmail(email);
+        if (!optional.isPresent())
+            throw new CustomizeException(CommonResultCode.UNFOUNDED,"该邮箱不存在用户");
+
+        return optional.get().toUserBO();
+    }
 
     public Long getCount() {
         return userRepo.count();
     }
 
 
-    public Boolean ifManagerOrAdmin(String username){
+    public Boolean ifManager(String username){
        if (!userRepo.existsByUserName(username))
            return false;
         User user = userRepo.findByUserName(username).get();
         for (UserRole userRole:user.getUserRoles()) {
-            if (userRole.getRole().getName().equals("MANAGER") || userRole.getRole().getName().equals("ADMIN"))
+            if (userRole.getRole().getName().equals("MANAGER") )
+                return true;
+        }
+        return false;
+    }
+
+    public Boolean ifAdmin(String username){
+        if (!userRepo.existsByUserName(username))
+            return false;
+        User user = userRepo.findByUserName(username).get();
+        for (UserRole userRole:user.getUserRoles()) {
+            if (userRole.getRole().getName().equals("ADMIN"))
                 return true;
         }
         return false;

@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Size;
 
 
 @Data
@@ -24,13 +25,14 @@ public class ExamEntryRequest {
     /**
      * 单类考试具体信息id
      */
-    @NotBlank
+    @NotBlank(message = "考试发布id不能为空")
+    @Size(min = 30 , max = 30 ,message = "考试发布id长度为32位")
     private String examDetailId;
 
     /**
      * 报名学期
      */
-    @NotBlank
+    @NotBlank(message = "考试学期不能为空")
     private String term;
 
     /**
@@ -46,7 +48,7 @@ public class ExamEntryRequest {
     /**
      * 联系方式
      */
-    @NotBlank
+    @NotBlank(message = "联系方式不能为空")
     private String contact;
 
     /**

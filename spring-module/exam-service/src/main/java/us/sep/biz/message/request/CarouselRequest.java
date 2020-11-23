@@ -13,16 +13,16 @@ public class CarouselRequest {
 
     private String carouselId;
 
-    @NotBlank
+    @NotBlank(message = "标题不能为空")
     private String title;
 
-    @NotBlank
+    @NotBlank(message = "内容不能为空")
     private String text;
 
-    @NotBlank
+    @NotBlank(message = "标签不能为空")
     private String label;
 
-    @NotBlank
+    @NotBlank(message = "发布日期不能为空")
     private String subDate;
 
     private String note;

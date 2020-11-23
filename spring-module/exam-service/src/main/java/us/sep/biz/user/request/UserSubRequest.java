@@ -11,10 +11,10 @@ import javax.validation.constraints.NotBlank;
 @NoArgsConstructor
 public class UserSubRequest {
 
-    @NotBlank
+    @NotBlank(message = "用户id不能为空")
     private String userId;
 
-    @NotBlank
+    @NotBlank(message = "频道id不能为空")
     private String channelId;
 
     private String userChannelId;

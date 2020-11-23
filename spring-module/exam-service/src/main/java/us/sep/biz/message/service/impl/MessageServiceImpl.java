@@ -77,6 +77,10 @@ public class MessageServiceImpl implements MessageService {
         if (!StringUtils.isEmpty(request.getExamDescription()))
             message.setExamDescription(request.getExamDescription());
 
+        if (!StringUtils.isEmpty(request.isIfPublish()))
+            message.setIfPublish(request.isIfPublish());
+
+
         if (!StringUtils.isEmpty(message.getExamTypeId()))
             return messageRepo.findAll(PageRequest.of(pageNum, pageSize)).getContent().stream()
                     .map(MessageDO::ToMessageBO).collect(Collectors.toList());
@@ -104,6 +108,9 @@ public class MessageServiceImpl implements MessageService {
         if (!StringUtils.isEmpty(request.getContent()))
             message.setContent(request.getContent());
 
+        if (!StringUtils.isEmpty(request.isIfPublish()))
+            message.setIfPublish(request.isIfPublish());
+
         if (!StringUtils.isEmpty(request.getExamType())) {
             if (!checkExamTypeUtil.checkExamType(request.getExamType())) {
             throw new CustomizeException(CommonResultCode.ILLEGAL_PARAMETERS,"该类型不存在");
@@ -120,6 +127,7 @@ public class MessageServiceImpl implements MessageService {
                 .withMatcher("channel" ,ExampleMatcher.GenericPropertyMatchers.contains())
                 .withMatcher("content" ,ExampleMatcher.GenericPropertyMatchers.contains())
                 .withMatcher("examDescription" ,ExampleMatcher.GenericPropertyMatchers.contains());
+
         Example<MessageDO> example = Example.of(message , matcher);
 
         return messageRepo.findAll(example);
