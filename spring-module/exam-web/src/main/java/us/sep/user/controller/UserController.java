@@ -268,9 +268,17 @@ public class UserController {
     }
 
     @GetMapping("/check")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_MANAGER')")
     @Log(loggerName = LoggerName.WEB_DIGEST)
-    public Result<Boolean> ifManagerOrAdmin(@RequestParam("username") String username ,HttpServletRequest request){
-        return new Result<> (true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(),userService.ifManagerOrAdmin(username));
+    public Result<Boolean> ifManager(@RequestParam("username") String username ,HttpServletRequest request){
+        return new Result<> (true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(),userService.ifManager(username));
+    }
+
+    @GetMapping("/check/admin")
+    @PreAuthorize("hasAnyRole('ROLE_USER','ROLE_ADMIN','ROLE_MANAGER')")
+    @Log(loggerName = LoggerName.WEB_DIGEST)
+    public Result<Boolean> ifAdmin(@RequestParam("username") String username ,HttpServletRequest request){
+        return new Result<> (true, CommonResultCode.SUCCESS.getCode(), CommonResultCode.SUCCESS.getMessage(),userService.ifAdmin(username));
     }
 
 
