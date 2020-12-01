@@ -3,7 +3,6 @@
     <el-table
       v-loading="loading"
       :data="newChannelList"
-      height="800"
       stripe
       style="width: 100%"
       @row-click="showMessage"
@@ -25,9 +24,19 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      align="center"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-size="pagesize"
+      background
+      layout="total, prev, pager, next, jumper"
+      :total="pageTotal"
+    >
+    </el-pagination>
 
     <el-dialog :visible.sync="messageDialog" width="60%">
-      <el-table :data="messageList">
+      <el-table :data="selectMessageList">
         <el-table-column property="publisher" label="推送人"></el-table-column>
         <el-table-column
           property="examDescription"
@@ -48,18 +57,26 @@ export default {
   data() {
     return {
       loading: false,
+      //初始页
+      currentPage: 1,
+      //每页的数据
+      pagesize: 10,
+      //数组总数
+      pageTotal: 100000,
       //全频道列表
       channelList: [],
       //用户订阅频道对应关系列表
       userChannelList: [],
       //存放用户订阅的频道列表
       newChannelList: [],
-      //频道消息列表
+      //频道全部消息列表
       messageList: [],
       //消息通知dialog
       messageDialog: false,
       //取消订阅频道id
       userChannelId: "",
+      //选择的频道消息列表
+      selectMessageList: [],
     };
   },
   computed: {
@@ -70,10 +87,6 @@ export default {
   },
   mounted: function () {
     this.getPersonalChannel();
-    var that = this;
-    setTimeout(function () {
-      that.getChannelMessageNum();
-    }, 300);
   },
   methods: {
     getPersonalChannel: function () {
@@ -85,14 +98,14 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/channel?pageNum=0&pageSize=10000",
+            url: "/api/channel?pageNum=0&pageSize=100000",
           }),
           //获取用户订阅的表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "http://kana.chat:70/userSub/user?pageNum&pageSize&userId=" +
+              "/api/userSub/user?pageNum&pageSize=100000&userId=" +
               this.userId.userId,
           }),
         ])
@@ -114,26 +127,33 @@ export default {
                 }
               }
             }
-            that.loading = false;
+            that.pageTotal = that.newChannelList.length;
+            that.getChannelMessageNum();
           })
-        );
+        )
+        .catch((err) => {
+          this.loading = false;
+        });
+    },
+
+    handleSelectionChange(val) {
+      this.multipleSelection = val;
+    },
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage;
     },
 
     cannelSubscribe(index, row) {
-      //console.log(index, row);
       var that = this;
       for (var i = 0; i < this.userChannelList.length; i++) {
         if (this.userChannelList[i].channelId == row.channelId) {
           this.userChannelId = this.userChannelList[i].userChannelId;
         }
       }
-      console.log(this.userChannelId);
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "http://kana.chat:70/userSub/single?userChannelId=" +
-          this.userChannelId,
+        url: "/api/userSub/single?userChannelId=" + this.userChannelId,
       }).then(
         function (reponse) {
           that.$message({
@@ -150,41 +170,40 @@ export default {
 
     getChannelMessageNum: function () {
       var that = this;
-      this.channelList.forEach((item) => {
-        axios({
-          headers: { Authorization: this.print.Authorization },
-          method: "get",
-          url:
-            "http://kana.chat:70/message?pageNum=0&pageSize=10&channel=" +
-            item.channel,
-        }).then(
-          function (reponse) {
-            that.$set(item, "number", reponse.data.data.length);
-          },
-          function (err) {
-            that.$message.error("获取订阅人数失败");
-          }
-        );
-      });
-    },
-
-    showMessage: function (index, row) {
-      var that = this;
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url:
-          "http://kana.chat:70/message?pageNum=0&pageSize=10&channel=" +
-          index.channel,
+        url: "/api/message?pageNum=0&pageSize=100000",
       }).then(
-        function (reponse) {
-          that.messageList = reponse.data.data;
-          that.messageDialog = true;
-          //console.log(reponse.data.data);
+        function (response) {
+          that.messageList = response.data.data;
+          //去掉草稿的部分
+          that.messageList = that.messageList.filter(
+            (message) => message.ifPublish == true
+          );
+          that.newChannelList.forEach((channel) => {
+            that.$set(
+              channel,
+              "number",
+              that.messageList.filter(
+                (message) => message.channel == channel.channel
+              ).length
+            );
+          });
+          that.loading = false;
         },
         function (err) {
-          that.$message.error("获取失败，请重新尝试");
+          that.$message.error("获取订阅人数失败");
+          that.loading = false;
         }
+      );
+    },
+
+    showMessage: function (row, index) {
+      this.messageDialog = true;
+      console.log(row);
+      this.selectMessageList = this.messageList.filter(
+        (message) => message.channel == row.channel
       );
     },
   },

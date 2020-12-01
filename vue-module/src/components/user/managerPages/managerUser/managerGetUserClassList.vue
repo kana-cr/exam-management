@@ -17,15 +17,27 @@
       "
       style="width: 100%"
     >
-      <el-table-column prop="major" label="院系"> </el-table-column>
-      <el-table-column prop="discipline" label="专业"> </el-table-column>
-      <el-table-column prop="className" label="班级"> </el-table-column>
+      <el-table-column prop="major" label="院系" sortable> </el-table-column>
+      <el-table-column prop="discipline" label="专业" sortable>
+      </el-table-column>
+      <el-table-column prop="className" label="班级" sortable>
+      </el-table-column>
       <el-table-column prop="classNumber" label="人数"> </el-table-column>
       <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
-          <el-button type="danger" @click="deleteMajor(scope.row)" size="small"
-            >删除院系</el-button
+          <el-popconfirm
+            confirm-button-text="好的"
+            cancel-button-text="不用了"
+            icon="el-icon-info"
+            icon-color="red"
+            title="确定删除吗？"
+            @onConfirm="deleteMajor(scope.row)"
           >
+            <el-button type="danger" slot="reference" size="small"
+              >删除院系</el-button
+            >
+          </el-popconfirm>
+
           <el-button type="danger" @click="deleteClass(scope.row)" size="small"
             >删除班级</el-button
           >
@@ -118,7 +130,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/major/all?pageNum&pageSize",
+        url: "/api/major/all?pageNum&pageSize=1000000",
       }).then(
         function (reponse) {
           that.allMajorClass = reponse.data.data;
@@ -141,7 +153,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "post",
-        url: "http://kana.chat:70/major",
+        url: "/api/major",
         params: this.majorForm,
       }).then(
         function (reponse) {
@@ -165,7 +177,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/major?major=" + row.major,
+        url: "/api/major?major=" + row.major,
       }).then(
         function (reponse) {
           that.$message({
@@ -185,7 +197,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/major/class?className=" + row.className,
+        url: "/api/major/class?className=" + row.className,
       }).then(
         function (reponse) {
           that.$message({
@@ -199,6 +211,7 @@ export default {
             }
           });
           that.pageTotal--;
+          if (that.pageTotal % 10 == 0) that.currentPage--;
         },
         function (err) {
           that.$message.error("删除失败");

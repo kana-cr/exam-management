@@ -5,7 +5,6 @@
         examList.slice((currentPage - 1) * pagesize, currentPage * pagesize)
       "
       style="width: 100%"
-      :default-sort="{ prop: 'date', order: 'descending' }"
       v-loading="loading"
     >
       <el-table-column prop="examDescription" label="考试名称">
@@ -115,8 +114,6 @@ export default {
   },
   mounted: function () {
     this.getExam();
-    var that = this;
-    setTimeout(function () {}, 300);
   },
   methods: {
     getExam: function () {
@@ -125,7 +122,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
       }).then(
         function (reponse) {
           that.examList = reponse.data.data;
@@ -159,7 +156,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
         },
         method: "post",
-        url: "http://kana.chat:70/examEntry",
+        url: "/api/examEntry",
         params: this.registrationForm,
       }).then(
         function (reponse) {
@@ -181,7 +178,7 @@ export default {
         headers: { Authorization: this.print.Authorization },
         method: "delete",
         url:
-          "http://kana.chat:70/examEntry/examDetail?examDetailId=" +
+          "/api/examEntry/examDetail?examDetailId=" +
           row.examDetailId,
       }).then(
         function (reponse) {

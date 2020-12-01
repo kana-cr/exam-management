@@ -180,7 +180,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/users?pageNum=0&pageSize=" + this.pageTotal,
+        url: "/api/users?pageNum=0&pageSize=" + this.pageTotal,
       }).then(
         function (reponse) {
           //console.log(reponse.data.data);
@@ -201,9 +201,7 @@ export default {
     },
 
     getUserDetail: function (row, rowList) {
-      //console.log(row);
       //this.loading = false;
-
       var that = this;
       if (rowList.length) {
         // 只展开一行//说明展开了
@@ -217,7 +215,7 @@ export default {
             Authorization: this.print.Authorization,
           },
           method: "get",
-          url: "http://kana.chat:70/userInfo?username=" + row.userName,
+          url: "/api/userInfo?username=" + row.userName,
         }).then(
           function (reponse) {
             if (reponse.data.data != null) {
@@ -247,7 +245,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "delete",
-        url: "http://kana.chat:70/users?username=" + row.userName,
+        url: "/api/users?username=" + row.userName,
       }).then(
         function (reponse) {
           that.reload();
@@ -265,7 +263,7 @@ export default {
           Authorization: this.print.Authorization,
           "Content-Type": "application/x-www-form-urlencoded",
         },
-        url: "http://kana.chat:70/userInfo",
+        url: "/api/userInfo",
         method: "delete",
         data: {
           username: row.userName,
@@ -319,7 +317,7 @@ export default {
                 headers: {
                   Authorization: this.print.Authorization,
                 },
-                url: "http://kana.chat:70/userInfo",
+                url: "/api/userInfo",
                 method: "put",
                 data: this.form,
                 transformRequest: [
@@ -362,7 +360,7 @@ export default {
                   Authorization: this.print.Authorization,
                   "Content-Type": "application/x-www-form-urlencoded",
                 },
-                url: "http://kana.chat:70/userInfo",
+                url: "/api/userInfo",
                 method: "post",
                 data: formdata,
                 transformRequest: [
@@ -414,7 +412,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/userInfo?username=" + row.userName,
+        url: "/api/userInfo?username=" + row.userName,
       }).then(
         function (reponse) {
           if (reponse.data.data != null) {

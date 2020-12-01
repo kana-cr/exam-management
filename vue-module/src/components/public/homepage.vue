@@ -11,7 +11,12 @@
     </el-carousel>
     <el-container>
       <el-header>
-        <el-divider content-position="left">最新咨询</el-divider>
+        <el-divider content-position="left"
+          >最新咨询<el-divider direction="vertical"></el-divider>
+          <el-button @click="getMore" size="mini" type="text"
+            >更多 more+</el-button
+          >
+        </el-divider>
       </el-header>
       <el-main>
         <el-timeline>
@@ -45,7 +50,11 @@
 <script>
 import axios from "axios";
 import { mapState, mapActions } from "vuex";
+//本地图片引入
+import localImg1 from "../../assets/localImg1.jpg";
+import localImg2 from "../../assets/localImg2.jpg";
 export default {
+  inject: ["searchMessage"],
   name: "homepage",
   data() {
     return {
@@ -59,22 +68,27 @@ export default {
       fiveImage: [],
     };
   },
+  computed: {
+    ...mapState({
+      print: (state) => state.print.all,
+      userId: (state) => state.userId.all,
+    }),
+  },
   mounted: function () {
     this.getHomepageCommont();
   },
   methods: {
     getHomepageCommont: function () {
       var that = this;
-
       axios
         .all([
           axios({
             method: "get",
-            url: "http://kana.chat:70/image/tag?tag=Show",
+            url: "/api/image/tag?tag=Show",
           }),
           axios({
             method: "get",
-            url: "http://kana.chat:70/carousel?pageNum=&pageSize",
+            url: "/api/carousel?pageNum=&pageSize=1000000",
           }),
         ])
         .then(
@@ -90,13 +104,19 @@ export default {
                 that.$set(item, "type", "warning");
               else if (item.label == "其他") that.$set(item, "type", "info");
             });
-            //图片返回处理
+            //图片返回处理，如果空，显示本地图片（两张）
             that.imageList = imageResponse.data.data;
-            for (var i = 0; i < 5; i++) {
-              that.fiveImage.push(that.imageList.pop());
-            }
+            if (that.imageList != [])
+              for (var i = 0; i < 5; i++) {
+                that.fiveImage.push(that.imageList.pop());
+              }
+            else that.fiveImage = [{ url: localImg1 }, { url: localImg2 }];
           })
         );
+    },
+
+    getMore: function () {
+      this.searchMessage();
     },
   },
 };

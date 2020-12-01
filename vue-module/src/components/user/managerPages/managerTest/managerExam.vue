@@ -7,35 +7,85 @@
       round
       >取消选择</el-button
     >
-    <el-button
-      type="primary"
-      icon="el-icon-plus"
-      @click="adddialogFormVisible = true"
-      circle
-    ></el-button>
-    <el-button
-      type="danger"
-      icon="el-icon-delete"
-      @click="deleteTestType"
-      circle
-    ></el-button>
-    <el-button
-      type="warning"
-      icon="el-icon-edit"
-      @click="beforeCheck"
-      circle
-    ></el-button>
-    <el-button
-      type="info"
-      icon="el-icon-message"
-      @click="beforeSendExamDetail"
-      circle
-    ></el-button>
-    <el-button
-      icon="el-icon-search"
-      @click="searchExamDetail"
-      circle
-    ></el-button>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加考试"
+      close-delay="3"
+    >
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        @click="adddialogFormVisible = true"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="删除考试"
+      close-delay="3"
+    >
+      <el-button
+        type="danger"
+        icon="el-icon-delete"
+        @click="deleteTestType"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="修改考试信息"
+      close-delay="3"
+    >
+      <el-button
+        type="warning"
+        icon="el-icon-edit"
+        @click="beforeCheck"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加考试信息"
+      close-delay="3"
+    >
+      <el-button
+        type="info"
+        icon="el-icon-message"
+        @click="beforeSendExamDetail"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="查看全部考试"
+      close-delay="3"
+    >
+      <el-button
+        icon="el-icon-search"
+        @click="searchExamDetail"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
 
     <!-- 添加考试的dialog -->
     <el-dialog title="添加考试" :visible.sync="adddialogFormVisible">
@@ -75,7 +125,11 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="考试限制" :label-width="formLabelWidth">
-          <el-input v-model="u_form.u_examLimit" autocomplete="off" @keyup.enter.native="updateTestType"></el-input>
+          <el-input
+            v-model="u_form.u_examLimit"
+            autocomplete="off"
+            @keyup.enter.native="updateTestType"
+          ></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -379,10 +433,6 @@ export default {
   },
   mounted: function () {
     this.getTestType();
-    var that = this;
-    setTimeout(function () {
-      that.getExamDetailNum();
-    }, 300);
   },
   methods: {
     getTestType: function () {
@@ -395,7 +445,7 @@ export default {
         method: "get",
         //限制页大小，待改善
         //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         data: {
           pageNum: 0,
           pageSize: this.pageTotal,
@@ -404,11 +454,10 @@ export default {
         function (reponse) {
           that.testList = reponse.data.data;
           that.pageTotal = reponse.data.data.length;
-          that.loading = false;
+          that.getExamDetailNum();
         },
         function (err) {
           that.$message.error("获取失败");
-          that.loading = false;
         }
       );
     },
@@ -419,13 +468,15 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url: "http://kana.chat:70/examDetail?examTypeId=" + item.examTypeId,
+          url: "/api/examDetail?examTypeId=" + item.examTypeId,
         }).then(
           function (reponse) {
             that.$set(item, "number", reponse.data.data.length);
+            that.loading = false;
           },
           function (err) {
             that.$message.error("获取信息数量失败");
+            that.loading = false;
           }
         );
       });
@@ -458,7 +509,7 @@ export default {
           "Content-Type": "application/x-www-form-urlencoded",
         },
         method: "post",
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         params: {
           examTypeName: this.form.examTypeName,
           examTypeDescription: this.form.examTypeDescription,
@@ -490,7 +541,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/exam",
+            url: "/api/exam",
             params: {
               examTypeId: this.multipleSelection[i].examTypeId,
             },
@@ -535,7 +586,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "put",
-        url: "http://kana.chat:70/exam",
+        url: "/api/exam",
         data: {
           examTypeId: this.u_form.u_examTypeId,
           examTypeName: this.u_form.u_examTypeName,
@@ -594,7 +645,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "post",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
         params: this.examdetail_form,
       }).then(
         function (reponse) {
@@ -617,7 +668,7 @@ export default {
         axios({
           headers: { Authorization: this.print.Authorization },
           method: "get",
-          url: "http://kana.chat:70/examDetail",
+          url: "/api/examDetail",
         }).then(
           function (reponse) {
             that.$message({
@@ -636,7 +687,7 @@ export default {
           headers: { Authorization: this.print.Authorization },
           method: "get",
           url:
-            "http://kana.chat:70/examDetail?examTypeId=" +
+            "/api/examDetail?examTypeId=" +
             this.multipleSelection[0].examTypeId,
         }).then(
           function (reponse) {
@@ -684,7 +735,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "put",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
         params: {
           examDetailId: this.examdetail_formUpdate.examDetailId,
           examTypeId: this.examdetail_formUpdate.u_examTypeId,
@@ -713,7 +764,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/examDetail",
+        url: "/api/examDetail",
         params: {
           examDetailId: props.row.examDetailId,
         },
@@ -746,5 +797,9 @@ export default {
   margin-right: 0;
   margin-bottom: 0;
   width: 100%;
+}
+.popoverBGC{
+  opacity: 0.7;
+  text-align: center;
 }
 </style>

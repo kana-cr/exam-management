@@ -6,6 +6,7 @@
       "
       style="width: 100%"
       :default-sort="{ prop: 'date', order: 'descending' }"
+      v-loading="loading"
     >
       <el-table-column
         prop="examDescription"
@@ -42,9 +43,24 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-pagination
+      align="center"
+      @current-change="handleCurrentChange"
+      :current-page="currentPage"
+      :page-size="pagesize"
+      background
+      layout="total, prev, pager, next, jumper"
+      :total="pageTotal"
+    >
+    </el-pagination>
 
-    <!-- 报名dialog -->
-    <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
+    <!-- 报名表dialog -->
+    <el-dialog
+      title="报名表"
+      height="500"
+      :visible.sync="userListDialog"
+      v-loading=""
+    >
       <el-button type="primary" size="mini" @click="beforeSetScore"
         >录入成绩</el-button
       >
@@ -60,6 +76,9 @@
           >删除全部成绩</el-button
         >
       </el-popconfirm>
+      <el-button type="success" size="mini" @click="showLegendBar"
+        >图例显示</el-button
+      >
       <el-table :data="allReg">
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="realName" label="学生姓名"></el-table-column>
@@ -158,6 +177,74 @@
         <el-button type="primary" @click="updateScore">更新</el-button>
       </div>
     </el-dialog>
+
+    <!-- 图例dialog -->
+    <el-dialog
+      :visible.sync="legendDataDialog"
+      :before-close="dialogClose"
+      width="640px"
+    >
+      <v-chart
+        :options="legendBar"
+        autoresize
+        theme="light"
+        @click="getLegendData(legendBar)"
+      ></v-chart>
+    </el-dialog>
+
+    <!-- 分数不及格dialog -->
+    <!-- 报名表dialog -->
+    <el-dialog
+      title="报名表"
+      height="500"
+      :visible.sync="flunkDataDialog"
+      v-loading=""
+    >
+      <el-button type="primary" size="mini" @click="beforeSetScore"
+        >录入成绩</el-button
+      >
+      <el-popconfirm
+        confirm-button-text="好的"
+        cancel-button-text="不用了"
+        icon="el-icon-info"
+        icon-color="red"
+        title="这将删除全部同名考试分数，你确定吗？"
+        @onConfirm="deleteScore"
+      >
+        <el-button type="danger" size="mini" slot="reference"
+          >删除全部成绩</el-button
+        >
+      </el-popconfirm>
+      <el-button type="success" size="mini" @click="showLegendBar"
+        >图例显示</el-button
+      >
+      <el-table :data="allReg">
+        <el-table-column type="index"></el-table-column>
+        <el-table-column prop="realName" label="学生姓名"></el-table-column>
+        <el-table-column prop="major" label="学生专业"></el-table-column>
+        <el-table-column prop="className" label="学生班级"></el-table-column>
+        <el-table-column prop="stuNo" label="学生学号"></el-table-column>
+        <el-table-column prop="examScore" label="成绩"></el-table-column>
+        <el-table-column>
+          <template slot-scope="scope">
+            <el-button
+              type="primary"
+              icon="el-icon-refresh"
+              @click="updateStuScore(scope.row, scope.$index)"
+              size="mini"
+            ></el-button>
+            <el-button
+              type="danger"
+              icon="el-icon-delete"
+              @click="deleteStuScore(scope.row)"
+              size="mini"
+            ></el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
+
+
   </div>
 </template>
 
@@ -211,6 +298,14 @@ export default {
       examScore: "",
       //更新需要ID
       examScoreId: "",
+      //图例dialog
+      legendDataDialog: false,
+      //柱状图
+      legendBar: {},
+      //分数不及格dialog
+      flunkDataDialog:false,
+      //分数不及格List
+      flunkList:[],
     };
   },
   computed: {
@@ -221,10 +316,6 @@ export default {
   },
   mounted: function () {
     this.getRegistrationList();
-    var that = this;
-    setTimeout(function () {
-      that.getExamInformation();
-    }, 300);
   },
   methods: {
     getRegistrationList: function () {
@@ -236,20 +327,21 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examEntry/record?pageNum&pageSize",
+            url: "/api/examEntry/record?pageNum&pageSize",
           }),
           //考试信息表
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "http://kana.chat:70/examDetail",
+            url: "/api/examDetail",
           }),
         ])
         .then(
           axios.spread(function (fileResponse, examResponse) {
             that.fileList = fileResponse.data.data;
             that.examList = examResponse.data.data;
-            that.pageToatl = fileResponse.data.data.length;
+            that.pageTotal = fileResponse.data.data.length;
+            that.getExamInformation();
           })
         );
     },
@@ -269,23 +361,11 @@ export default {
           }
         }
       });
+      this.loading = false;
     },
 
-    getExamInformation: function () {
-      this.fileList.forEach((item) => {
-        for (var i = 0; i < this.examList.length; i++) {
-          if (item.examDetailId == this.examList[i].examDetailId) {
-            this.$set(
-              item,
-              "examDescription",
-              this.examList[i].examDescription
-            );
-            this.$set(item, "examLocation", this.examList[i].examLocation);
-            this.$set(item, "examStartTime", this.examList[i].examStartTime);
-            this.$set(item, "examEndTime", this.examList[i].examEndTime);
-          }
-        }
-      });
+    handleCurrentChange: function (currentPage) {
+      this.currentPage = currentPage;
     },
 
     getScore: function (row) {
@@ -301,23 +381,21 @@ export default {
                 Authorization: this.print.Authorization,
               },
               method: "get",
-              url: "http://kana.chat:70/users?pageNum&pageSize=1000000",
+              url: "/api/users?pageNum&pageSize=1000000",
             }),
             //获取归档考试报名用户表
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
               url:
-                "http://kana.chat:70/userExamEntry/recordByExam?examEntryId=" +
+                "/api/userExamEntry/recordByExam?examEntryId=" +
                 row.examEntryId,
             }),
             //获取成绩
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
-              url:
-                "http://kana.chat:70/examScore/examDetail?examDetailId=" +
-                row.examDetailId,
+              url: "/api/examScore/examDetail?examDetailId=" + row.examDetailId,
             }),
           ])
           .then(
@@ -338,9 +416,7 @@ export default {
                     axios({
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
-                      url:
-                        "http://kana.chat:70/userInfo?username=" +
-                        that.allUser[i].userName,
+                      url: "/api/userInfo?username=" + that.allUser[i].userName,
                     }).then(function (response) {
                       _that.$set(item, "realName", response.data.data.realName);
                       _that.$set(item, "major", response.data.data.major);
@@ -355,10 +431,11 @@ export default {
                   }
                 }
 
-                if (that.scoreList != null) {
+                if (that.scoreList != null ) {
                   for (var i = 0; i < that.scoreList.length; i++) {
                     if (item.userId == that.scoreList[i].userId) {
                       that.$set(item, "examScore", that.scoreList[i].examScore);
+                      
                       that.$set(
                         item,
                         "examScoreId",
@@ -453,30 +530,31 @@ export default {
 
     setScore() {
       var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-          "content-type": "application/x-www-form-urlencoded",
-        },
-        method: "post",
-        url: "http://kana.chat:70/examScore",
-        params: {
-          examDetailId: this.oneRegForm.examDetailId,
-          examScore: this.examScore,
-          userId: this.oneRegForm.userId,
-          stuNo: this.oneRegForm.stuNo,
-        },
-      }).then(
-        function (response) {
-          //不干任何事
-          console.log(response.data.data);
-        },
-        function (err) {
-          that.$message.error("录入学生成绩失败");
-          //返回上一页
-          that.prev();
-        }
-      );
+      if (this.examScore != "")
+        axios({
+          headers: {
+            Authorization: this.print.Authorization,
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          method: "post",
+          url: "/api/examScore",
+          params: {
+            examDetailId: this.oneRegForm.examDetailId,
+            examScore: this.examScore,
+            userId: this.oneRegForm.userId,
+            stuNo: this.oneRegForm.stuNo,
+          },
+        }).then(
+          function (response) {
+            //不干任何事
+            console.log(response.data.data);
+          },
+          function (err) {
+            that.$message.error("录入学生成绩失败");
+            //返回上一页
+            that.prev();
+          }
+        );
     },
 
     deleteScore: function () {
@@ -484,9 +562,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "http://kana.chat:70/examScore/examDetail?examDetailId=" +
-          this.examDetailId,
+        url: "/api/examScore/examDetail?examDetailId=" + this.examDetailId,
       }).then(
         function (response) {
           that.$message({
@@ -509,7 +585,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url: "http://kana.chat:70/examScore?examScoreId=" + row.examScoreId,
+        url: "/api/examScore?examScoreId=" + row.examScoreId,
       }).then(
         function (response) {
           that.$message({
@@ -545,7 +621,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "put",
-        url: "http://kana.chat:70/examScore",
+        url: "/api/examScore",
         params: {
           examDetailId: this.examDetailId,
           examScore: this.examScore,
@@ -571,6 +647,74 @@ export default {
           that.$message.error("更改学生成绩失败");
         }
       );
+    },
+
+    showLegendBar: function () {
+      this.userListDialog = false;
+      this.legendDataDialog = true;
+      this.legendBar = {
+        title: {
+          text: "分数柱状图",
+        },
+        tooltip: {},
+        legend: {
+          data: ["分数"],
+        },
+        xAxis: {
+          data: ["优秀", "及格", "不及格"],
+        },
+        yAxis: {},
+        //工具栏
+        toolbox: {
+          show: true,
+          feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            magicType: {
+              show: true,
+              type: ["pie", "funnel"],
+            },
+            restore: { show: true },
+            saveAsImage: { show: true },
+          },
+        },
+        series: [
+          {
+            name: "分数",
+            type: "bar",
+            data: [
+              this.allReg.filter((item) => item.examScore >= 90).length,
+              this.allReg.filter(
+                (item) => item.examScore >= 60 && item.examScore < 90
+              ).length,
+              this.allReg.filter((item) => item.examScore < 60).length,
+            ],
+          },
+        ],
+      };
+    },
+
+    getLegendData: function (data) {
+      // this.legendDataDialog = false;
+      // this.flunkDataDialog = true;
+      var that = this;
+      //  for (var i = 0; i < that.allReg.length; i++) {
+      //    if(that.allReg[i].examScore < 60){
+      //    that.flunkList=that.allReg[i];
+      //    }
+      //    console.log(that.flunkList)
+      //  }
+      console.log(data)
+    },
+
+    //防止操作时点击dialog外部
+    dialogClose: function () {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          this.legendDataDialog = false;
+          this.userListDialog = true;
+        })
+        .catch((_) => {});
     },
   },
 };

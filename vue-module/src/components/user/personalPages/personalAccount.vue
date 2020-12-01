@@ -116,7 +116,9 @@
             <el-button class="btn btn-primary" @click="changeIfUpdate"
               >取消更改</el-button
             >
-            <el-button class="btn btn-primary" @click="changeAccount"
+            <el-button
+              class="btn btn-primary"
+              @click="changeAccount('personAccountUpdate')"
               >更改</el-button
             >
           </el-form-item>
@@ -174,7 +176,7 @@ export default {
     var validatePwdConfirm = (rule, value, callback) => {
       if (!checkpwd.test(value)) {
         callback(new Error("密码应是6-20位数字，字母或字符！"));
-      } else if (this.personAccount.password !== value) {
+      } else if (this.personAccountUpdate.password != value) {
         callback(new Error("两次密码不一致"));
       } else {
         callback();
@@ -211,6 +213,8 @@ export default {
       imageId: "",
       //主页轮播图片表单
       fileUpLoadList: [],
+      //获得全部头像，为了小黑
+      allImage: [],
 
       rule: {
         u_fullName: [
@@ -244,7 +248,7 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "http://kana.chat:70/users/single?username=" + this.print.username,
+        url: "/api/users/single?username=" + this.print.username,
       }).then(
         function (reponse) {
           that.personAccount = reponse.data.data;
@@ -261,13 +265,25 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "http://kana.chat:70/image/user?userId=" + this.userId.userId,
+        url: "/api/image/user?userId=" + this.userId.userId,
       }).then(function (response) {
         that.imageFile = response.data.data;
         that.imageFile = that.imageFile.filter((item) => item.tag == "Avatar");
         if (that.imageFile.length == 0) {
           that.haveAvatar = true;
-          that.imageUrl = "";
+          //获得小黑头像
+          var _that = that;
+          axios({
+            method: "get",
+            url: "/api/image/tag?tag=Show",
+          }).then(function (response) {
+            _that.allImage = response.data.data;
+            _that.allImage.forEach((img) => {
+              if (img.imageName == "black") {
+                _that.imageUrl = img.url;
+              }
+            });
+          });
         } else {
           that.haveAvatar = false;
           that.imageUrl = that.imageFile[0].url;
@@ -280,31 +296,39 @@ export default {
       this.personAccountUpdate.u_fullName = this.personAccount.fullName;
     },
 
-    changeAccount: function () {
-      var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-        },
-        method: "put",
-        data: {
-          userName: this.personAccountUpdate.u_userName,
-          fullName: this.personAccountUpdate.u_fullName,
-          password: this.personAccountUpdate.password,
-        },
-        url: "http://kana.chat:70/users",
-      }).then(
-        function (reponse) {
-          that.$message({
-            message: "更改成功",
-            type: "success",
+    changeAccount: function (formName) {
+      this.$refs[formName].validate((valid) => {
+        var that = this;
+        if (this.personAccountUpdate.password != "")
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "put",
+            data: {
+              userName: this.personAccountUpdate.u_userName,
+              fullName: this.personAccountUpdate.u_fullName,
+              password: this.personAccountUpdate.password,
+            },
+            url: "/api/users",
+          }).then(
+            function (reponse) {
+              that.$message({
+                message: "更改成功",
+                type: "success",
+              });
+              that.reload();
+            },
+            function (err) {
+              that.$message.error("更改失败，请重新尝试");
+            }
+          );
+        else
+          this.$message({
+            message: "密码没有输入",
+            type: "warning",
           });
-          that.reload();
-        },
-        function (err) {
-          that.$message.error("更改失败，请重新尝试");
-        }
-      );
+      });
     },
 
     handleRemove(file, fileList) {
@@ -335,11 +359,11 @@ export default {
       var that = this;
       axios
         .all([
-          axios.post("http://kana.chat:70/common/aliyun", param, config),
+          axios.post("/api/common/aliyun", param, config),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "post",
-            url: "http://kana.chat:70/image",
+            url: "/api/image",
             params: {
               imageName: this.fileData.name.slice(
                 0,
@@ -369,12 +393,12 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/image?imageId=" + this.imageId,
+            url: "/api/image?imageId=" + this.imageId,
           }),
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "delete",
-            url: "http://kana.chat:70/common/aliyun?fileurl=" + this.imageUrl,
+            url: "/api/common/aliyun?fileurl=" + this.imageUrl,
           }),
         ])
         .then(

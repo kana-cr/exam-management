@@ -24,28 +24,6 @@
               >主页 <span class="sr-only">(current)</span></router-link
             >
           </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              id="navbarDropdown"
-              role="button"
-              data-toggle="dropdown"
-              aria-haspopup="true"
-              aria-expanded="false"
-            >
-              考试报名
-            </a>
-            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <router-link class="dropdown-item" to="/publicGetExam"
-                >报名中心</router-link
-              >
-              <div class="dropdown-divider"></div>
-              <router-link class="dropdown-item" to="/publicGetTest"
-                >考试频道</router-link
-              >
-            </div>
-          </li>
         </ul>
       </div>
     </nav>
@@ -79,6 +57,7 @@
         </div>
         <div class="form-group">
           <el-checkbox v-model="loginForm.rememberMe">记住我</el-checkbox>
+          <!-- <el-button type="text" @click="authorizeLogin">百度登陆</el-button> -->
         </div>
         <br />
         <div class="form-group">
@@ -150,7 +129,11 @@
         v-if="ifRightCode"
       >
         <el-form-item prop="password" label="密码">
-          <el-input v-model="getPassForm.password"></el-input>
+          <el-input
+            type="password"
+            v-model="getPassForm.password"
+            show-password
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <el-button @click="updatePassword('getPassForm')">修改密码</el-button>
@@ -194,9 +177,21 @@
 
 <script>
 import axios from "axios";
+//本地图片引入
+import localImg1 from "../../assets/localImg1.jpg";
+import localImg2 from "../../assets/localImg2.jpg";
 export default {
   name: "login",
   data() {
+    var checkpwd = /(?!^(\d+|[a-zA-Z]+|[~!@#$%^&*?]+)$)^[\w~!@#$%^&*?]{6,20}$/;
+    var validatePwd = (rule, value, callback) => {
+      if (!checkpwd.test(value)) {
+        callback(new Error("密码应是6-20位数字，字母或字符！"));
+      } else {
+        callback();
+      }
+    };
+
     return {
       //登陆表单
       loginForm: {
@@ -220,6 +215,8 @@ export default {
       time: 60,
       ifGetCode: false,
       ifRightCode: false,
+      //如果邮箱登陆获得username
+      username: "",
 
       rule: {
         username: [
@@ -273,20 +270,40 @@ export default {
       this.$refs["loginForm"].validate((valid) => {
         if (valid) {
           var that = this;
-          axios.post("http://kana.chat:70/auth/login", this.loginForm).then(
+          axios.post("/api/auth/login", this.loginForm).then(
             function (reponse) {
               that.authorization = reponse.headers.authorization;
-              //存到vuex store
-              that.$store.commit("print/setPrint", {
-                Authorization: that.authorization,
-                username: that.loginForm.username,
-              });
+              //判断是否是email，待更新
+              if (that.loginForm.username.indexOf("@") < 0) {
+                //存到vuex store
+                that.$store.commit("print/setPrint", {
+                  Authorization: that.authorization,
+                  username: that.loginForm.username,
+                });
+              } else {
+                var _that = that;
+                axios({
+                  headers: { Authorization: that.authorization },
+                  method: "get",
+                  url: "/api/users/userEmail?email=" + that.loginForm.username,
+                }).then(function (response) {
+                  _that.username = response.data.data.userName;
+                  _that.$store.commit("print/setPrint", {
+                    Authorization: _that.authorization,
+                    username: _that.username,
+                  });
+                });
+              }
+
               that.$message({
                 message: "登陆成功",
                 type: "success",
               });
               that.$router.push({
                 name: "homepage",
+                params: {
+                  rememberMe: that.loginForm.rememberMe,
+                },
               });
             },
             function (err) {
@@ -302,18 +319,14 @@ export default {
     sendEmail(formName) {
       this.$refs[formName].validate((valid) => {
         var that = this;
-        axios
-          .post(
-            "http://kana.chat:70/users/email?email=" + this.getPassForm.email
-          )
-          .then(
-            function (reponse) {
-              that.ifGetCode = true;
-            },
-            function (err) {
-              that.$message.error("查无此账号邮箱");
-            }
-          );
+        axios.post("/api/users/email?email=" + this.getPassForm.email).then(
+          function (reponse) {
+            that.ifGetCode = true;
+          },
+          function (err) {
+            that.$message.error("查无此账号邮箱");
+          }
+        );
 
         //60S后重发验证码
         if (valid) {
@@ -337,22 +350,20 @@ export default {
 
     checkVerifyCode: function () {
       var that = this;
-      axios
-        .get("http://kana.chat:70/users/email?email=" + this.getPassForm.email)
-        .then(
-          function (reponse) {
-            //console.log(reponse.data.data);
-            if (that.getPassForm.verifyCode == reponse.data.data) {
-              that.ifRightCode = true;
-            } else {
-              that.emailDialog = false;
-              that.$message.error("验证码错误！");
-            }
-          },
-          function (err) {
-            that.$message.error("获取指定邮箱验证码失败");
+      axios.get("/api/users/email?email=" + this.getPassForm.email).then(
+        function (reponse) {
+          //console.log(reponse.data.data);
+          if (that.getPassForm.verifyCode == reponse.data.data) {
+            that.ifRightCode = true;
+          } else {
+            that.emailDialog = false;
+            that.$message.error("验证码错误！");
           }
-        );
+        },
+        function (err) {
+          that.$message.error("获取指定邮箱验证码失败");
+        }
+      );
     },
 
     updatePassword: function (formName) {
@@ -360,7 +371,7 @@ export default {
         var that = this;
         axios({
           method: "put",
-          url: "http://kana.chat:70/users/email",
+          url: "/api/users/email",
           params: {
             email: this.getPassForm.email,
             verifyCode: this.getPassForm.verifyCode,
@@ -373,6 +384,7 @@ export default {
               message: "请记住新密码重新登陆",
               type: "success",
             });
+            that.loginForm.username = that.getPassForm.email;
             that.loginForm.password = that.getPassForm.password;
           },
           function (err) {
@@ -387,10 +399,12 @@ export default {
       var that = this;
       axios({
         method: "get",
-        url: "http://kana.chat:70/image/tag?tag=Show",
+        url: "/api/image/tag?tag=Show",
       }).then(
         function (response) {
           that.imageList = response.data.data;
+          if (that.imageList == [])
+            that.imageList = [{ url: localImg1 }, { url: localImg2 }];
         },
         function (err) {
           that.$message.error("获取验证码图片失败");
@@ -435,8 +449,8 @@ export default {
         document.removeEventListener("mouseup", up);
         dom.style.left = "";
         console.log(x, checkx);
-        let max = checkx - 5;
-        let min = checkx - 10;
+        let max = checkx - 2;
+        let min = checkx - 13;
         //允许正负误差1
         if ((max >= x && x >= min) || x === checkx) {
           console.log("滑动解锁成功");
@@ -512,6 +526,13 @@ export default {
       ctx.stroke();
       ctx[type]();
       ctx.globalCompositeOperation = "xor";
+    },
+
+    authorizeLogin: function () {
+      //跳转到授权中间页
+      this.$router.push({
+        name: "authorize",
+      });
     },
   },
 };
