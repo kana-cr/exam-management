@@ -7,32 +7,86 @@
       round
       >取消选择</el-button
     >
-    <el-button
-      type="primary"
-      icon="el-icon-plus"
-      @click="adddialogFormVisible = true"
-      circle
-    ></el-button>
-    <el-button
-      type="danger"
-      icon="el-icon-delete"
-      @click="deleteChannel"
-      circle
-    ></el-button>
-    <el-button
-      type="warning"
-      icon="el-icon-edit"
-      @click="beforeCheck"
-      circle
-    ></el-button>
-    <el-button
-      type="info"
-      icon="el-icon-message"
-      @click="beforeSendMessage"
-      circle
-    ></el-button>
-    <el-button icon="el-icon-search" @click="lookForMessage" circle></el-button>
+    <el-popover
+    popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加频道"
+      close-delay="3"
+    >
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        @click="adddialogFormVisible = true"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
 
+    <el-popover
+    popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="删除频道"
+      close-delay="3"
+    >
+      <el-button
+        type="danger"
+        icon="el-icon-delete"
+        @click="deleteChannel"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+    popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="频道编辑"
+      close-delay="3"
+    >
+      <el-button
+        type="warning"
+        icon="el-icon-edit"
+        @click="beforeCheck"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+        popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="发布消息"
+      close-delay="3"
+    >
+      <el-button
+        type="info"
+        icon="el-icon-message"
+        @click="beforeSendMessage"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+    popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="查看发布消息"
+      close-delay="3"
+    >
+      <el-button
+        icon="el-icon-search"
+        @click="lookForMessage"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
     <!-- 添加频道的dialog -->
     <el-dialog title="频道发布" :visible.sync="adddialogFormVisible">
       <el-form :model="form">
@@ -711,5 +765,9 @@ export default {
   margin-right: 0;
   margin-bottom: 0;
   width: 100%;
+}
+.popoverBGC{
+  opacity: 0.3;
+  text-align: center;
 }
 </style>

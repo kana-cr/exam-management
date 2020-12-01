@@ -120,7 +120,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
 
       //条件检索用数据
       form: {
@@ -149,8 +149,6 @@ export default {
   },
   mounted() {
     this.getLog();
-    var that = this;
-    setTimeout(function () {}, 300);
   },
   methods: {
     getLog: function () {

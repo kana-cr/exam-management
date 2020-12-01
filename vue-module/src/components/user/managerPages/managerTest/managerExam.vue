@@ -7,35 +7,85 @@
       round
       >取消选择</el-button
     >
-    <el-button
-      type="primary"
-      icon="el-icon-plus"
-      @click="adddialogFormVisible = true"
-      circle
-    ></el-button>
-    <el-button
-      type="danger"
-      icon="el-icon-delete"
-      @click="deleteTestType"
-      circle
-    ></el-button>
-    <el-button
-      type="warning"
-      icon="el-icon-edit"
-      @click="beforeCheck"
-      circle
-    ></el-button>
-    <el-button
-      type="info"
-      icon="el-icon-message"
-      @click="beforeSendExamDetail"
-      circle
-    ></el-button>
-    <el-button
-      icon="el-icon-search"
-      @click="searchExamDetail"
-      circle
-    ></el-button>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加考试"
+      close-delay="3"
+    >
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        @click="adddialogFormVisible = true"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="删除考试"
+      close-delay="3"
+    >
+      <el-button
+        type="danger"
+        icon="el-icon-delete"
+        @click="deleteTestType"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="修改考试信息"
+      close-delay="3"
+    >
+      <el-button
+        type="warning"
+        icon="el-icon-edit"
+        @click="beforeCheck"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加考试信息"
+      close-delay="3"
+    >
+      <el-button
+        type="info"
+        icon="el-icon-message"
+        @click="beforeSendExamDetail"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="查看全部考试"
+      close-delay="3"
+    >
+      <el-button
+        icon="el-icon-search"
+        @click="searchExamDetail"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
 
     <!-- 添加考试的dialog -->
     <el-dialog title="添加考试" :visible.sync="adddialogFormVisible">
@@ -747,5 +797,9 @@ export default {
   margin-right: 0;
   margin-bottom: 0;
   width: 100%;
+}
+.popoverBGC{
+  opacity: 0.7;
+  text-align: center;
 }
 </style>
