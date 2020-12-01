@@ -25,6 +25,13 @@ module.exports = {
           '^/baidu': ''
         }
       },
+      '/ip': {
+        target: 'http://ip-api.com/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/ip': ''
+        }
+      },
     },
 
     // Various Dev Server settings

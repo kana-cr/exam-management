@@ -11,7 +11,15 @@
           <el-input v-model="form.userName" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="接口名" :label-width="formLabelWidth">
-          <el-input v-model="form.operationName" autocomplete="off"></el-input>
+          <el-select v-model="form.operationName" placeholder="请选择接口类型">
+            <el-option
+              v-for="item in apiType"
+              :key="item"
+              :label="item"
+              :value="item"
+            >
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="ip地址" :label-width="formLabelWidth">
           <el-input v-model="form.ip" autocomplete="off"></el-input>
@@ -48,11 +56,46 @@
       </div>
     </el-dialog>
 
+    <!-- 查看ip归属地dialog -->
+    <el-dialog
+      title="ip归属地"
+      :visible.sync="ipLocationDialog"
+      :v-loading="iploading"
+    >
+      <table width="100%">
+        <tr>
+          <td width="50%">ip地址</td>
+          <td width="50%">{{ ipData.query }}</td>
+        </tr>
+        <tr>
+          <td width="50%">ip所在国家</td>
+          <td width="50%">{{ ipData.country }}</td>
+        </tr>
+        <tr>
+          <td width="50%">ip所在省份</td>
+          <td width="50%">{{ ipData.regionName }}</td>
+        </tr>
+        <tr>
+          <td width="50%">ip城市所在地</td>
+          <td width="50%">{{ ipData.city }}</td>
+        </tr>
+        <tr>
+          <td width="50%">纬度</td>
+          <td width="50%">{{ ipData.lat }}</td>
+        </tr>
+        <tr>
+          <td width="50%">经度</td>
+          <td width="50%">{{ ipData.lon }}</td>
+        </tr>
+      </table>
+    </el-dialog>
+
     <el-table
       :data="log.slice((currentPage - 1) * pagesize, currentPage * pagesize)"
       style="width: 100%"
       :row-class-name="tableRowClassName"
       v-loading="loading"
+      @row-click="getIpLocation"
     >
       <el-table-column
         type="index"
@@ -140,6 +183,16 @@ export default {
 
       dialogFormVisible: false,
       formLabelWidth: "120px",
+
+      //ip归属地dialog
+      ipLocationDialog: false,
+      //dialog加载条
+      iploading: false,
+      //存放ip归属地信息
+      ipData: {},
+
+      //接口类型数组
+      apiType: [],
     };
   },
   computed: {
@@ -159,11 +212,19 @@ export default {
           Authorization: this.print.Authorization,
         },
         method: "get",
-        url: "/api/log?pageNum=&pageSize=100000",
+        url: "/api/log?pageNum=&pageSize=1000000",
       }).then(
         function (reponse) {
           that.log = reponse.data.data;
-          that.pageTotal = reponse.data.data.length;
+          that.pageTotal = that.log.length;
+
+          //从log获取api类型 各个名称
+          that.log.forEach((item, index) => {
+            that.apiType[index] = item.action;
+          });
+          //数组去重并排序
+          that.apiType = Array.from(new Set(that.apiType)).sort();
+
           that.loading = false;
         },
         function (err) {
@@ -228,6 +289,35 @@ export default {
           that.loading = false;
         }
       );
+    },
+
+    getIpLocation: function (row) {
+      if (row.ip != "-") {
+        var that = this;
+        this.iploading = true;
+        axios({
+          method: "get",
+          url: "/ip/json/" + row.ip,
+        }).then(
+          function (response) {
+            that.iploading = false;
+            if (response.data.status == "success") {
+              that.ipLocationDialog = true;
+              that.ipData = response.data;
+            } else {
+              that.$message.error("查询ip归属地失败");
+            }
+          },
+          function (err) {
+            that.iploading = false;
+            that.$message.error("查询ip归属地失败，请重新尝试");
+          }
+        );
+      } else
+        this.$message({
+          message: "没有ip，无法获取ip归属地",
+          type: "warning",
+        });
     },
   },
 };
