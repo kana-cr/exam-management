@@ -46,15 +46,6 @@
                   v-model="personAccount.email"
               /></el-form-item>
             </div>
-            <div class="form-group">
-              <el-form-item prop="userId"
-                >用户ID
-                <el-input
-                  type="text"
-                  autocomplete="off"
-                  v-model="personAccount.userId"
-              /></el-form-item>
-            </div>
           </fieldset>
           <el-form-item>
             <el-button class="btn btn-primary" @click="changeIfUpdate"
@@ -116,7 +107,9 @@
             <el-button class="btn btn-primary" @click="changeIfUpdate"
               >取消更改</el-button
             >
-            <el-button class="btn btn-primary" @click="changeAccount"
+            <el-button
+              class="btn btn-primary"
+              @click="changeAccount('personAccountUpdate')"
               >更改</el-button
             >
           </el-form-item>
@@ -174,7 +167,7 @@ export default {
     var validatePwdConfirm = (rule, value, callback) => {
       if (!checkpwd.test(value)) {
         callback(new Error("密码应是6-20位数字，字母或字符！"));
-      } else if (this.personAccount.password !== value) {
+      } else if (this.personAccountUpdate.password != value) {
         callback(new Error("两次密码不一致"));
       } else {
         callback();
@@ -277,7 +270,7 @@ export default {
           }).then(function (response) {
             _that.allImage = response.data.data;
             _that.allImage.forEach((img) => {
-              if (img.imageName == "black") {
+              if (img.imageName == "black.") {
                 _that.imageUrl = img.url;
               }
             });
@@ -294,31 +287,39 @@ export default {
       this.personAccountUpdate.u_fullName = this.personAccount.fullName;
     },
 
-    changeAccount: function () {
-      var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-        },
-        method: "put",
-        data: {
-          userName: this.personAccountUpdate.u_userName,
-          fullName: this.personAccountUpdate.u_fullName,
-          password: this.personAccountUpdate.password,
-        },
-        url: "/api/users",
-      }).then(
-        function (reponse) {
-          that.$message({
-            message: "更改成功",
-            type: "success",
+    changeAccount: function (formName) {
+      this.$refs[formName].validate((valid) => {
+        var that = this;
+        if (this.personAccountUpdate.password != "")
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "put",
+            data: {
+              userName: this.personAccountUpdate.u_userName,
+              fullName: this.personAccountUpdate.u_fullName,
+              password: this.personAccountUpdate.password,
+            },
+            url: "/api/users",
+          }).then(
+            function (reponse) {
+              that.$message({
+                message: "更改成功",
+                type: "success",
+              });
+              that.reload();
+            },
+            function (err) {
+              that.$message.error("更改失败，请重新尝试");
+            }
+          );
+        else
+          this.$message({
+            message: "密码没有输入",
+            type: "warning",
           });
-          that.reload();
-        },
-        function (err) {
-          that.$message.error("更改失败，请重新尝试");
-        }
-      );
+      });
     },
 
     handleRemove(file, fileList) {

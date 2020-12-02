@@ -90,7 +90,12 @@
     >
     </el-pagination>
 
-    <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
+    <el-dialog
+      title="报名表"
+      height="500"
+      :visible.sync="userListDialog"
+      v-loading="examLoading"
+    >
       <el-form :inline="true" class="demo-form-inline">
         <el-form-item label="任课教师">
           <el-input v-model="teacher" placeholder="任课教师"></el-input>
@@ -142,7 +147,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
 
       //状态表
       stateOptions: [
@@ -173,6 +178,8 @@ export default {
       locationList: [],
       //显示用户报名表dialog
       userListDialog: false,
+      //报名进度dialog
+      examLoading: false,
       teacher: "",
       examDetailId: "",
       examEntryId: "",
@@ -186,10 +193,6 @@ export default {
   },
   mounted: function () {
     this.getRegistrationList();
-    var that = this;
-    setTimeout(function () {
-      that.getListToge();
-    }, 300);
   },
   methods: {
     getRegistrationList: function () {
@@ -201,7 +204,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "/api/examEntry/all?pageNum&pageSize",
+            url: "/api/examEntry/all?pageNum&pageSize=1000000",
           }),
           //考试信息表
           axios({
@@ -215,8 +218,12 @@ export default {
             that.registrationList = regResponse.data.data;
             that.pageTotal = regResponse.data.data.length;
             that.examList = examResponse.data.data;
+            that.getListToge();
           })
-        );
+        )
+        .catch((err) => {
+          that.$message.error("获取失败");
+        });
     },
 
     getListToge: function () {
@@ -255,9 +262,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url:
-              "/api/userExamEntry/remain?examEntryId=" +
-              item.examEntryId,
+            url: "/api/userExamEntry/remain?examEntryId=" + item.examEntryId,
           }).then(
             function (reponse) {
               that.$set(item, "last", reponse.data.data);
@@ -271,8 +276,7 @@ export default {
             headers: { Authorization: this.print.Authorization },
             method: "get",
             url:
-              "/api/userExamEntry/cache/remain?examEntryId=" +
-              item.examEntryId,
+              "/api/userExamEntry/cache/remain?examEntryId=" + item.examEntryId,
           }).then(
             function (reponse) {
               that.$set(item, "last", reponse.data.data);
@@ -399,6 +403,7 @@ export default {
       var that = this;
       this.userList = [];
       this.userListDialog = true;
+      this.examLoading = true;
       this.examDetailId = row.examDetailId;
       this.examEntryId = row.examEntryId;
       if (row.number < 1000) {
@@ -415,9 +420,7 @@ export default {
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
-              url:
-                "/api/userExamEntry?examEntryId=" +
-                row.examEntryId,
+              url: "/api/userExamEntry?examEntryId=" + row.examEntryId,
             }),
           ])
           .then(
@@ -433,9 +436,7 @@ export default {
                     axios({
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
-                      url:
-                        "/api/userInfo?username=" +
-                        that.allUser[i].userName,
+                      url: "/api/userInfo?username=" + that.allUser[i].userName,
                     }).then(function (reponse) {
                       _that.$set(item, "realName", reponse.data.data.realName);
                       _that.$set(item, "major", reponse.data.data.major);
@@ -466,9 +467,7 @@ export default {
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
-              url:
-                "/api/userExamEntry/cache?examEntryId=" +
-                row.examEntryId,
+              url: "/api/userExamEntry/cache?examEntryId=" + row.examEntryId,
             }),
           ])
           .then(
@@ -484,9 +483,7 @@ export default {
                     axios({
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
-                      url:
-                        "/api/userInfo?username=" +
-                        that.allUser[i].userName,
+                      url: "/api/userInfo?username=" + that.allUser[i].userName,
                     }).then(function (reponse) {
                       _that.$set(item, "realName", reponse.data.data.realName);
                       _that.$set(item, "major", reponse.data.data.major);
@@ -504,8 +501,8 @@ export default {
             })
           );
       }
+      this.examLoading = false;
 
-      console.log(this.examDetailId);
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
@@ -513,30 +510,21 @@ export default {
         params: {
           examDetailId: this.examDetailId,
         },
-      }).then(
-        function (reponse) {
-          console.log(reponse.data.data);
-          that.locationList = reponse.data.data;
-          that.allReg.forEach((item) => {
-            for (var i = 0; i < that.locationList.length; i++) {
-              if (item.userId == that.locationList[i].userId) {
-                that.$set(item, "location", that.locationList[i].location);
-                i = that.locationList.length;
-              }
+      }).then(function (reponse) {
+        that.locationList = reponse.data.data;
+        that.allReg.forEach((item) => {
+          for (var i = 0; i < that.locationList.length; i++) {
+            if (item.userId == that.locationList[i].userId) {
+              that.$set(item, "location", that.locationList[i].location);
+              i = that.locationList.length;
             }
-          });
-        },
-        function (err) {
-          that.allReg.forEach((item) => {
-            that.$set(item, "location", "未安排");
-          });
-        }
-      );
+          }
+        });
+      });
     },
 
     //删除报名信息记录，包含考场
     deleteUserReg: function (row) {
-      console.log(row);
       var that = this;
       axios
         .all([
@@ -571,34 +559,36 @@ export default {
 
     arrangeSeat: function () {
       var that = this;
-      this.allReg.forEach(function (item, index) {
-        var _that = that;
-        setTimeout(function () {
-          axios({
-            headers: { Authorization: _that.print.Authorization },
-            method: "post",
-            url: "/api/examLocation",
-            params: {
-              examDetailId: _that.examDetailId,
-              location: index + 1,
-              userId: item.userId,
-              teacher: _that.teacher,
-              userExamEntryId: item.userExamEntryId,
-            },
-          }).then(
-            function (reponse) {
-              _that.$message({
-                message: "一键安排座位成功，自动刷新后即可查看",
-                type: "success",
-              });
-              _that.reload();
-            },
-            function (err) {
-              _that.$message.error("安排考场失败");
-            }
-          );
-        }, 5000);
-      });
+      if (this.teacher != "")
+        this.allReg.forEach(function (item, index) {
+          var _that = that;
+          setTimeout(function () {
+            axios({
+              headers: { Authorization: _that.print.Authorization },
+              method: "post",
+              url: "/api/examLocation",
+              params: {
+                examDetailId: _that.examDetailId,
+                location: index + 1,
+                userId: item.userId,
+                teacher: _that.teacher,
+                userExamEntryId: item.userExamEntryId,
+              },
+            }).then(
+              function (reponse) {
+                _that.reload();
+              },
+              function (err) {
+                _that.$message.error("安排考场失败");
+              }
+            );
+          }, 5000);
+        });
+      else
+        this.$message({
+          message: "教师姓名未输入",
+          type: "warning",
+        });
     },
   },
 };

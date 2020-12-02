@@ -54,8 +54,13 @@
     >
     </el-pagination>
 
-    <!-- 报名dialog -->
-    <el-dialog title="报名表" height="500" :visible.sync="userListDialog">
+    <!-- 报名表dialog -->
+    <el-dialog
+      title="报名表"
+      height="500"
+      :visible.sync="userListDialog"
+      v-loading=""
+    >
       <el-button type="primary" size="mini" @click="beforeSetScore"
         >录入成绩</el-button
       >
@@ -71,6 +76,9 @@
           >删除全部成绩</el-button
         >
       </el-popconfirm>
+      <el-button type="success" size="mini" @click="showLegendLine"
+        >图例显示</el-button
+      >
       <el-table :data="allReg">
         <el-table-column type="index"></el-table-column>
         <el-table-column prop="realName" label="学生姓名"></el-table-column>
@@ -169,6 +177,15 @@
         <el-button type="primary" @click="updateScore">更新</el-button>
       </div>
     </el-dialog>
+
+    <!-- 图例dialog -->
+    <el-dialog
+      :visible.sync="legendDataDialog"
+      :before-close="dialogClose"
+      width="640px"
+    >
+      <v-chart :options="legendBar" autoresize theme="light"></v-chart>
+    </el-dialog>
   </div>
 </template>
 
@@ -222,6 +239,10 @@ export default {
       examScore: "",
       //更新需要ID
       examScoreId: "",
+      //图例dialog
+      legendDataDialog: false,
+      //柱状图
+      legendBar: {},
     };
   },
   computed: {
@@ -232,10 +253,6 @@ export default {
   },
   mounted: function () {
     this.getRegistrationList();
-    var that = this;
-    setTimeout(function () {
-      that.getExamInformation();
-    }, 300);
   },
   methods: {
     getRegistrationList: function () {
@@ -261,6 +278,7 @@ export default {
             that.fileList = fileResponse.data.data;
             that.examList = examResponse.data.data;
             that.pageTotal = fileResponse.data.data.length;
+            that.getExamInformation();
           })
         );
     },
@@ -314,9 +332,7 @@ export default {
             axios({
               headers: { Authorization: this.print.Authorization },
               method: "get",
-              url:
-                "/api/examScore/examDetail?examDetailId=" +
-                row.examDetailId,
+              url: "/api/examScore/examDetail?examDetailId=" + row.examDetailId,
             }),
           ])
           .then(
@@ -337,9 +353,7 @@ export default {
                     axios({
                       headers: { Authorization: that.print.Authorization },
                       method: "get",
-                      url:
-                        "/api/userInfo?username=" +
-                        that.allUser[i].userName,
+                      url: "/api/userInfo?username=" + that.allUser[i].userName,
                     }).then(function (response) {
                       _that.$set(item, "realName", response.data.data.realName);
                       _that.$set(item, "major", response.data.data.major);
@@ -452,30 +466,31 @@ export default {
 
     setScore() {
       var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-          "content-type": "application/x-www-form-urlencoded",
-        },
-        method: "post",
-        url: "/api/examScore",
-        params: {
-          examDetailId: this.oneRegForm.examDetailId,
-          examScore: this.examScore,
-          userId: this.oneRegForm.userId,
-          stuNo: this.oneRegForm.stuNo,
-        },
-      }).then(
-        function (response) {
-          //不干任何事
-          console.log(response.data.data);
-        },
-        function (err) {
-          that.$message.error("录入学生成绩失败");
-          //返回上一页
-          that.prev();
-        }
-      );
+      if (this.examScore != "")
+        axios({
+          headers: {
+            Authorization: this.print.Authorization,
+            "content-type": "application/x-www-form-urlencoded",
+          },
+          method: "post",
+          url: "/api/examScore",
+          params: {
+            examDetailId: this.oneRegForm.examDetailId,
+            examScore: this.examScore,
+            userId: this.oneRegForm.userId,
+            stuNo: this.oneRegForm.stuNo,
+          },
+        }).then(
+          function (response) {
+            //不干任何事
+            console.log(response.data.data);
+          },
+          function (err) {
+            that.$message.error("录入学生成绩失败");
+            //返回上一页
+            that.prev();
+          }
+        );
     },
 
     deleteScore: function () {
@@ -483,9 +498,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "/api/examScore/examDetail?examDetailId=" +
-          this.examDetailId,
+        url: "/api/examScore/examDetail?examDetailId=" + this.examDetailId,
       }).then(
         function (response) {
           that.$message({
@@ -570,6 +583,61 @@ export default {
           that.$message.error("更改学生成绩失败");
         }
       );
+    },
+
+    showLegendLine: function () {
+      this.userListDialog = false;
+      this.legendDataDialog = true;
+      this.legendBar = {
+        title: {
+          text: "分数柱状图",
+        },
+        tooltip: {},
+        legend: {
+          data: ["分数"],
+        },
+        xAxis: {
+          data: ["优秀", "及格", "不及格"],
+        },
+        yAxis: {},
+        //工具栏
+        toolbox: {
+          show: true,
+          feature: {
+            mark: { show: true },
+            dataView: { show: true, readOnly: false },
+            magicType: {
+              show: true,
+              type: ["pie", "funnel"],
+            },
+            restore: { show: true },
+            saveAsImage: { show: true },
+          },
+        },
+        series: [
+          {
+            name: "分数",
+            type: "bar",
+            data: [
+              this.allReg.filter((item) => item.examScore >= 90).length,
+              this.allReg.filter(
+                (item) => item.examScore >= 60 && item.examScore < 90
+              ).length,
+              this.allReg.filter((item) => item.examScore < 60).length,
+            ],
+          },
+        ],
+      };
+    },
+
+    //防止操作时点击dialog外部
+    dialogClose: function () {
+      this.$confirm("确认关闭？")
+        .then((_) => {
+          this.legendDataDialog = false;
+          this.userListDialog = true;
+        })
+        .catch((_) => {});
     },
   },
 };

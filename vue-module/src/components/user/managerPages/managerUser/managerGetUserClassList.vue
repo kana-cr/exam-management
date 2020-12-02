@@ -18,8 +18,10 @@
       style="width: 100%"
     >
       <el-table-column prop="major" label="院系" sortable> </el-table-column>
-      <el-table-column prop="discipline" label="专业" sortable> </el-table-column>
-      <el-table-column prop="className" label="班级" sortable> </el-table-column>
+      <el-table-column prop="discipline" label="专业" sortable>
+      </el-table-column>
+      <el-table-column prop="className" label="班级" sortable>
+      </el-table-column>
       <el-table-column prop="classNumber" label="人数"> </el-table-column>
       <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
@@ -209,6 +211,8 @@ export default {
             }
           });
           that.pageTotal--;
+          if (that.pageTotal % 10 == 0 && that.currentPage != 1)
+            that.currentPage--;
         },
         function (err) {
           that.$message.error("删除失败");

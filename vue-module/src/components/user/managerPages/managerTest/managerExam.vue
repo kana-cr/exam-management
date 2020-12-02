@@ -7,35 +7,85 @@
       round
       >取消选择</el-button
     >
-    <el-button
-      type="primary"
-      icon="el-icon-plus"
-      @click="adddialogFormVisible = true"
-      circle
-    ></el-button>
-    <el-button
-      type="danger"
-      icon="el-icon-delete"
-      @click="deleteTestType"
-      circle
-    ></el-button>
-    <el-button
-      type="warning"
-      icon="el-icon-edit"
-      @click="beforeCheck"
-      circle
-    ></el-button>
-    <el-button
-      type="info"
-      icon="el-icon-message"
-      @click="beforeSendExamDetail"
-      circle
-    ></el-button>
-    <el-button
-      icon="el-icon-search"
-      @click="searchExamDetail"
-      circle
-    ></el-button>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加考试"
+      :close-delay=3
+    >
+      <el-button
+        type="primary"
+        icon="el-icon-plus"
+        @click="adddialogFormVisible = true"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="删除考试"
+      :close-delay=3
+    >
+      <el-button
+        type="danger"
+        icon="el-icon-delete"
+        @click="deleteTestType"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="修改考试信息"
+      :close-delay=3
+    >
+      <el-button
+        type="warning"
+        icon="el-icon-edit"
+        @click="beforeCheck"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="添加考试信息"
+      :close-delay=3
+    >
+      <el-button
+        type="info"
+        icon="el-icon-message"
+        @click="beforeSendExamDetail"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
+    <el-popover
+      popper-class="popoverBGC"
+      placement="bottom"
+      width="150"
+      trigger="hover"
+      content="查看全部考试"
+      :close-delay=3
+    >
+      <el-button
+        icon="el-icon-search"
+        @click="searchExamDetail"
+        circle
+        slot="reference"
+      ></el-button>
+    </el-popover>
 
     <!-- 添加考试的dialog -->
     <el-dialog title="添加考试" :visible.sync="adddialogFormVisible">
@@ -50,7 +100,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="考试限制" :label-width="formLabelWidth">
-          <el-input v-model="form.examLimit" autocomplete="off"></el-input>
+          <el-input v-model="form.examLimit" autocomplete="off" @keyup.enter.native="addTestType"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -136,6 +186,7 @@
           <el-input
             v-model="examdetail_form.examAnnounce"
             autocomplete="off"
+            @keyup.enter.native="sendExamDetail"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -282,7 +333,7 @@
       </el-table-column>
       <el-table-column prop="examLimit" label="考试限制" align="center">
       </el-table-column>
-      <el-table-column prop="number" label="消息数量" align="center">
+      <el-table-column prop="number" label="考试消息数量" align="center">
       </el-table-column>
     </el-table>
     <el-pagination
@@ -332,7 +383,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
       //选中的数据
       multipleSelection: [],
 
@@ -383,10 +434,6 @@ export default {
   },
   mounted: function () {
     this.getTestType();
-    var that = this;
-    setTimeout(function () {
-      that.getExamDetailNum();
-    }, 300);
   },
   methods: {
     getTestType: function () {
@@ -400,14 +447,15 @@ export default {
         //限制页大小，待改善
         //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
         url: "/api/exam",
-        data: {
+        params: {
           pageNum: 0,
-          pageSize: this.pageTotal,
+          pageSize: 1000000,
         },
       }).then(
-        function (reponse) {
-          that.testList = reponse.data.data;
-          that.pageTotal = reponse.data.data.length;
+        function (response) {
+          that.testList = response.data.data;
+          that.pageTotal = response.data.data.length;
+          that.getExamDetailNum();
         },
         function (err) {
           that.$message.error("获取失败");
@@ -607,7 +655,6 @@ export default {
             type: "success",
           });
           that.sendExamDetailDialog = false;
-          that.reload();
         },
         function (err) {
           that.$message.error("发布失败，请重新尝试");
@@ -727,7 +774,7 @@ export default {
             message: "删除成功",
             type: "success",
           });
-          that.reload();
+          that.detailList.splice(props.$index, 1);
         },
         function (err) {
           that.$message.error("删除失败");
@@ -750,5 +797,9 @@ export default {
   margin-right: 0;
   margin-bottom: 0;
   width: 100%;
+}
+.popoverBGC{
+  opacity: 0.7;
+  text-align: center;
 }
 </style>

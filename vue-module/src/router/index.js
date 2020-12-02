@@ -41,7 +41,9 @@ import homepagemessage from '../components/public/message/homepagemessage'
 /* 登陆注册 */
 import login from '../components/user/login'
 import register from '../components/user/register'
-/* 登陆跳转中间页 */
+/* 登陆跳转中间页
+  url不一致无法做，暂时放弃
+*/
 import authorize from '../components/user/authorize.vue'
 
 // 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
