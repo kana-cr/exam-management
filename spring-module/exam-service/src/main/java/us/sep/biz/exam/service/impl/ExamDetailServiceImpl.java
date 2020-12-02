@@ -60,7 +60,7 @@ public class ExamDetailServiceImpl implements ExamDetailService {
         examDetailDO= examDetailRepo.save(examDetailDO);
         //写入cache
         redisUtil.hPut(EXAM_DETAIL, EXAM_DETAIL_ID + examDetailDO.getExamDetailId() , JSON.toJSONString(examDetailDO));
-        redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamTypeId(),examDetailDO.getId());
+        redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamDetailId(),examDetailDO.getId());
 
         return examDetailDO.ToExamDetailBO();
     }
@@ -87,7 +87,7 @@ public class ExamDetailServiceImpl implements ExamDetailService {
                 for (ExamDetailDO examDetailDO:examDetails) {
                     //写入cache
                     redisUtil.hPut(EXAM_DETAIL, EXAM_DETAIL_ID + examDetailDO.getExamDetailId() , JSON.toJSONString(examDetailDO));
-                    redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamTypeId(),examDetailDO.getId());
+                    redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamDetailId(),examDetailDO.getId());
                 }
                 return examDetails.subList( pageNum * pageSize, ( (pageNum + 1) * pageSize) - 1 ).
                         stream().map(ExamDetailDO::ToExamDetailBO).collect(Collectors.toList());
@@ -178,7 +178,7 @@ public class ExamDetailServiceImpl implements ExamDetailService {
 
         //写入cache
         redisUtil.hPut(EXAM_DETAIL, EXAM_DETAIL_ID + examDetailDO.getExamDetailId() , JSON.toJSONString(examDetailDO));
-        redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamTypeId(),examDetailDO.getId());
+        redisUtil.zAdd(EXAM_DETAIL_PAGE, EXAM_DETAIL_ID + examDetailDO.getExamDetailId(),examDetailDO.getId());
 
           /*Thread.sleep(SLEEP_TIME);
           redisUtil.hDelete(EXAM_DETAIL,EXAM_DETAIL_ID + request.getExamDetailId());
