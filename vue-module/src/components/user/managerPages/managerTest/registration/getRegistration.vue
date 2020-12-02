@@ -147,7 +147,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
 
       //状态表
       stateOptions: [
@@ -204,7 +204,7 @@ export default {
           axios({
             headers: { Authorization: this.print.Authorization },
             method: "get",
-            url: "/api/examEntry/all?pageNum&pageSize",
+            url: "/api/examEntry/all?pageNum&pageSize=1000000",
           }),
           //考试信息表
           axios({
@@ -427,8 +427,6 @@ export default {
             axios.spread(function (userResponse, userEntryReponse) {
               that.allUser = userResponse.data.data;
               that.allReg = userEntryReponse.data.data;
-              console.log(userResponse.data.data);
-              console.log(userEntryReponse.data.data);
               //显示报名人姓名
               that.allReg.forEach((item) => {
                 for (var i = 0; i < that.allUser.length; i++) {

@@ -8,7 +8,7 @@
       >取消选择</el-button
     >
     <el-popover
-    popper-class="popoverBGC"
+      popper-class="popoverBGC"
       placement="bottom"
       width="150"
       trigger="hover"
@@ -25,7 +25,7 @@
     </el-popover>
 
     <el-popover
-    popper-class="popoverBGC"
+      popper-class="popoverBGC"
       placement="bottom"
       width="150"
       trigger="hover"
@@ -41,7 +41,7 @@
       ></el-button>
     </el-popover>
     <el-popover
-    popper-class="popoverBGC"
+      popper-class="popoverBGC"
       placement="bottom"
       width="150"
       trigger="hover"
@@ -57,7 +57,7 @@
       ></el-button>
     </el-popover>
     <el-popover
-        popper-class="popoverBGC"
+      popper-class="popoverBGC"
       placement="bottom"
       width="150"
       trigger="hover"
@@ -73,7 +73,7 @@
       ></el-button>
     </el-popover>
     <el-popover
-    popper-class="popoverBGC"
+      popper-class="popoverBGC"
       placement="bottom"
       width="150"
       trigger="hover"
@@ -93,7 +93,7 @@
         <el-form-item label="频道名称" :label-width="formLabelWidth">
           <el-input v-model="form.channel" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="考试id" :label-width="formLabelWidth">
+        <el-form-item label="考试名称" :label-width="formLabelWidth">
           <el-select v-model="form.examTypeId" placeholder="请选择">
             <el-option
               v-for="item in examTypeList"
@@ -188,7 +188,7 @@
       size="40%"
       v-loading="loading"
     >
-      <el-table :data="selectMessage" height="700">
+      <el-table :data="selectMessage" height="600">
         <el-table-column type="expand">
           <template slot-scope="props">
             <el-form
@@ -252,20 +252,11 @@
       tooltip-effect="dark"
     >
       <el-table-column type="selection" width="50" align="center" />
-      <el-table-column
-        type="index"
-        label="序号"
-        align="center"
-      ></el-table-column>
-      <el-table-column prop="channelId" label="频道id" align="center">
+      <el-table-column type="index" label="序号" align="center">
       </el-table-column>
-      <el-table-column prop="channel" label="频道" align="center">
+      <el-table-column prop="channel" label="频道名称" align="center">
       </el-table-column>
-      <el-table-column
-        prop="examTypeId"
-        label="考试类型id（参考考试列表）"
-        align="center"
-      >
+      <el-table-column prop="number" label="频道消息数量" align="center">
       </el-table-column>
     </el-table>
     <el-pagination
@@ -315,7 +306,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
       //选中的数据
       multipleSelection: [],
 
@@ -354,30 +345,97 @@ export default {
   },
   mounted: function () {
     this.getChannel();
-    this.getAllTestExam();
   },
   methods: {
     getChannel: function () {
       this.loading = true;
       var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-        },
-        method: "get",
-        //限制页大小，待改善
-        //参数 channel：测试频道 channeld：频道id examTypeId 考试类型id
-        url: "/api/channel?pageNum=0&pageSize=" + this.pageTotal,
-      }).then(
-        function (reponse) {
-          that.pageTotal = reponse.data.data.length;
-          that.channelList = reponse.data.data;
-          that.loading = false;
-          that.getAllMessage();
-        },
-        function (err) {
+      axios
+        .all([
+          //获取频道
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            //限制页大小，待改善
+            //参数 channel：测试频道 channeld：频道id examTypeId 考试类型id
+            url: "/api/channel?pageNum=0&pageSize=100000",
+          }),
+          //添加前获取全部examid给表单选择器
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            //限制页大小，待改善
+            //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
+            url: "/api/exam",
+            params: {
+              pageNum: 0,
+              pageSize: 100000,
+            },
+          }),
+          //获取全部消息
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "get",
+            url: "/api/message?pageNum=0&pageSize=100000",
+          }),
+        ])
+        .then(
+          axios.spread(function (
+            channelResponse,
+            examResponse,
+            messageResponse
+          ) {
+            //获取频道后处理
+            that.pageTotal = channelResponse.data.data.length;
+            that.channelList = channelResponse.data.data;
+            //获取考试类型 后处理
+            that.examTypeList = examResponse.data.data;
+            //获取每个频道消息数量
+            that.channelMessageList = messageResponse.data.data;
+            //获取每个频道消息数量
+            that.channelList.forEach((item) => {
+              that.$set(
+                item,
+                "number",
+                that.channelMessageList.filter(
+                  (message) => message.channel == item.channel
+                ).length
+              );
+            });
+
+            that.loading = false;
+          })
+        )
+        .catch((err) => {
           that.$message.error("获取失败");
           that.loading = false;
+        });
+    },
+
+    getAllMessage: function () {
+      var that = this;
+      axios({
+        headers: { Authorization: this.print.Authorization },
+        method: "get",
+        url: "/api/message?pageNum=0&pageSize=100000",
+      }).then(
+        function (response) {
+          that.channelMessageList = response.data.data;
+          //response.data.data.examType 实际上是id
+          for (var i = 0; i < that.channelMessageList.length; i++) {
+            that.examtype = that.examTypeList.find(
+              (examtype) =>
+                examtype.examTypeId == response.data.data[i].examType
+            );
+            that.channelMessageList[i].examType = that.examtype.examTypeName;
+          }
+        },
+        function (err) {
+          that.$message.error("获取失败，请重新尝试");
         }
       );
     },
@@ -401,31 +459,6 @@ export default {
       this.currentPage = currentPage;
     },
 
-    //添加前获取全部examid给表单选择器
-    getAllTestExam: function () {
-      var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-        },
-        method: "get",
-        //限制页大小，待改善
-        //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
-        url: "/api/exam",
-        data: {
-          pageNum: 0,
-          pageSize: 100000,
-        },
-      }).then(
-        function (reponse) {
-          that.examTypeList = reponse.data.data;
-        },
-        function (err) {
-          that.$message.error("获取失败");
-        }
-      );
-    },
-
     addChannel: function () {
       var that = this;
       axios({
@@ -440,7 +473,7 @@ export default {
           examTypeId: this.form.examTypeId,
         },
       }).then(
-        function (reponse) {
+        function (response) {
           that.$message({
             message: "发布成功",
             type: "success",
@@ -471,7 +504,7 @@ export default {
               channelId: this.multipleSelection[i].channelId,
             },
           }).then(
-            function (reponse) {
+            function (response) {
               that.$message({
                 message: "删除成功",
                 type: "success",
@@ -530,7 +563,7 @@ export default {
           },
         ],
       }).then(
-        function (reponse) {
+        function (response) {
           that.$message({
             message: "更改成功",
             type: "success",
@@ -643,29 +676,6 @@ export default {
       );
     },
 
-    getAllMessage: function () {
-      var that = this;
-      axios({
-        headers: { Authorization: this.print.Authorization },
-        method: "get",
-        url: "/api/message?pageNum=0&pageSize=100000",
-      }).then(
-        function (reponse) {
-          that.channelMessageList = reponse.data.data;
-          //reponse.data.data.examType 实际上是id
-          for (var i = 0; i < reponse.data.data.length; i++) {
-            that.examtype = that.examTypeList.find(
-              (examtype) => examtype.examTypeId == reponse.data.data[i].examType
-            );
-            that.channelMessageList[i].examType = that.examtype.examTypeName;
-          }
-        },
-        function (err) {
-          that.$message.error("获取失败，请重新尝试");
-        }
-      );
-    },
-
     lookForMessage: function () {
       this.messageDrawer = true;
       this.loading = true;
@@ -675,6 +685,7 @@ export default {
         this.loading = false;
       } else {
         this.multipleSelection.forEach((item) => {
+          //不一定只是一个，不能filter
           this.channelMessageList.forEach((channel) => {
             if (channel.channel == item.channel)
               this.selectMessage.push(channel);
@@ -706,8 +717,8 @@ export default {
           examDescription: row.row.examDescription,
           ifPublish: publish,
         },
-      }).then(function (reponse) {
-        if (reponse.data.success != false) {
+      }).then(function (response) {
+        if (response.data.success != false) {
           that.$message({
             message: "删除成功",
             type: "success",
@@ -737,8 +748,8 @@ export default {
           examDescription: row.row.examDescription,
           ifPublish: 1,
         },
-      }).then(function (reponse) {
-        if (reponse.data.success != false) {
+      }).then(function (response) {
+        if (response.data.success != false) {
           row.row.ifPublish = true;
           that.$message({
             message: "发布成功",
@@ -766,7 +777,7 @@ export default {
   margin-bottom: 0;
   width: 100%;
 }
-.popoverBGC{
+.popoverBGC {
   opacity: 0.7;
   text-align: center;
 }

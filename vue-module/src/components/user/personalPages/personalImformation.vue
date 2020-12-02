@@ -323,7 +323,7 @@ export default {
           }).then(function (response) {
             _that.allImage = response.data.data;
             _that.allImage.forEach((img) => {
-              if (img.imageName == "black") {
+              if (img.imageName == "black.") {
                 _that.imageUrl = img.url;
               }
             });
@@ -342,23 +342,23 @@ export default {
       this.personInfoUpdate.u_major = this.personInfo.major;
       this.personInfoUpdate.u_className = this.personInfo.className;
       this.personInfoUpdate.u_identificationNumber = this.personInfo.identificationNumber;
+      if (this.personInfoUpdate.u_major != "") this.chooseMajor = true;
+      else this.chooseMajor = false;
 
       //获得专业列表
       var that = this;
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "get",
-        url: "/api/major/all?pageNum&pageSize",
-      }).then(function (reponse) {
-        for (var i = 0; i < reponse.data.data.length; i++) {
+        url: "/api/major/all?pageNum&pageSize=100000",
+      }).then(function (response) {
+        for (var i = 0; i < response.data.data.length; i++) {
           that.majorList[i] = {
-            major: reponse.data.data[i].major,
-            discipline: reponse.data.data[i].discipline,
+            major: response.data.data[i].major,
+            discipline: response.data.data[i].discipline,
           };
         }
         that.majorList = that.unique(that.majorList);
-        //that.majorList = reponse.data.data;
-        console.log(that.majorList);
       });
     },
 
@@ -371,6 +371,7 @@ export default {
     },
 
     getClassList: function (major) {
+      this.personInfoUpdate.u_className = ""
       if (major != "") {
         this.classList = [];
         this.chooseMajor = true;

@@ -211,7 +211,8 @@ export default {
             }
           });
           that.pageTotal--;
-          if (that.pageTotal % 10 == 0) that.currentPage--;
+          if (that.pageTotal % 10 == 0 && that.currentPage != 1)
+            that.currentPage--;
         },
         function (err) {
           that.$message.error("删除失败");

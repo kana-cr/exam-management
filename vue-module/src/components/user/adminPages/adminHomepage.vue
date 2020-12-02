@@ -334,7 +334,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
       //存放消息
       messageList: [],
       //主页消息表单
@@ -565,7 +565,7 @@ export default {
         function (response) {
           that.messageList.splice(index, 1);
           that.pageTotal--;
-          if (index == 0) that.currentPage--;
+          if (index == 0 && that.currentPage!= 1) that.currentPage--;
           that.$message({
             message: "删除成功",
             type: "success",

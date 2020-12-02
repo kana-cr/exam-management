@@ -165,6 +165,7 @@ export default {
             message: "发布报名成功",
             type: "success",
           });
+          that.registrationForm.number = "";
         },
         function (err) {
           that.$message.error("发布报名失败");
@@ -177,9 +178,7 @@ export default {
       axios({
         headers: { Authorization: this.print.Authorization },
         method: "delete",
-        url:
-          "/api/examEntry/examDetail?examDetailId=" +
-          row.examDetailId,
+        url: "/api/examEntry/examDetail?examDetailId=" + row.examDetailId,
       }).then(
         function (reponse) {
           that.$message({

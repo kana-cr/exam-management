@@ -46,15 +46,6 @@
                   v-model="personAccount.email"
               /></el-form-item>
             </div>
-            <div class="form-group">
-              <el-form-item prop="userId"
-                >用户ID
-                <el-input
-                  type="text"
-                  autocomplete="off"
-                  v-model="personAccount.userId"
-              /></el-form-item>
-            </div>
           </fieldset>
           <el-form-item>
             <el-button class="btn btn-primary" @click="changeIfUpdate"
@@ -279,7 +270,7 @@ export default {
           }).then(function (response) {
             _that.allImage = response.data.data;
             _that.allImage.forEach((img) => {
-              if (img.imageName == "black") {
+              if (img.imageName == "black.") {
                 _that.imageUrl = img.url;
               }
             });

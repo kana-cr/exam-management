@@ -100,7 +100,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="考试限制" :label-width="formLabelWidth">
-          <el-input v-model="form.examLimit" autocomplete="off" @keyup.enter="addTestType"></el-input>
+          <el-input v-model="form.examLimit" autocomplete="off" @keyup.enter.native="addTestType"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -186,6 +186,7 @@
           <el-input
             v-model="examdetail_form.examAnnounce"
             autocomplete="off"
+            @keyup.enter.native="sendExamDetail"
           ></el-input>
         </el-form-item>
       </el-form>
@@ -332,7 +333,7 @@
       </el-table-column>
       <el-table-column prop="examLimit" label="考试限制" align="center">
       </el-table-column>
-      <el-table-column prop="number" label="消息数量" align="center">
+      <el-table-column prop="number" label="考试消息数量" align="center">
       </el-table-column>
     </el-table>
     <el-pagination
@@ -654,7 +655,6 @@ export default {
             type: "success",
           });
           that.sendExamDetailDialog = false;
-          that.reload();
         },
         function (err) {
           that.$message.error("发布失败，请重新尝试");
@@ -774,7 +774,7 @@ export default {
             message: "删除成功",
             type: "success",
           });
-          that.reload();
+          that.detailList.splice(props.$index, 1);
         },
         function (err) {
           that.$message.error("删除失败");
