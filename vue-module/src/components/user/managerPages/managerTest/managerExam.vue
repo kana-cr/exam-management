@@ -13,7 +13,7 @@
       width="150"
       trigger="hover"
       content="添加考试"
-      close-delay="3"
+      :close-delay=3
     >
       <el-button
         type="primary"
@@ -29,7 +29,7 @@
       width="150"
       trigger="hover"
       content="删除考试"
-      close-delay="3"
+      :close-delay=3
     >
       <el-button
         type="danger"
@@ -45,7 +45,7 @@
       width="150"
       trigger="hover"
       content="修改考试信息"
-      close-delay="3"
+      :close-delay=3
     >
       <el-button
         type="warning"
@@ -61,7 +61,7 @@
       width="150"
       trigger="hover"
       content="添加考试信息"
-      close-delay="3"
+      :close-delay=3
     >
       <el-button
         type="info"
@@ -77,7 +77,7 @@
       width="150"
       trigger="hover"
       content="查看全部考试"
-      close-delay="3"
+      :close-delay=3
     >
       <el-button
         icon="el-icon-search"
@@ -100,7 +100,7 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="考试限制" :label-width="formLabelWidth">
-          <el-input v-model="form.examLimit" autocomplete="off"></el-input>
+          <el-input v-model="form.examLimit" autocomplete="off" @keyup.enter="addTestType"></el-input>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -382,7 +382,7 @@ export default {
       //每页的数据
       pagesize: 10,
       //数组总数
-      pageTotal: 100000,
+      pageTotal: 0,
       //选中的数据
       multipleSelection: [],
 
@@ -446,14 +446,14 @@ export default {
         //限制页大小，待改善
         //参数 examTypeName:考试类型 examTypeDescription:考试类型描述 examLimit:考试限制
         url: "/api/exam",
-        data: {
+        params: {
           pageNum: 0,
-          pageSize: this.pageTotal,
+          pageSize: 1000000,
         },
       }).then(
-        function (reponse) {
-          that.testList = reponse.data.data;
-          that.pageTotal = reponse.data.data.length;
+        function (response) {
+          that.testList = response.data.data;
+          that.pageTotal = response.data.data.length;
           that.getExamDetailNum();
         },
         function (err) {

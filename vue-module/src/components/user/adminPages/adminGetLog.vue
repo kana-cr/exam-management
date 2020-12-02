@@ -1,6 +1,8 @@
 <template>
   <div>
-    <el-button @click="dialogFormVisible = true" plain>详细查询日志</el-button>
+    <el-button @click="dialogFormVisible = true" :disabled="buttonDisabled"
+      >详细查询日志</el-button
+    >
     <el-dialog
       title="检索条件页面"
       :visible.sync="dialogFormVisible"
@@ -98,11 +100,6 @@
       @row-click="getIpLocation"
     >
       <el-table-column
-        type="index"
-        width="100"
-        align="center"
-      ></el-table-column>
-      <el-table-column
         prop="ip"
         label="ip"
         width="180"
@@ -111,25 +108,25 @@
       <el-table-column
         prop="name"
         label="操作者"
-        width="300"
+        width="150"
         align="center"
       ></el-table-column>
       <el-table-column
         prop="action"
         label="请求接口"
-        width="250"
+        width="300"
         align="center"
       ></el-table-column>
       <el-table-column
         prop="time"
         label="请求时间"
-        width="180"
+        width="120"
         align="center"
       ></el-table-column>
       <el-table-column
         prop="message"
         label="请求结果"
-        width="300"
+        width="320"
         align="center"
       ></el-table-column>
     </el-table>
@@ -164,7 +161,6 @@ export default {
       pagesize: 10,
       //数组总数
       pageTotal: 0,
-
       //条件检索用数据
       form: {
         //操作用户名
@@ -180,19 +176,18 @@ export default {
         //创建时间 格式:yyyy-MM-dd
         createTime: "",
       },
-
       dialogFormVisible: false,
       formLabelWidth: "120px",
-
       //ip归属地dialog
       ipLocationDialog: false,
       //dialog加载条
       iploading: false,
       //存放ip归属地信息
       ipData: {},
-
       //接口类型数组
       apiType: [],
+      //按钮是否可以点击
+      buttonDisabled: true,
     };
   },
   computed: {
@@ -206,6 +201,7 @@ export default {
   methods: {
     getLog: function () {
       this.loading = true;
+      this.buttonDisabled = true;
       var that = this;
       axios({
         headers: {
@@ -217,36 +213,30 @@ export default {
         function (reponse) {
           that.log = reponse.data.data;
           that.pageTotal = that.log.length;
-
           //从log获取api类型 各个名称
           that.log.forEach((item, index) => {
             that.apiType[index] = item.action;
           });
           //数组去重并排序
           that.apiType = Array.from(new Set(that.apiType)).sort();
-
           that.loading = false;
+          that.buttonDisabled = false;
         },
         function (err) {
           that.$message.error("获取日志失败");
           that.loading = false;
+          that.buttonDisabled = false;
         }
       );
     },
-
     //列表颜色
     tableRowClassName: function ({ row, rowIndex }) {
-      if (row.message == "调用成功") {
-        return "success-row";
-      } else if (row.message == "未找到信息") {
-        return "miss-row";
-      } else if (row.message == "无权访问") {
-        return "invalid-row";
-      } else if (row.message == "系统异常") {
-        return "syserror-row";
-      } else if (row.message == "参数异常") {
-        return "error-row";
-      }
+      if (row.message == "调用成功") return "success-row";
+      else if (row.message == "未找到信息") return "miss-row";
+      else if (row.message == "无权访问") return "invalid-row";
+      else if (row.message == "系统异常") return "syserror-row";
+      else if (row.message == "参数异常") return "error-row";
+      else if (row.message.indexOf("注册成功") >= 0) return "new-user";
     },
 
     handleSizeChange: function (size) {
@@ -255,7 +245,6 @@ export default {
     handleCurrentChange: function (currentPage) {
       this.currentPage = currentPage;
     },
-
     searchLog: function () {
       this.loading = true;
       var that = this;
@@ -290,7 +279,6 @@ export default {
         }
       );
     },
-
     getIpLocation: function (row) {
       if (row.ip != "-") {
         var that = this;
@@ -325,22 +313,21 @@ export default {
 
 <style>
 .el-table .invalid-row {
-  background: rgb(189, 155, 155);
+  background: rgba(247, 101, 101, 0.3);
 }
-
 .el-table .success-row {
-  background: rgb(140, 212, 140);
+  background: rgb(255, 255, 255);
 }
-
 .el-table .miss-row {
-  background: rgba(255, 255, 54, 0.911);
+  background: rgba(245, 245, 129, 0.2);
 }
-
 .el-table .syserror-row {
-  background: rgba(206, 39, 81, 0.911);
+  background: rgba(172, 86, 108, 0.3);
 }
-
 .el-table .error-row {
-  background: rgba(206, 39, 192, 0.911);
+  background: rgba(245, 151, 97, 0.3);
+}
+.el-table .new-user {
+  background: rgba(148, 160, 238, 0.3);
 }
 </style>

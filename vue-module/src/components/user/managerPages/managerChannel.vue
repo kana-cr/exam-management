@@ -13,7 +13,7 @@
       width="150"
       trigger="hover"
       content="添加频道"
-      close-delay="3"
+      :close-delay="3"
     >
       <el-button
         type="primary"
@@ -30,7 +30,7 @@
       width="150"
       trigger="hover"
       content="删除频道"
-      close-delay="3"
+      :close-delay="3"
     >
       <el-button
         type="danger"
@@ -46,7 +46,7 @@
       width="150"
       trigger="hover"
       content="频道编辑"
-      close-delay="3"
+      :close-delay="3"
     >
       <el-button
         type="warning"
@@ -62,7 +62,7 @@
       width="150"
       trigger="hover"
       content="发布消息"
-      close-delay="3"
+      :close-delay="3"
     >
       <el-button
         type="info"
@@ -78,7 +78,7 @@
       width="150"
       trigger="hover"
       content="查看发布消息"
-      close-delay="3"
+      :close-delay="3"
     >
       <el-button
         icon="el-icon-search"
@@ -767,7 +767,7 @@ export default {
   width: 100%;
 }
 .popoverBGC{
-  opacity: 0.3;
+  opacity: 0.7;
   text-align: center;
 }
 </style>
