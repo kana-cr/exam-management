@@ -220,7 +220,10 @@ export default {
             that.examList = examResponse.data.data;
             that.getListToge();
           })
-        );
+        )
+        .catch((err) => {
+          that.$message.error("获取失败");
+        });
     },
 
     getListToge: function () {
