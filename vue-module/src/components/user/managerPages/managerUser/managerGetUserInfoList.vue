@@ -154,7 +154,6 @@ export default {
       userData: [],
       //判断是否有数据
       ifHaveDetail: false,
-      u_username: "",
 
       //初始页
       currentPage: 1,
@@ -173,7 +172,14 @@ export default {
       //抽屉相关
       dialog: false,
       loading: false,
-      form: {},
+      form: {
+        userName: "",
+        realName: "",
+        stuNo: "",
+        major: "",
+        className: "",
+        identificationNumber: "",
+      },
       formLabelWidth: "70px",
       timer: null,
 
@@ -181,6 +187,8 @@ export default {
       majorList: [],
       //获得班级列表
       classList: [],
+      //是否有个人信息 0无 1有
+      ifHaveInfo: 0,
     };
   },
   computed: {
@@ -195,23 +203,50 @@ export default {
     getUserInfo: function () {
       this.loading = true;
       var that = this;
-      axios({
-        headers: {
-          Authorization: this.print.Authorization,
-        },
-        method: "get",
-        url: "/api/users?pageNum=0&pageSize=100000",
-      }).then(
-        function (reponse) {
-          //console.log(reponse.data.data);
-          that.userData = reponse.data.data;
-          that.pageTotal = reponse.data.data.length;
-          that.loading = false;
-        },
-        function (err) {
+      axios
+        .all([
+          //获取用户列表
+          axios({
+            headers: {
+              Authorization: this.print.Authorization,
+            },
+            method: "get",
+            url: "/api/users?pageNum=0&pageSize=100000",
+          }),
+          //获取全专业表
+          axios({
+            headers: { Authorization: this.print.Authorization },
+            method: "get",
+            url: "/api/major/all?pageNum&pageSize=100000",
+          }),
+        ])
+        .then(
+          axios.spread(function (userListResponse, majorResponse) {
+            //用户列表处理
+            that.userData = userListResponse.data.data;
+            that.pageTotal = that.userData.length;
+            that.loading = false;
+            //专业表处理
+            for (var i = 0; i < majorResponse.data.data.length; i++) {
+              that.majorList[i] = {
+                major: majorResponse.data.data[i].major,
+                discipline: majorResponse.data.data[i].discipline,
+              };
+            }
+            that.majorList = that.unique(that.majorList);
+          })
+        )
+        .catch((err) => {
           that.loading = false;
           that.$message.error("获取失败");
-        }
+        });
+    },
+
+    //去掉相同项
+    unique(arr) {
+      const res = new Map();
+      return arr.filter(
+        (arr) => !res.has(arr.discipline) && res.set(arr.discipline, 1)
       );
     },
 
@@ -332,8 +367,7 @@ export default {
           this.timer = setTimeout(() => {
             done();
 
-            var arr = Object.keys(this.form);
-            if (arr.length != 5) {
+            if (this.ifHaveInfo == 1) {
               axios({
                 headers: {
                   Authorization: this.print.Authorization,
@@ -366,16 +400,6 @@ export default {
                 }
               );
             } else {
-              this.form["username"] = this.u_username;
-              console.log(this.form.realName);
-              let formdata = {
-                username: this.form.username,
-                realName: this.form.realName,
-                stuNo: this.form.stuNo,
-                major: this.form.major,
-                className: this.form.className,
-                identificationNumber: this.form.identificationNumber,
-              };
               axios({
                 headers: {
                   Authorization: this.print.Authorization,
@@ -383,7 +407,7 @@ export default {
                 },
                 url: "/api/userInfo",
                 method: "post",
-                data: formdata,
+                data: this.form,
                 transformRequest: [
                   function (data) {
                     let ret = "";
@@ -426,65 +450,52 @@ export default {
 
     getFormData: function (row) {
       var that = this;
-      this.form = {};
+      this.form = {
+        username: "",
+        realName: "",
+        stuNo: "",
+        major: "",
+        className: "",
+        identificationNumber: "",
+      };
       this.loading = true;
-      axios
-        .all([
-          //获取用户个人信息
-          axios({
-            headers: {
-              Authorization: this.print.Authorization,
-            },
-            method: "get",
-            url: "/api/userInfo?username=" + row.userName,
-          }),
-          //获取全专业表
-          axios({
-            headers: { Authorization: this.print.Authorization },
-            method: "get",
-            url: "/api/major/all?pageNum&pageSize=100000",
-          }),
-        ])
-        .then(
-          axios.spread(function (infoResponse, majorResponse) {
-            //个人信息结果处理
-            if (infoResponse.data.data != null) {
-              //姓名 学号 专业 班级 身份证
-              that.form.realName = infoResponse.data.data.realName;
-              that.form.stuNo = infoResponse.data.data.stuNo;
-              that.form.major = infoResponse.data.data.major;
-              that.form.className = infoResponse.data.data.className;
-              that.form.identificationNumber =
-                infoResponse.data.data.identificationNumber;
+      axios({
+        headers: {
+          Authorization: this.print.Authorization,
+        },
+        method: "get",
+        url: "/api/userInfo?username=" + row.userName,
+      }).then(
+        function (infoResponse) {
+          //个人信息结果处理
+          if (infoResponse.data.data != null) {
+            //姓名 学号 专业 班级 身份证
+            that.form.realName = infoResponse.data.data.realName;
+            that.form.stuNo = infoResponse.data.data.stuNo;
+            that.form.major = infoResponse.data.data.major;
+            that.form.className = infoResponse.data.data.className;
+            that.form.identificationNumber =
+              infoResponse.data.data.identificationNumber;
 
-              that.form["username"] = row.userName;
-            }
-            //专业表处理
-            console.log(majorResponse.data.data);
-            for (var i = 0; i < majorResponse.data.data.length; i++) {
-              that.majorList[i] = {
-                major: majorResponse.data.data[i].major,
-                discipline: majorResponse.data.data[i].discipline,
-              };
-            }
-            that.majorList = that.unique(that.majorList);
+            that.form.username = row.userName;
+          }
+          that.ifHaveInfo = 1;
 
-            that.loading = false;
-          })
-        )
-        .catch((err) => {
-          that.$message.error("该用户查无信息");
-          that.form = {};
-          that.u_username = row.userName;
           that.loading = false;
-        });
-    },
-
-    //去掉相同项
-    unique(arr) {
-      const res = new Map();
-      return arr.filter(
-        (arr) => !res.has(arr.discipline) && res.set(arr.discipline, 1)
+        },
+        function (err) {
+          that.$message.error("该用户查无信息");
+          that.form = {
+            username: row.userName,
+            realName: "",
+            stuNo: "",
+            major: "",
+            className: "",
+            identificationNumber: "",
+          };
+          that.loading = false;
+          that.ifHaveInfo = 0;
+        }
       );
     },
 
