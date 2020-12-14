@@ -1,10 +1,9 @@
 <template>
   <div>
     <nav
-      class="navbar navbar-expand-lg navbar-light fixed-top"
+      class="navbar navbar-expand-lg navbar-light"
       style="background-color: #e3f2fd"
     >
-      <a class="navbar-brand" href="#">考试管理</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -20,9 +19,35 @@
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <router-link class="nav-link" to="/homepage"
-              >主页 <span class="sr-only">(current)</span></router-link
+            <router-link
+              class="nav-link"
+              to="/homepage"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
             >
+              主页
+            </router-link>
+          </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              其他
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <router-link class="dropdown-item" to="htmlUseInfo"
+                >网站使用须知</router-link
+              >
+            </div>
           </li>
         </ul>
       </div>
@@ -248,6 +273,7 @@ export default {
       puzzle: false,
       //验证码图集， 主页图
       imageList: [],
+      newimageList: [],
     };
   },
   watch: {
@@ -481,11 +507,23 @@ export default {
       blockDom.height = height;
       mainDom.height = height;
 
-      var Arr = this.imageList;
+      // var Arr = this.imageList;
+      let img1 = require("../../assets/1.jpg");
+      let img2 = require("../../assets/2.jpg");
+      let img3 = require("../../assets/3.jpg");
+      let img4 = require("../../assets/4.jpg");
+      let img5 = require("../../assets/5.jpg");
+      let img6 = require("../../assets/6.jpg");
+      let img7 = require("../../assets/7.jpg");
+      let img8 = require("../../assets/8.jpg");
+
+      this.newimageList = [img1, img2, img3, img4, img5, img6, img7, img8];
+      var Arr = this.newimageList;
       var n = Math.floor(Math.random() * Arr.length + 1) - 1;
       let img = document.createElement("img");
       img.style.objectFit = "scale-down";
-      img.src = Arr[n].url;
+      // img.src = Arr[n].url;
+      img.src = Arr[n];
       console.log(n);
       img.onload = function () {
         bg.drawImage(img, 0, 0, width, height);

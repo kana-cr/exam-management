@@ -12,33 +12,46 @@
     <el-container>
       <el-header>
         <el-divider content-position="left"
-          >最新咨询<el-divider direction="vertical"></el-divider>
+          >最新消息<el-divider direction="vertical"></el-divider>
           <el-button @click="getMore" size="mini" type="text"
             >更多 more+</el-button
           >
         </el-divider>
       </el-header>
       <el-main>
-        <el-timeline>
-          <el-timeline-item
-            v-for="(item, index) in fiveMessage"
-            :key="index"
-            :timestamp="item.subData"
-            placement="top"
-            >{{ item.subDate }}<br /><small
-              ><el-tag effect="plain" :type="item.type">{{
-                item.label
-              }}</el-tag></small
-            >
-            <el-card>
-              <h4>
-                {{ item.title }}
-              </h4>
-              <h6>{{ item.text }}</h6>
-              <p>备注：{{ item.note }}</p>
-            </el-card>
-          </el-timeline-item>
-        </el-timeline>
+        <el-tabs
+          v-model="activeName"
+          tab-position="left"
+          @tab-click="handleClick"
+        >
+          <el-tab-pane label="最新消息" name="all"></el-tab-pane>
+          <el-tab-pane
+            v-for="item in dateList"
+            :key="item"
+            :label="item"
+            :name="item"
+          ></el-tab-pane>
+          <el-timeline>
+            <el-timeline-item
+              v-for="(item, index) in selectMessage"
+              :key="index"
+              :timestamp="item.subData"
+              placement="top"
+              >{{ item.subDate }}<br /><small
+                ><el-tag effect="plain" :type="item.type">{{
+                  item.label
+                }}</el-tag></small
+              >
+              <el-card>
+                <h4>
+                  {{ item.title }}
+                </h4>
+                <h6>{{ item.text }}</h6>
+                <p>备注：{{ item.note }}</p>
+              </el-card>
+            </el-timeline-item>
+          </el-timeline>
+        </el-tabs>
       </el-main>
       <el-footer>
         <el-backtop> </el-backtop>
@@ -66,6 +79,12 @@ export default {
       imageList: [],
       //显示图片列表，只要五条
       fiveImage: [],
+      //消息时间列表
+      dateList: [],
+      //选择的消息列表
+      selectMessage: [],
+      //初始全部
+      activeName: "all",
     };
   },
   computed: {
@@ -98,12 +117,17 @@ export default {
             for (var i = 0; i < 5; i++) {
               that.fiveMessage.push(that.messageList.pop());
             }
-            that.fiveMessage.forEach((item) => {
+            that.fiveMessage.forEach((item, index) => {
               if (item.label == "网站相关") that.$set(item, "type", "primary");
               else if (item.label == "考试相关")
                 that.$set(item, "type", "warning");
               else if (item.label == "其他") that.$set(item, "type", "info");
+              //每个日期赋值给dateList
+              that.dateList[index] = item.subDate;
             });
+            that.selectMessage = that.fiveMessage;
+            //去除日期列表重复项
+            that.dateList = that.unique(that.dateList);
             //图片返回处理，如果空，显示本地图片（两张）
             that.imageList = imageResponse.data.data;
             if (that.imageList != [])
@@ -115,8 +139,21 @@ export default {
         );
     },
 
+    unique(date) {
+      const res = new Map();
+      return date.filter((date) => !res.has(date) && res.set(date, 1));
+    },
+
     getMore: function () {
       this.searchMessage();
+    },
+
+    handleClick(tab) {
+      if (tab.name == "all") this.selectMessage = this.fiveMessage;
+      else
+        this.selectMessage = this.fiveMessage.filter(
+          (item) => item.subDate == tab.name
+        );
     },
   },
 };

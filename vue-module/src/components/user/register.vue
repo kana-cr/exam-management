@@ -1,10 +1,9 @@
 <template>
   <div>
     <nav
-      class="navbar navbar-expand-lg navbar-light fixed-top"
+      class="navbar navbar-expand-lg navbar-light"
       style="background-color: #e3f2fd"
     >
-      <a class="navbar-brand" href="#">考试管理</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -16,13 +15,31 @@
       >
         <span class="navbar-toggler-icon"></span>
       </button>
-
+      
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
             <router-link class="nav-link" to="/homepage"
               >主页 <span class="sr-only">(current)</span></router-link
             >
+          </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              其他
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <router-link class="dropdown-item" to="htmlUseInfo"
+                >网站使用须知</router-link
+              >
+            </div>
           </li>
         </ul>
       </div>
@@ -171,27 +188,25 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           var that = this;
-          axios
-            .post("/api/users/sign-up", this.registerForm)
-            .then(
-              function (reponse) {
-                that.$message({
-                  message: "注册成功，请重新登陆",
-                  type: "success",
-                });
-                that.$router.push({
-                  name: "login",
-                  //传输没用上
-                  params: {
-                    username: that.userName,
-                    password: that.password,
-                  },
-                });
-              },
-              function (err) {
-                that.$message.error(err);
-              }
-            );
+          axios.post("/api/users/sign-up", this.registerForm).then(
+            function (reponse) {
+              that.$message({
+                message: "注册成功，请重新登陆",
+                type: "success",
+              });
+              that.$router.push({
+                name: "login",
+                //传输没用上
+                params: {
+                  username: that.userName,
+                  password: that.password,
+                },
+              });
+            },
+            function (err) {
+              that.$message.error(err);
+            }
+          );
         } else {
           return false;
         }
