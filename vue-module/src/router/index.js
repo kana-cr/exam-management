@@ -45,6 +45,8 @@ import register from '../components/user/register'
   url不一致无法做，暂时放弃
 */
 import authorize from '../components/user/authorize.vue'
+/** 其他网站页面 */
+import htmlUseInfo from '../components/public/otherpages/htmlUseInfo'
 
 // 解决ElementUI导航栏中的vue-router在3.0版本以上重复点菜单报错问题
 const originalPush = Router.prototype.push
@@ -204,6 +206,11 @@ const router = new Router({
           path: '/takeinExam',
           name: 'takeinExam',
           component: takeinExam
+        },
+        {
+          path: '/htmlUseInfo',
+          name: 'htmlUseInfo',
+          component: htmlUseInfo
         },
       ]
     },

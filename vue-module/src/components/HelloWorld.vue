@@ -1,10 +1,14 @@
 <template>
-  <div class="hello">
+  <div>
+    <div>
+      <img :src="html_top_imgUrl" style="height: 100%; width: 100%" />
+    </div>
     <nav
-      class="navbar navbar-expand-lg navbar-light fixed-top"
+      class="navbar navbar-expand-lg navbar-light"
       style="background-color: #e3f2fd"
     >
-      <router-link class="navbar-brand" to="">考试管理</router-link>
+      <a class="navbar-link">{{ date | formDate }}</a>
+
       <button
         class="navbar-toggler"
         type="button"
@@ -19,10 +23,17 @@
 
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
-          <li class="nav-item active">
-            <router-link class="nav-link" to="/homepage"
-              >主页 <span class="sr-only">(current)</span></router-link
+          <li class="nav-item">
+            <router-link
+              class="nav-link"
+              to="/homepage"
+              id="navbarDropdown"
+              role="button"
+              aria-haspopup="true"
+              aria-expanded="false"
             >
+              主页
+            </router-link>
           </li>
           <li class="nav-item dropdown" v-if="ifShow">
             <a
@@ -48,7 +59,7 @@
           </li>
           <li class="nav-item dropdown">
             <a
-              class="nav-link dropdown-toggle"
+              class="nav-link"
               href="#"
               id="navbarDropdown"
               role="button"
@@ -93,6 +104,37 @@
               >
             </div>
           </li>
+          <li class="nav-item dropdown">
+            <a
+              class="nav-link"
+              href="#"
+              id="navbarDropdown"
+              role="button"
+              data-toggle="dropdown"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              其他
+            </a>
+            <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <router-link class="dropdown-item" to="/htmlUseInfo"
+                >网站使用须知</router-link
+              >
+            </div>
+          </li>
+          <li class="nav-item">
+            <router-link
+              class="nav-link"
+              to=""
+              id="navbarDropdown"
+              role="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              @click.native="toChinaEdu"
+            >
+              中国教育考试网
+            </router-link>
+          </li>
         </ul>
         <form class="form-inline my-2 my-lg-0">
           <input
@@ -114,6 +156,7 @@
         </form>
       </div>
     </nav>
+
     <div class="to-text-center">
       <router-view></router-view>
     </div>
@@ -126,7 +169,14 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import axios from "axios";
+//主页标题图片
+import html_top_imgUrl from "../assets/html_top.png";
+//homepageMessage子组件注册
 import homepageMessage from "./public/message/homepagemessage";
+//创建一个函数来增加月日时小于10在前面加0
+var padaDate = function (value) {
+  return value < 10 ? "0" + value : value;
+};
 export default {
   inject: ["reload"],
   name: "HelloWorld",
@@ -152,6 +202,10 @@ export default {
       userAvatar: "",
       //获取登陆的remeber，判断cookie存放时间
       rememberMe: this.$route.params.rememberMe,
+      //主页标题图片
+      html_top_imgUrl: html_top_imgUrl,
+      //实时时间
+      date: new Date(),
     };
   },
   computed: {
@@ -168,6 +222,44 @@ export default {
         name: "homepage",
       });
     }
+
+    let _this = this; // 声明一个变量指向Vue实例this，保证作用域一致
+    this.timer = setInterval(() => {
+      _this.date = new Date(); // 修改数据date
+    }, 1000);
+  },
+  beforeDestroy() {
+    if (this.timer) {
+      clearInterval(this.timer); // 在Vue实例销毁前，清除我们的定时器
+    }
+  },
+  filters: {
+    //设置一个函数来进行过滤
+    formDate: function (value) {
+      //创建一个时间日期对象
+      var date = new Date();
+      var year = date.getFullYear(); //存储年
+      var month = padaDate(date.getMonth() + 1); //存储月份
+      var day = padaDate(date.getDate()); //存储日期
+      var hours = padaDate(date.getHours()); //存储时
+      var minutes = padaDate(date.getMinutes()); //存储分
+      var seconds = padaDate(date.getSeconds()); //存储秒
+      //返回格式化后的日期
+      return (
+        year +
+        "年" +
+        month +
+        "月" +
+        day +
+        "日" +
+        hours +
+        "时" +
+        minutes +
+        "分" +
+        seconds +
+        "秒"
+      );
+    },
   },
   created: function () {
     //cookie操作
@@ -340,6 +432,10 @@ export default {
             that.$message.error("获取消息失败");
           }
         );
+    },
+
+    toChinaEdu: function () {
+      window.location.href = "http://www.neea.edu.cn/";
     },
   },
 };
