@@ -37,7 +37,7 @@
           </li>
           <li class="nav-item dropdown" v-if="ifShow">
             <a
-              class="nav-link dropdown-toggle"
+              class="nav-link"
               href="#"
               id="navbarDropdown"
               role="button"

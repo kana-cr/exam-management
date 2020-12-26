@@ -45,7 +45,11 @@
             placeholder="請輸入描述的内容"
           ></el-input>
         </el-form-item>
-        <el-button type="primary" icon="el-icon-circle-plus" @click="addRole"
+        <el-button
+          type="primary"
+          icon="el-icon-circle-plus"
+          @click="addRole"
+          v-if="!ifUpdate"
           >添加角色</el-button
         >
         <el-button
